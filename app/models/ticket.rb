@@ -1,5 +1,18 @@
+# == Schema Information
+#
+# Table name: tickets
+#
+#  id             :bigint           not null, primary key
+#  classification :integer          default("unclassified")
+#  description    :text
+#  status         :integer          default("new")
+#  title          :string
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#
 class Ticket < ApplicationRecord
   ## SCOPES
+  scope :ordered, -> { order(created_at: :desc) }
   ## CONCERNS
   ## CONSTANTS
   ## ATTRIBUTES & RELATED
@@ -14,11 +27,11 @@ class Ticket < ApplicationRecord
   ## CALLBACKS
   ## OTHER
 
-  private
-
   def to_s
     title
   end
+
+  private
 
   ## callback methods
 end

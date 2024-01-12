@@ -3,7 +3,13 @@ class TicketsController < ApplicationController
 
   # GET /tickets or /tickets.json
   def index
-    @tickets = Ticket.all
+    @tickets = Ticket
+    respond_to do |format|
+      format.html do
+        @grouped_tickets = @tickets.ordered.group_by(&:status)
+      end
+      format.json { @tickets = Ticket.ordered }
+    end
   end
 
   # GET /tickets/1 or /tickets/1.json
