@@ -1,0 +1,27 @@
+{
+    "printWidth": 100,
+    "semi": false,
+    "useTabs": false,
+    "trailingComma": "all",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "overrides": [
+        {
+            "files": "*.rb",
+            "options": {
+                "trailingComma": "none",
+                "rubySingleQuote": true
+            }
+        },
+        {
+            "files": "*.js",
+            "options": {
+                "trailingComma": "none"
+            }
+        }
+    ],
+    "plugins": [
+        "@prettier/plugin-ruby",
+        "prettier-plugin-tailwindcss"
+    ]
+}

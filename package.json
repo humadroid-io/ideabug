@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@prettier/plugin-ruby": "^4.0.4",
+    "prettier-plugin-tailwindcss": "^0.6.9"
+  }
+}

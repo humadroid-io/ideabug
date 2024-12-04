@@ -1,0 +1,3 @@
+application.tailwind.css
+app/assets/stylesheets/*.tailwind.css
+db/**/*.rb

@@ -1,0 +1,82 @@
+require:
+  - standard
+  - standard-custom
+  - standard-performance
+  - standard-rails
+  - rubocop-rails
+  - rubocop-capybara
+  - rubocop-factory_bot
+  - rubocop-performance
+
+inherit_gem:
+  standard: config/base.yml
+  standard-performance: config/base.yml
+  standard-custom: config/base.yml
+  standard-rails: config/base.yml
+  rubocop-rails: config/default.yml
+  rubocop-factory_bot: config/default.yml
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+  Exclude:
+    - bin/*
+    - config/**/*
+    - coverage/**/*
+    - db/**/*
+    - doc/**/*
+    - log/**/*
+    - public/**/*
+    - script/**/*
+    - tmp/**/*
+    - vendor/**/*
+    - node_modules/**/*
+    - lib/templates/**/*
+
+Style/Documentation:
+  Exclude:
+    - app/api/**/*
+    - app/controllers/**/*
+    - app/helpers/**/*
+    - app/mailers/**/*
+    - app/uploaders/**/*
+    - app/notifications/**/*
+    - db/**/*
+    - 'test/**/*'
+
+Lint/RescueException:
+  Exclude:
+    - 'lib/tasks/*.rake'
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - 'test/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'db/migrate/**/*'
+    - 'config/**/*'
+    - 'test/**/*'
+    - '**/*.rake'
+
+Metrics/ClassLength:
+  Exclude:
+    - 'test/**/*'
+
+Layout/LineLength:
+  Max: 100
+  Exclude:
+    - 'test/**/*'
+    - 'Gemfile'
+
+Metrics/AbcSize:
+  Exclude:
+    - 'db/migrate/**/*'
+
+Style/MethodCalledOnDoEndBlock:
+  Enabled: true
+  Exclude:
+    - 'test/**/*'
+
+Rails/I18nLocaleTexts:
+  Enabled: true
