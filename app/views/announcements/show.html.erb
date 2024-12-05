@@ -1,0 +1,35 @@
+<div class="max-w-6xl mx-auto px-4">
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-medium text-gray-900">Announcement Details</h2>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to "Edit", edit_announcement_path(@announcement),
+      class: "px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-50" %>
+      <%= link_to "Back", announcements_path,
+      class: "text-gray-600 hover:text-gray-800" %>
+    </div>
+  </div>
+  <div class="bg-white border rounded-md">
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+          <div>
+            <div class="text-sm font-medium text-gray-500 mb-1">Title</div>
+            <div class="text-gray-900"><%= @announcement.title %></div>
+          </div>
+        
+          <div>
+            <div class="text-sm font-medium text-gray-500 mb-1">Preview</div>
+            <div class="text-gray-900"><%= @announcement.preview %></div>
+          </div>
+        
+          <div>
+            <div class="text-sm font-medium text-gray-500 mb-1">Content</div>
+            <div class="text-gray-900"><%= @announcement.content %></div>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
