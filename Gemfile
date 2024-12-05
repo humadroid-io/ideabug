@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby File.read(".ruby-version").chomp.gsub("ruby-", "")
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.2"
+gem "rails", "~> 8.0.0"
 gem "rack-cors"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
@@ -55,7 +55,7 @@ group :development, :test do
 end
 
 group :development do
-  gem "annotate"
+  gem "annotate", github: "mlitwiniuk/annotate_models", branch: "develop"
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
