@@ -6,14 +6,18 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
-
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <main class="container mx-auto mt-6 px-5 flex">
       <%= yield %>
     </main>
+    <footer class="bg-white">
+      <div class="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
+        <p class="mt-8 text-center text-sm/6 text-gray-600 md:order-1 md:mt-0">Crafted with ❤️ by guys from <a href="https://humadroid.io/" alt="Smart HRMS for smart business owners">humadroid.io</a> in beautiful city of Poznań 
+          🇵🇱</p>
+      </div>
+    </footer>
   </body>
 </html>
