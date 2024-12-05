@@ -1,0 +1,200 @@
+///* vim: set filetype=javascript : */
+// notification-bundle.js
+(function() {
+  // Inject required CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    .ideabug-notification-bell { position: relative; display: inline-block; cursor: pointer; padding: 8px; }
+    .ideabug-notification-badge { position: absolute; top: -5px; right: -5px; background: #ff4444; color: white; 
+      border-radius: 50%; padding: 2px 6px; font-size: 12px; min-width: 18px; text-align: center; display: none; }
+    .ideabug-notification-dropdown { display: none; position: absolute; top: 100%; left: 0; width: 300px; 
+      background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+      max-height: 400px; overflow-y: auto; z-index: 9999; }
+    .ideabug-notification-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .ideabug-notification-item:hover { background: #f5f5f5; }
+    .ideabug-notification-item.unread { background: #f0f7ff; }
+    .ideabug-notification-title { font-weight: bold; margin-bottom: 4px; }
+    .ideabug-notification-preview { font-size: 0.9em; color: #666; }
+    .ideabug-notification-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.5); z-index: 10000; }
+    .ideabug-modal-content { position: relative; background: white; margin: 10% auto; padding: 20px; 
+      width: 80%; max-width: 600px; border-radius: 4px; }
+    .ideabug-close-button { position: absolute; right: 10px; top: 10px; font-size: 24px; cursor: pointer; }
+  `;
+  document.head.appendChild(style);
+
+  class IdeabugNotifications {
+    constructor(config) {
+      if (!config || !config.apiEndpoint || !config.targetElement || !config.jwt) {
+        throw new Error('Required configuration missing');
+      }
+
+      this.config = {
+        apiEndpoint: config.apiEndpoint,
+        jwt: config.jwt,
+        pollInterval: config.pollInterval || 30000
+      };
+
+      this.targetElement = 
+        typeof config.targetElement === 'string' 
+          ? document.querySelector(config.targetElement) 
+          : config.targetElement;
+
+      if (!this.targetElement) {
+        throw new Error('Target element not found');
+      }
+
+      this.notifications = [];
+      this.init();
+    }
+
+    init() {
+      this.renderBell();
+      this.startPolling();
+      this.setupGlobalListeners();
+    }
+
+    renderBell() {
+      const bell = document.createElement('div');
+      bell.className = 'ideabug-notification-bell';
+      bell.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="ideabug-notification-badge"></span>
+        <div class="ideabug-notification-dropdown"></div>
+      `;
+
+      this.targetElement.appendChild(bell);
+      this.createModal();
+    }
+
+    createModal() {
+      const modal = document.createElement('div');
+      modal.className = 'ideabug-notification-modal';
+      modal.innerHTML = `
+        <div class="ideabug-modal-content">
+          <span class="ideabug-close-button">&times;</span>
+          <div class="ideabug-modal-body"></div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    async fetchNotifications() {
+      try {
+        const response = await fetch(this.config.apiEndpoint, {
+          headers: {
+            'Authorization': `Bearer ${this.config.jwt()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch notifications');
+        
+        this.notifications = await response.json();
+        this.updateUI();
+      } catch (error) {
+        console.error('Ideabug notifications error:', error);
+      }
+    }
+
+    updateUI() {
+      const unreadCount = this.notifications.filter(n => !n.read).length;
+      const badge = this.targetElement.querySelector('.ideabug-notification-badge');
+      const dropdown = this.targetElement.querySelector('.ideabug-notification-dropdown');
+
+      // Update badge
+      badge.textContent = unreadCount;
+      badge.style.display = unreadCount > 0 ? 'block' : 'none';
+
+      // Update dropdown
+      dropdown.innerHTML = this.notifications.length 
+        ? this.notifications.map(n => `
+            <div class="ideabug-notification-item ${n.read ? '' : 'unread'}" data-id="${n.id}">
+              <div class="ideabug-notification-title">${n.title}</div>
+              <div class="ideabug-notification-preview">${n.preview}</div>
+            </div>
+          `).join('')
+        : '<div class="ideabug-notification-item">No notifications</div>';
+    }
+
+    setupGlobalListeners() {
+      // Bell click
+      this.targetElement.querySelector('.ideabug-notification-bell').addEventListener('click', (e) => {
+        const dropdown = this.targetElement.querySelector('.ideabug-notification-dropdown');
+        console.log(dropdown.style.display);
+        dropdown.style.display = (!dropdown.style.display || dropdown.style.display === 'none') ? 'block' : 'none';
+        if(dropdown.style.display === 'block'){
+          e.stopPropagation();
+        }
+      });
+
+      // Notification item click
+      this.targetElement.addEventListener('click', (e) => {
+        const item = e.target.closest('.ideabug-notification-item');
+        if (item && item.dataset.id) {
+          this.showNotificationDetails(item.dataset.id);
+        }
+      });
+
+      // Close modal
+      document.querySelector('.ideabug-notification-modal').addEventListener('click', (e) => {
+        if (e.target.matches('.ideabug-notification-modal, .ideabug-close-button')) {
+          document.querySelector('.ideabug-notification-modal').style.display = 'none';
+        }
+      });
+
+      // Close dropdown on outside click
+      document.addEventListener('click', () => {
+        this.targetElement.querySelector('.ideabug-notification-dropdown').style.display = 'none';
+      });
+    }
+
+    showNotificationDetails(id) {
+      const notification = this.notifications.find(n => n.id === parseInt(id))
+      if (!notification) return;
+
+      const modal = document.querySelector('.ideabug-notification-modal');
+      const modalBody = modal.querySelector('.ideabug-modal-body');
+      
+      modalBody.innerHTML = `
+        <h2>${notification.title}</h2>
+        <div>${notification.content}</div>
+      `;
+      
+      modal.style.display = 'block';
+      this.markAsRead(id);
+    }
+
+    async markAsRead(id) {
+      try {
+        await fetch(`${this.config.apiEndpoint}/${id}/read`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.config.jwt()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const notification = this.notifications.find(n => n.id === id);
+        if (notification) {
+          notification.read = true;
+          this.updateUI();
+        }
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+      }
+    }
+
+    startPolling() {
+      this.fetchNotifications();
+      setInterval(() => this.fetchNotifications(), this.config.pollInterval);
+    }
+  }
+
+  // Expose to global scope
+  window.IdeabugNotifications = IdeabugNotifications;
+})();
+
