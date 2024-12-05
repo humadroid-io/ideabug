@@ -1,7 +1,10 @@
 class WelcomeController < ApplicationController
+  allow_unauthenticated_access only: %i[home script]
   protect_from_forgery except: :script
   layout "public"
+
   def home
+    redirect_to dashboard_path if authenticated?
   end
 
   def script

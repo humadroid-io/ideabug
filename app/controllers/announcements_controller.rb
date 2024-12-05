@@ -1,4 +1,6 @@
 class AnnouncementsController < ApplicationController
+  allow_unauthenticated_access if: proc { |c| c.action_name == "index" && request.format.json? }
+
   before_action :set_announcement, only: %i[show edit update destroy]
 
   # GET /announcements or /announcements.json

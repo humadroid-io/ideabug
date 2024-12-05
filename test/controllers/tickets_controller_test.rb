@@ -5,6 +5,14 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     @ticket = create(:ticket)
+    @user = create(:user)  # Assuming you have a user factory
+    sign_in_as(@user)
+  end
+
+  test "should redirect to sign in when not authenticated" do
+    sign_out
+    get tickets_url
+    assert_redirected_to new_session_url
   end
 
   test "should get index" do

@@ -12,23 +12,19 @@
   </div>
   <div class="bg-white border rounded-md">
     <div class="p-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-          <div>
-            <div class="text-sm font-medium text-gray-500 mb-1">Title</div>
-            <div class="text-gray-900"><%= @announcement.title %></div>
-          </div>
-        
-          <div>
-            <div class="text-sm font-medium text-gray-500 mb-1">Preview</div>
-            <div class="text-gray-900"><%= @announcement.preview %></div>
-          </div>
-        
-          <div>
-            <div class="text-sm font-medium text-gray-500 mb-1">Content</div>
-            <div class="text-gray-900"><%= @announcement.content %></div>
-          </div>
-        
+      <div class="grid grid-cols-1 gap-6">
+        <div>
+          <div class="text-sm font-medium text-gray-500 mb-1">Title</div>
+          <div class="text-gray-900"><%= @announcement.title %></div>
+        </div>
+        <div>
+          <div class="text-sm font-medium text-gray-500 mb-1">Preview</div>
+          <div class="text-gray-900"><%= @announcement.preview %></div>
+        </div>
+        <div>
+          <div class="text-sm font-medium text-gray-500 mb-1">Content</div>
+          <div class="text-gray-900"><%= @announcement.content %></div>
+        </div>
       </div>
     </div>
   </div>

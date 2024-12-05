@@ -17,6 +17,20 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
         preview: "Test Preview"
       }
     }
+    @user = create(:user)  # Assuming you have a user factory
+    sign_in_as(@user)
+  end
+
+  test "should redirect to sign in when not authenticated" do
+    sign_out
+    get announcements_url
+    assert_redirected_to new_session_url
+  end
+
+  test "should get list of announcements when calling json" do
+    sign_out
+    get announcements_url(format: :json)
+    assert_response :success
   end
 
   context "GET #index" do
