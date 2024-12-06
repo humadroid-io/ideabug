@@ -1,13 +1,12 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## THIS IS SILL ROUGH WORK IN PROGRESS!
 
-Things you may want to cover:
+Self-hosted embedable widget to communicate announcements (like product updates) and allow user to report bugs or suggest features
 
-* Ruby version
+![ideabug screenshot from humadroid.io](https://humadroid-static-assets.s3.amazonaws.com/other/shot%202024-12-06%20at%2021.14.21%20RNarrZzC.png)
 
-* System dependencies
+Full documentation / readme - later.
 
 * Configuration
   - Generate pair of private and public keys using following command:
