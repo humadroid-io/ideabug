@@ -1,33 +1,38 @@
-<%= form_with(model: ticket, class: "contents") do |form| %>
-  <% if ticket.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-      <h2><%= pluralize(ticket.errors.count, "error") %> prohibited this ticket from being saved:</h2>
-      <ul>
-        <% ticket.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+<div class="container max-w-2xl mx-auto p-4">
+  <%= form_with(model: ticket, class: "contents") do |form| %>
+    <% if ticket.errors.any? %>
+      <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+        <h2><%= pluralize(ticket.errors.count, "error") %> prohibited this ticket from being saved:</h2>
+        <ul>
+          <% ticket.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <div class="space-y-4">
+      <div class="form-control w-full">
+        <%= form.label :title, class: "label" %>
+        <%= form.text_field :title, class: "input input-bordered w-full" %>
+      </div>
+      <div class="form-control w-full">
+        <%= form.label :description, class: "label" %>
+        <%= form.text_area :description, rows: 4, class: "input input-bordered w-full" %>
+      </div>
+      <% if form.object.persisted? %>
+        <div class="form-control w-full">
+          <%= form.label :status, class: "label" %>
+          <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered" %>
+        </div>
+      <% end %>
+      <div class="form-control w-full">
+        <%= form.label :classification, class: "label" %>
+        <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered" %>
+      </div>
+      <div class="mt-8 flex justify-end gap-2">
+        <%= link_to "Cancel", ticket.persisted? ?  ticket : tickets_path, class: "btn btn-ghost" %>
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
     </div>
   <% end %>
-  <div class="my-5">
-    <%= form.label :title %>
-    <%= form.text_field :title, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-  <div class="my-5">
-    <%= form.label :description %>
-    <%= form.text_area :description, rows: 4, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-  <% if form.object.persisted? %>
-    <div class="my-5">
-      <%= form.label :status %>
-      <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-    </div>
-  <% end %>
-  <div class="my-5">
-    <%= form.label :classification %>
-    <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
-  </div>
-  <div class="inline">
-    <%= form.submit class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer" %>
-  </div>
-<% end %>
+</div>

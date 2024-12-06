@@ -1,49 +1,46 @@
-<div class="px-4 w-full">
-  <div class="mb-6 flex items-center justify-between">
-    <div>
-      <h2 class="text-2xl font-medium text-gray-900">Announcements</h2>
-    </div>
-    <div>
-      <%= link_to new_announcement_path, class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M12 5v14m-7-7h14"/></svg>
-        New Announcement
+<div class="w-full">
+  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
+    <h3 class="text-base font-semibold leading-6 text-gray-900">Announcements</h3>
+    <%= link_to new_announcement_path, class: "btn btn-primary btn-sm" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
+      New Announcement
+    <% end %>
+  </div>
+</div>
+<div class="">
+  <table class="table table-zebra w-full">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Preview</th>
+        <th class="w-20"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @announcements.each do |announcement| %>
+        <tr>
+          <td><%= link_to announcement.title, announcement %></td>
+          <td><%= announcement.preview %></td>
+          <td>
+            <div class="flex justify-end gap-1">
+              <div class="dropdown dropdown-left">
+                <button class="btn btn-ghost btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
+                </button>
+                <ul class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box">
+                  <li><%= link_to "View", announcement %></li>
+                  <li><%= link_to "Edit", edit_announcement_path(announcement) %></li>
+                  <li>
+                    <%= link_to "Delete", announcement,
+                  class: "text-error",
+                  data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </td>
+        </tr>
       <% end %>
-    </div>
-  </div>
-  <div class="bg-white border rounded-md">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead>
-          <tr class="border-b bg-gray-50">
-            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Title</th>
-            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Preview</th>
-            <th class="w-20"></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y">
-          <% @announcements.each do |announcement| %>
-            <tr class="hover:bg-gray-50">
-              <td class="px-4 py-3 text-sm text-gray-600"><%= announcement.title %></td>
-              <td class="px-4 py-3 text-sm text-gray-600"><%= announcement.preview %></td>
-              <td class="px-4 py-3">
-                <div class="flex justify-end gap-2">
-                  <%= link_to announcement, class: "text-gray-400 hover:text-gray-600" do %>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M10 12a2 2 0 104 0 2 2 0 00-4 0"/><path d="M21 12c-2.4 4-5.4 6-9 6-3.6 0-6.6-2-9-6 2.4-4 5.4-6 9-6 3.6 0 6.6 2 9 6"/></svg>
-                  <% end %>
-                  <%= link_to edit_announcement_path(announcement), class: "text-gray-400 hover:text-gray-600" do %>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M7 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1 0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/></svg>
-                  <% end %>
-                  <%= link_to announcement,
-                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
-                class: "text-gray-400 hover:text-red-600" do %>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
-                  <% end %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
+    </tbody>
+  </table>
 </div>

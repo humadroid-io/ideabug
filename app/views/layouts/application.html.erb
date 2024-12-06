@@ -10,14 +10,94 @@
     <%= javascript_importmap_tags %>
   </head>
   <body>
-    <main class="container mx-auto mt-6 px-5 flex">
+    <div class="fixed top-0 z-50 container mx-auto inset-x-0 px-5">
+      <div class="navbar bg-base-100">
+        <div class="navbar-start">
+          <div class="dropdown">
+            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h8m-8 6h16" />
+              </svg>
+            </div>
+            <ul
+              tabindex="0"
+              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                <li><%= link_to "Announcements", announcements_path %></li>
+              <!-- <li>
+                <a>Parent</a>
+                <ul class="p-2">
+                  <li><a>Submenu 1</a></li>
+                  <li><a>Submenu 2</a></li>
+                </ul>
+              </li> -->
+              <li>
+                            <%= link_to tickets_path do %>
+                            Tickets
+                            <div class="badge badge-ghost">WIP</div>
+                            <% end %>
+                          </li>
+            </ul>
+          </div>
+          <%= link_to "ideabug", dashboard_path, class: "btn btn-ghost text-xl" %>
+        </div>
+        <div class="navbar-center hidden lg:flex">
+          <ul class="menu menu-horizontal px-1">
+            <li><%= link_to "Announcements", announcements_path %></li>
+            <!-- <li>
+              <details>
+                <summary>Parent</summary>
+                <ul class="p-2">
+                  <li><a>Submenu 1</a></li>
+                  <li><a>Submenu 2</a></li>
+                </ul>
+              </details>
+            </li> -->
+            <li>
+              <%= link_to tickets_path do %>
+              Tickets
+              <div class="badge badge-ghost">WIP</div>
+              <% end %>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-end">
+          <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                  <div class="w-10 rounded-full">
+                    <%= avatar_image_tag Current.session.user %>
+                  </div>
+                </div>
+                <ul
+                  tabindex="0"
+                  class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+
+                  <li><%= button_to "Logout", session_path, method: :delete  %></li>
+                </ul>
+              </div>
+        </div>
+      </div>
+    </div>
+    <main class="container mx-auto mt-20 px-5 flex flex-col">
+      <% if notice.present? %>
+        <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+      <% end %>
       <%= yield %>
     </main>
-    <footer class="bg-white">
-      <div class="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
-        <p class="mt-8 text-center text-sm/6 text-gray-600 md:order-1 md:mt-0">Crafted with ❤️ by guys from <a href="https://humadroid.io/" alt="Smart HRMS for smart business owners">humadroid.io</a> in beautiful city of Poznań 
+    <footer class="footer footer-center text-base-content p-4 mt-20">
+      <aside>
+        <p>Crafted with ❤️ by guys from <a href="https://humadroid.io/" alt="Smart HRMS for smart business owners">humadroid.io</a> in beautiful city of Poznań
           🇵🇱</p>
-      </div>
+      </aside>
     </footer>
+
   </body>
 </html>

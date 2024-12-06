@@ -4,7 +4,7 @@ class WelcomeController < ApplicationController
   layout "public"
 
   def home
-    redirect_to dashboard_path if authenticated?
+    redirect_to dashboard_path
   end
 
   def script

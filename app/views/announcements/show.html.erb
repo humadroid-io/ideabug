@@ -1,29 +1,30 @@
-<div class="max-w-6xl mx-auto px-4">
-  <div class="mb-6 flex items-center justify-between">
-    <div>
-      <h2 class="text-2xl font-medium text-gray-900">Announcement Details</h2>
-    </div>
-    <div class="flex gap-3">
-      <%= link_to "Edit", edit_announcement_path(@announcement),
-      class: "px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-50" %>
-      <%= link_to "Back", announcements_path,
-      class: "text-gray-600 hover:text-gray-800" %>
+<div class="w-full">
+  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
+    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Announcements", :announcements %> &raquo; <%= @announcement.to_s %></h3>
+    <div class="flex gap-2">
+      <%= link_to "Delete", @announcement,
+      class: "btn btn-sm btn-ghost",
+      data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+      <%= link_to "Edit", edit_announcement_path(@announcement), class: "btn btn-sm" %>
+      <%= link_to "Back", announcements_path, class: "btn btn-ghost btn-sm" %>
     </div>
   </div>
-  <div class="bg-white border rounded-md">
-    <div class="p-6">
-      <div class="grid grid-cols-1 gap-6">
+</div>
+<div class="container max-w-3xl mx-auto p-4">
+  <div class="card bg-base-100">
+    <div class="card-body">
+      <div class="grid grid-cols-1 gap-4">
         <div>
-          <div class="text-sm font-medium text-gray-500 mb-1">Title</div>
-          <div class="text-gray-900"><%= @announcement.title %></div>
+          <label class="text-sm opacity-70">Title</label>
+          <div class="mt-1"><%= @announcement.title %></div>
         </div>
         <div>
-          <div class="text-sm font-medium text-gray-500 mb-1">Preview</div>
-          <div class="text-gray-900"><%= @announcement.preview %></div>
+          <label class="text-sm opacity-70">Preview</label>
+          <div class="mt-1"><%= @announcement.preview %></div>
         </div>
         <div>
-          <div class="text-sm font-medium text-gray-500 mb-1">Content</div>
-          <div class="text-gray-900"><%= @announcement.content %></div>
+          <label class="text-sm opacity-70">Content</label>
+          <div class="mt-1"><%= @announcement.content %></div>
         </div>
       </div>
     </div>

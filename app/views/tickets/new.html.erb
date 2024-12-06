@@ -1,7 +1,11 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">New ticket</h1>
-
+<div class="w-full">
+  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
+    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Tickets", :tickets %> &raquo; New Announcement</h3>
+    <div class="flex gap-2">
+      <%= link_to "Back", :tickets, class: "btn btn-ghost btn-sm" %>
+    </div>
+  </div>
+</div>
+<div class="container max-w-2xl mx-auto p-4">
   <%= render "form", ticket: @ticket %>
-
-  <%= link_to "Back to tickets", tickets_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
 </div>
