@@ -1,0 +1,27 @@
+<div class="w-full">
+  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
+    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Contacts", :contacts %> &raquo; <%= @contact.to_s %></h3>
+    <div class="flex gap-2">
+      <%= link_to "Delete", @contact,
+      class: "btn btn-sm btn-ghost",
+      data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+      <%= link_to "Back", contacts_path, class: "btn btn-ghost btn-sm" %>
+    </div>
+  </div>
+</div>
+<div class="container max-w-3xl mx-auto p-4">
+  <div class="card bg-base-100">
+    <div class="card-body">
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="text-sm opacity-70">External</label>
+          <div class="mt-1"><%= @contact.external_id %></div>
+        </div>
+        <div>
+          <label class="text-sm opacity-70">Info payload</label>
+          <div class="mt-1"><%= readable_hash @contact.info_payload %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

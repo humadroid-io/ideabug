@@ -10,4 +10,8 @@ module ApplicationHelper
 
     "https://robohash.org/#{hash}?gravatar=hashed&size=#{size}x#{size}&bgset=bg1"
   end
+
+  def readable_hash(hash)
+    hash.map { |k, v| "#{k.split("_").map(&:capitalize).join(" ")}: #{v}" }.join(" - ")
+  end
 end

@@ -1,6 +1,6 @@
 <div class="w-full">
   <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= plural_table_name.titleize %></h3>
+    <h3 class="text-base font-semibold leading-6"><%= plural_table_name.titleize %></h3>
     <%%= link_to new_<%= singular_table_name %>_path, class: "btn btn-primary btn-sm" do %>
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
     New <%= singular_table_name.humanize %>

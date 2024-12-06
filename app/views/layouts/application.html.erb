@@ -28,10 +28,9 @@
                   d="M4 6h16M4 12h8m-8 6h16" />
               </svg>
             </div>
-            <ul
-              tabindex="0"
-              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                <li><%= link_to "Announcements", announcements_path %></li>
+            <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+              <li><%= link_to "Announcements", announcements_path %></li>
+              <li><%= link_to "Contacts", contacts_path %></li>
               <!-- <li>
                 <a>Parent</a>
                 <ul class="p-2">
@@ -40,11 +39,11 @@
                 </ul>
               </li> -->
               <li>
-                            <%= link_to tickets_path do %>
-                            Tickets
-                            <div class="badge badge-ghost">WIP</div>
-                            <% end %>
-                          </li>
+                <%= link_to tickets_path do %>
+                  Tickets
+                  <div class="badge badge-ghost">WIP</div>
+                <% end %>
+              </li>
             </ul>
           </div>
           <%= link_to "ideabug", dashboard_path, class: "btn btn-ghost text-xl" %>
@@ -52,6 +51,7 @@
         <div class="navbar-center hidden lg:flex">
           <ul class="menu menu-horizontal px-1">
             <li><%= link_to "Announcements", announcements_path %></li>
+            <li><%= link_to "Contacts", contacts_path %></li>
             <!-- <li>
               <details>
                 <summary>Parent</summary>
@@ -63,26 +63,26 @@
             </li> -->
             <li>
               <%= link_to tickets_path do %>
-              Tickets
-              <div class="badge badge-ghost">WIP</div>
+                Tickets
+                <div class="badge badge-ghost">WIP</div>
               <% end %>
             </li>
           </ul>
         </div>
         <div class="navbar-end">
           <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                  <div class="w-10 rounded-full">
-                    <%= avatar_image_tag Current.session.user %>
-                  </div>
-                </div>
-                <ul
-                  tabindex="0"
-                  class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-
-                  <li><%= button_to "Logout", session_path, method: :delete  %></li>
-                </ul>
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+              <div class="w-10 rounded-full">
+                <%= avatar_image_tag Current.session.user %>
               </div>
+            </div>
+            <ul
+              tabindex="0"
+              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+
+              <li><%= button_to "Logout", session_path, method: :delete  %></li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -98,6 +98,5 @@
           🇵🇱</p>
       </aside>
     </footer>
-
   </body>
 </html>

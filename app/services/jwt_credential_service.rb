@@ -2,10 +2,9 @@ class JwtCredentialService
   ALGORITHM = "RS256"
   EXPIRATION_TIME = 1.hour
 
-  def self.generate_token(user)
+  def self.generate_token(contact)
     payload = {
-      email: user.email_address,
-      user_id: user.id,
+      id: contact.id,
       exp: EXPIRATION_TIME.from_now.to_i,
       iat: Time.current.to_i,
       jti: SecureRandom.uuid

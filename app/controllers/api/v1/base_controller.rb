@@ -15,6 +15,11 @@ module Api
       def authenticate_jwt_token
         token = extract_token_from_params
         @current_user_data = JwtCredentialService.verify_token(token)
+        raise ActiveRecord::RecordInvalid unless @current_user_data["id"].present?
+        @current_contact = Contact.find_or_create_by(external_id: @current_user_data["id"])
+        if @current_user_data["info"].present? && @current_user_data["info"].any?
+          @current_contact.update(info_payload: @current_user_data["info"])
+        end
       rescue => e
         render json: {error: "Authentication failed: #{e.message}"}, status: :unauthorized
       end

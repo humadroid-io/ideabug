@@ -43,11 +43,12 @@ Full documentation / readme - later.
 
       def self.generate_token(user)
         payload = {
-          email: user.email,
-          user_id: user.id,
+          id: user.id,
           exp: EXPIRATION_TIME.from_now.to_i,
           iat: Time.current.to_i,
-          jti: SecureRandom.uuid
+          info: {
+            email: user.email
+          }
         }
 
         JWT.encode(payload, JwtConfig.private_key, ALGORITHM)

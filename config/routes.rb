@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   end
   resource :session
   resources :passwords, param: :token
+
+  resources :contacts, only: %i[index show destroy]
   resources :announcements
   resources :tickets
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
