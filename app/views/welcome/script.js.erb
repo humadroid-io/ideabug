@@ -67,12 +67,12 @@
 
   class IdeabugNotifications {
     constructor(config) {
-      if (!config || !config.apiEndpoint || !config.targetElement || !config.jwt) {
+      if (!config || !config.apiHost || !config.targetElement || !config.jwt) {
         throw new Error('Required configuration missing');
       }
 
       this.config = {
-        apiEndpoint: config.apiEndpoint,
+        apiHost: config.apiHost,
         jwt: config.jwt,
         pollInterval: config.pollInterval || 30000
       };
@@ -126,7 +126,7 @@
 
     async fetchNotifications() {
       try {
-        const response = await fetch(this.config.apiEndpoint, {
+        const response = await fetch(this.config.apiHost + '/api/v1/announcements', {
           headers: {
             'Authorization': `Bearer ${this.config.jwt()}`,
             'Content-Type': 'application/json'
@@ -212,7 +212,7 @@
 
     async markAsRead(id) {
       try {
-        await fetch(`${this.config.apiEndpoint}/${id}/read`, {
+        await fetch(`${this.config.apiHost}/api/v1/announcements/${id}/read`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.config.jwt()}`,

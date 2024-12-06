@@ -20,6 +20,17 @@ module ActiveSupport
     def sign_out
       delete session_url
     end
+
+    def generate_test_keys
+      rsa_key = OpenSSL::PKey::RSA.new(2048)
+      [rsa_key, rsa_key.public_key]
+    end
+
+    # setup do
+    #   private_key, public_key = generate_test_keys
+    #   ENV["JWT_PRIVATE_KEY"] = private_key.to_pem
+    #   ENV["JWT_PUBLIC_KEY"] = public_key.to_pem
+    # end
   end
 end
 

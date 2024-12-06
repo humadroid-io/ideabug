@@ -27,10 +27,10 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_url
   end
 
-  test "should get list of announcements when calling json" do
+  test "should not get list of announcements when calling json" do
     sign_out
     get announcements_url(format: :json)
-    assert_response :success
+    assert_redirected_to new_session_url
   end
 
   context "GET #index" do

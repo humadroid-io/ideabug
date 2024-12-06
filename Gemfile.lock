@@ -89,6 +89,7 @@ GEM
     benchmark (0.4.0)
     bigdecimal (3.1.8)
     bindex (0.8.1)
+    blueprinter (1.1.2)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
     builder (3.3.0)
@@ -140,6 +141,8 @@ GEM
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     json (2.9.0)
+    jwt (2.9.3)
+      base64
     language_server-protocol (3.17.0.3)
     lint_roller (1.1.0)
     logger (1.6.2)
@@ -179,6 +182,10 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.8-x86_64-linux)
       racc (~> 1.4)
+    oj (3.16.7)
+      bigdecimal (>= 3.0)
+      ostruct (>= 0.2)
+    ostruct (0.6.1)
     parallel (1.26.3)
     parser (3.3.6.0)
       ast (~> 2.4.1)
@@ -348,6 +355,7 @@ PLATFORMS
 DEPENDENCIES
   annotate!
   bcrypt (~> 3.1.7)
+  blueprinter
   bootsnap
   capybara
   debug
@@ -355,6 +363,8 @@ DEPENDENCIES
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
+  jwt
+  oj
   pg (~> 1.1)
   puma (>= 5.0)
   rack-cors

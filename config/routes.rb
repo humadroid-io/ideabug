@@ -1,5 +1,12 @@
 Rails.application.routes.draw do
   get "dashboard", to: "dashboard#index"
+  namespace :api do
+    namespace :v1 do
+      # Your API endpoints
+      resources :announcements
+      # other resources...
+    end
+  end
   resource :session
   resources :passwords, param: :token
   resources :announcements
