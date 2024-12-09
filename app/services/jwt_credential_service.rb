@@ -4,7 +4,7 @@ class JwtCredentialService
 
   def self.generate_token(contact)
     payload = {
-      id: contact.id,
+      id: contact.external_id,
       exp: EXPIRATION_TIME.from_now.to_i,
       iat: Time.current.to_i,
       jti: SecureRandom.uuid
