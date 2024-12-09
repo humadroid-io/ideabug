@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_06_203225) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_09_101407) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,14 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_06_203225) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_contacts_on_external_id", unique: true
+  end
+
+  create_table "segments", force: :cascade do |t|
+    t.string "identifier", null: false
+    t.boolean "allow_new_values", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["identifier"], name: "index_segments_on_identifier", unique: true
   end
 
   create_table "sessions", force: :cascade do |t|

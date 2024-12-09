@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :segments
   get "dashboard", to: "dashboard#index"
   namespace :api do
     namespace :v1 do

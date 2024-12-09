@@ -1,0 +1,39 @@
+<div class="container max-w-2xl mx-auto p-4">
+  <%= form_with(model: segment) do |form| %>
+    <% if segment.errors.any? %>
+      <div class="alert alert-error mb-6">
+        <div class="flex items-start">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 stroke-current shrink-0" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <div>
+            <h4 class="font-medium"><%= pluralize(segment.errors.count, "error") %> prevented saving:</h4>
+            <ul class="list-disc ml-5 mt-2">
+              <% segment.errors.each do |error| %>
+                <li class="text-sm"><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <div class="space-y-4">
+      <div class="form-control w-full">
+        <%= form.label :identifier, class: "label" %>
+        <%= form.text_field :identifier, class: "input input-bordered w-full" %>
+        <div class="label">
+          <span class="label-text-alt">Downcase, identifier you'll use when authorizing contacts</span>
+        </div>
+      </div>
+      <div class="form-control w-full">
+        <%= form.label :allow_new_values, class: "label" %>
+        <%= form.checkbox :allow_new_values, class: "checkbox" %>
+        <div class="label">
+          <span class="label-text-alt">If unchecked ideabug will reject new segments values, that haven't been added to system.</span>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end gap-2">
+        <%= link_to "Cancel", segment.persisted? ?  segment : segments_path, class: "btn btn-ghost" %>
+        <%= form.submit class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>
