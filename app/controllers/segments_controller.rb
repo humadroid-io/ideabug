@@ -65,6 +65,7 @@ class SegmentsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def segment_params
-      params.expect(segment: [ :identifier, :allow_new_values ])
+      params.require(:segment).permit(:identifier, :allow_new_values, segment_values_attributes: [:id, :val, 
+                           :fallback_id, :_destroy])
     end
 end

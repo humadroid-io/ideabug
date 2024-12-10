@@ -14,18 +14,24 @@
   <div class="card bg-base-100">
     <div class="card-body">
       <div class="grid grid-cols-1 gap-4">
-        
-          <div>
-            <label class="text-sm opacity-70">Identifier</label>
-            <div class="mt-1"><%= @segment.identifier %></div>
+        <div>
+          <label class="text-sm opacity-70">Identifier</label>
+          <div class="mt-1"><%= @segment.identifier %></div>
+        </div>
+        <div>
+          <label class="text-sm opacity-70">Allow new values</label>
+          <div class="mt-1"><%= @segment.allow_new_values %></div>
+        </div>
+        <div>
+          <label class="text-sm opacity-70">Values</label>
+          <div class="mt-1 ml-8">
+            <ul class="list-disc">
+              <% @segment.segment_values.each do |segment_value| %>
+                <li><%= segment_value.val %></li>
+              <% end %>
+            </ul>
           </div>
-        
-          <div>
-            <label class="text-sm opacity-70">Allow new values</label>
-            <div class="mt-1"><%= @segment.allow_new_values %></div>
-          </div>
-        
+        </div>
       </div>
     </div>
   </div>
-</div>

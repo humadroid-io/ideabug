@@ -21,10 +21,12 @@ class Segment < ApplicationRecord
   ## ATTRIBUTES & RELATED
   normalizes :identifier, with: ->(identifier) { identifier.strip.downcase }
   ## ASSOCIATIONS
+  has_many :segment_values, dependent: false
   ## VALIDATIONS
   validates :identifier, presence: true, uniqueness: true
   ## CALLBACKS
   ## OTHER
+  accepts_nested_attributes_for :segment_values, allow_destroy: true
 
   def to_s
     identifier

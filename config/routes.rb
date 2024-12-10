@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :segments
   get "dashboard", to: "dashboard#index"
   namespace :api do
     namespace :v1 do
@@ -15,6 +14,8 @@ Rails.application.routes.draw do
 
   resources :contacts, only: %i[index show destroy]
   resources :announcements
+  resources :segment_values, only: %i[create destroy]
+  resources :segments
   resources :tickets
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

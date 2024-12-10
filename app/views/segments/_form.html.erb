@@ -30,6 +30,14 @@
           <span class="label-text-alt">If unchecked ideabug will reject new segments values, that haven't been added to system.</span>
         </div>
       </div>
+      <fieldset class="border p-2 flex flex-col gap-2" id="segment_values">
+        <%= form.fields_for :segment_values do |ff| %>
+          <%= render "segment_values/form_field", f: ff, fallback_id: SecureRandom.uuid %>
+        <% end %>
+      </fieldset>
+      <%= turbo_frame_tag "new_form_field" do %>
+        <%= link_to "Add new value", segment_values_path, data: { turbo_method: :post } %>
+      <% end %>
       <div class="mt-8 flex justify-end gap-2">
         <%= link_to "Cancel", segment.persisted? ?  segment : segments_path, class: "btn btn-ghost" %>
         <%= form.submit class: "btn btn-primary" %>

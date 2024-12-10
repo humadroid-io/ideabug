@@ -1,0 +1,6 @@
+<%= turbo_stream.append "segment_values" do %>
+  <%- idx = Time.current.to_i %>
+  <%= fields_for "segment[segment_values_attributes]", @segment_value, index: idx do |ff| %>
+    <%= render "segment_values/form_field", f: ff %>
+  <% end %>
+<% end %>

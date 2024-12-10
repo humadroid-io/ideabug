@@ -1,0 +1,8 @@
+<%- id = "#{dom_id(@segment_value)}-field" %>
+<% if @segment_value.persisted? %>
+  <%= turbo_stream.update id do %>
+    <%= hidden_field_tag "segment[segment_values_attributes][#{@segment_value.fallback_id}][_destroy]", "1" %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.remove id %>
+<% end %>
