@@ -13,6 +13,7 @@
       <tr>
         <th>Title</th>
         <th>Preview</th>
+        <th>Published at</th>
         <th class="w-20"></th>
       </tr>
     </thead>
@@ -21,6 +22,7 @@
         <tr>
           <td><%= link_to announcement.title, announcement %></td>
           <td><%= announcement.preview %></td>
+          <td><%= announcement.published_at %></td>
           <td>
             <div class="flex justify-end gap-1">
               <div class="dropdown dropdown-left">

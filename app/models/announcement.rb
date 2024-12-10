@@ -4,11 +4,16 @@
 #
 # Table name: announcements
 #
-#  id         :bigint           not null, primary key
-#  preview    :text
-#  title      :string           not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id           :bigint           not null, primary key
+#  preview      :text
+#  published_at :datetime         not null
+#  title        :string           not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#
+# Indexes
+#
+#  index_announcements_on_published_at  (published_at)
 #
 class Announcement < ApplicationRecord
   ## SCOPES
@@ -17,6 +22,7 @@ class Announcement < ApplicationRecord
   ## ATTRIBUTES & RELATED
   has_rich_text :content
   ## ASSOCIATIONS
+  has_many :announcement_reads, dependent: false
   ## VALIDATIONS
   validates :title, presence: true
   ## CALLBACKS
@@ -24,6 +30,12 @@ class Announcement < ApplicationRecord
 
   def to_s
     title
+  end
+
+  def read(contact = Current.contact)
+    return attributes["read"] if attributes.key?("read")
+    return @read unless @read.nil?
+    @read = (contact && @read = announcement_reads.exists?(contact: contact)) || false
   end
 
   private

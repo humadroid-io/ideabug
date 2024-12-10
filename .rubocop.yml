@@ -4,7 +4,6 @@ require:
   - standard-performance
   - standard-rails
   - rubocop-rails
-  - rubocop-capybara
   - rubocop-factory_bot
   - rubocop-performance
 

@@ -3,7 +3,7 @@ class AnnouncementsController < ApplicationController
 
   # GET /announcements or /announcements.json
   def index
-    @announcements = Announcement.all
+    @announcements = Announcement.order(published_at: :desc)
   end
 
   # GET /announcements/1 or /announcements/1.json
@@ -22,6 +22,7 @@ class AnnouncementsController < ApplicationController
   # POST /announcements or /announcements.json
   def create
     @announcement = Announcement.new(announcement_params)
+    @announcement.published_at = Time.current
 
     respond_to do |format|
       if @announcement.save

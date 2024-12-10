@@ -20,6 +20,7 @@ module Api
         if @current_user_data["info"].present? && @current_user_data["info"].any?
           @current_contact.update(info_payload: @current_user_data["info"])
         end
+        Current.contact = @current_contact
       rescue => e
         render json: {error: "Authentication failed: #{e.message}"}, status: :unauthorized
       end

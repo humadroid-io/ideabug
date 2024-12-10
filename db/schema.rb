@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_09_101407) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_10_101301) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,11 +52,24 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_09_101407) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "announcement_reads", force: :cascade do |t|
+    t.bigint "announcement_id", null: false
+    t.bigint "contact_id", null: false
+    t.datetime "read_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["announcement_id", "contact_id"], name: "index_announcement_reads_on_announcement_id_and_contact_id", unique: true
+    t.index ["announcement_id"], name: "index_announcement_reads_on_announcement_id"
+    t.index ["contact_id"], name: "index_announcement_reads_on_contact_id"
+  end
+
   create_table "announcements", force: :cascade do |t|
     t.string "title", null: false
     t.text "preview"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "published_at", null: false
+    t.index ["published_at"], name: "index_announcements_on_published_at"
   end
 
   create_table "contacts", force: :cascade do |t|
@@ -103,5 +116,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_09_101407) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "announcement_reads", "announcements", on_delete: :cascade
+  add_foreign_key "announcement_reads", "contacts", on_delete: :cascade
   add_foreign_key "sessions", "users"
 end
