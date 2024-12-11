@@ -2,8 +2,8 @@
   <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
     <h3 class="text-base font-semibold leading-6">Segments</h3>
     <%= link_to new_segment_path, class: "btn btn-primary btn-sm" do %>
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
-    New Segment
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
+      New Segment
     <% end %>
   </div>
 </div>
@@ -11,41 +11,35 @@
   <table class="table table-zebra w-full">
     <thead>
       <tr>
-        
-          <th>Identifier</th>
-        
-          <th>Allow new values</th>
-        
+        <th>Identifier</th>
+        <th>Allow new values</th>
         <th class="w-20"></th>
       </tr>
     </thead>
     <tbody>
       <% @segments.each do |segment| %>
-      <tr>
-        
-          <td><%= segment.identifier %></td>
-        
+        <tr>
+          <td><%= link_to segment.identifier, segment %></td>
           <td><%= segment.allow_new_values %></td>
-        
-        <td>
-          <div class="flex justify-end gap-1">
-            <div class="dropdown dropdown-left">
-              <button class="btn btn-ghost btn-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-              </button>
-              <ul class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box">
-                <li><%= link_to "View", segment %></li>
-                <li><%= link_to "Edit", edit_segment_path(segment) %></li>
-                <li>
-                  <%= link_to "Delete", segment,
+          <td>
+            <div class="flex justify-end gap-1">
+              <div class="dropdown dropdown-left">
+                <button class="btn btn-ghost btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
+                </button>
+                <ul class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box">
+                  <li><%= link_to "View", segment %></li>
+                  <li><%= link_to "Edit", edit_segment_path(segment) %></li>
+                  <li>
+                    <%= link_to "Delete", segment,
                   class: "text-error",
                   data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
-                </li>
-              </ul>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-        </td>
-      </tr>
+          </td>
+        </tr>
       <% end %>
     </tbody>
   </table>

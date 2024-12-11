@@ -2,11 +2,12 @@
 #
 # Table name: contacts
 #
-#  id           :bigint           not null, primary key
-#  info_payload :jsonb
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  external_id  :string           not null
+#  id               :bigint           not null, primary key
+#  info_payload     :jsonb
+#  segments_payload :jsonb
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  external_id      :string           not null
 #
 # Indexes
 #

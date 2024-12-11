@@ -84,6 +84,28 @@ module Api
         assert_equal "test@example.com", @contact.info_payload["email"]
       end
 
+      test "should update contact segments when present in token" do
+        segment = create(:segment, identifier: "region", allow_new_values: true)
+        existing_value = create(:segment_value, segment: segment, val: "north")
+
+        payload = {
+          id: @contact.external_id,
+          segments: {region: "north"},
+          exp: 1.hour.from_now.to_i,
+          iat: Time.current.to_i,
+          jti: SecureRandom.uuid
+        }
+        token = JWT.encode(payload, JwtConfig.private_key, JwtCredentialService::ALGORITHM)
+
+        get test_action_url,
+          headers: {Authorization: "Bearer #{token}"}
+
+        assert_response :success
+        @contact.reload
+        assert_equal({"region" => "north"}, @contact.segments_payload)
+        assert_includes @contact.segment_values, existing_value
+      end
+
       test "should fail when token payload missing id" do
         payload = {
           exp: 1.hour.from_now.to_i,

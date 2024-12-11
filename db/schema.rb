@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_10_153219) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_11_125804) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,7 +77,14 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_10_153219) do
     t.jsonb "info_payload", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "segments_payload", default: {}
     t.index ["external_id"], name: "index_contacts_on_external_id", unique: true
+  end
+
+  create_table "contacts_segment_values", id: false, force: :cascade do |t|
+    t.bigint "contact_id", null: false
+    t.bigint "segment_value_id", null: false
+    t.index ["contact_id", "segment_value_id"], name: "idx_on_contact_id_segment_value_id_3cca80f7ec", unique: true
   end
 
   create_table "segment_values", force: :cascade do |t|

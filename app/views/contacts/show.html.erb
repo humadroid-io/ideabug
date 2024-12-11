@@ -21,6 +21,16 @@
           <label class="text-sm opacity-70">Info payload</label>
           <div class="mt-1"><%= readable_hash @contact.info_payload %></div>
         </div>
+        <div>
+          <label class="text-sm opacity-70">Segments payload</label>
+          <div class="mt-1 ml-8">
+            <ul class="list-disc">
+              <% @contact.segments_payload.each do |key, val| %>
+                <li><span class="font-medium"><%= key %>:</span> <%= val %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
