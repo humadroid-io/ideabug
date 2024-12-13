@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_11_125804) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_11_135737) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,12 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_125804) do
     t.datetime "updated_at", null: false
     t.datetime "published_at", null: false
     t.index ["published_at"], name: "index_announcements_on_published_at"
+  end
+
+  create_table "announcements_segment_values", id: false, force: :cascade do |t|
+    t.bigint "announcement_id", null: false
+    t.bigint "segment_value_id", null: false
+    t.index ["announcement_id", "segment_value_id"], name: "idx_on_announcement_id_segment_value_id_41fca6c26a", unique: true
   end
 
   create_table "contacts", force: :cascade do |t|

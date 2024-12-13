@@ -23,6 +23,8 @@ class Announcement < ApplicationRecord
   has_rich_text :content
   ## ASSOCIATIONS
   has_many :announcement_reads, dependent: false
+  has_and_belongs_to_many :segment_values
+  has_many :segments, -> { distinct }, through: :segment_values
   ## VALIDATIONS
   validates :title, presence: true
   ## CALLBACKS

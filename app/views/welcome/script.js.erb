@@ -212,7 +212,7 @@
 
     async markAsRead(id) {
       try {
-        await fetch(`${this.config.apiHost}/api/v1/announcements/${id}/read`, {
+        const response = await fetch(`${this.config.apiHost}/api/v1/announcements/${id}/read`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.config.jwt()}`,
@@ -220,9 +220,13 @@
           }
         });
 
-        const notification = this.notifications.find(n => n.id === id);
-        if (notification) {
-          notification.read = true;
+        // Get the updated announcement from the response
+        const updatedAnnouncement = await response.json();
+
+        // Update the local notification in the array
+        const index = this.notifications.findIndex(n => n.id === updatedAnnouncement.id);
+        if (index !== -1) {
+          this.notifications[index] = updatedAnnouncement;
           this.updateUI();
         }
       } catch (error) {

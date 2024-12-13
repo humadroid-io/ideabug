@@ -26,6 +26,19 @@
           <label class="text-sm opacity-70">Content</label>
           <div class="mt-1"><%= @announcement.content %></div>
         </div>
+        <div class="f">
+          Segments
+          <div class="grid grid-cols-2">
+            <% @announcement.segments.each do |segment| %>
+              <div class="font-bold">
+                <%= segment.identifier %>
+              </div>
+              <div class="flex flex-col gap-1">
+                <%= @announcement.segment_values.where(segment: ).pluck(:val).join(", ") %>
+              </div>
+            <% end %>
+          </div>
+        </div>
       </div>
     </div>
   </div>

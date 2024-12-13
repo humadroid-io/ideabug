@@ -28,6 +28,26 @@
         <%= form.label :content, class: "label" %>
         <%= form.rich_textarea :content %>
       </div>
+      <div class="form-control w-full">
+        <%= field_set_tag "Segments" do %>
+          <span class="text-sm">For each segment where you select values, a contact must match at least one of those values to see this announcement. Any segments where no values are selected will not affect visibility.</span>
+          <div class="grid grid-cols-2">
+            <% Segment.all.find_each do |segment| %>
+              <div class="font-bold">
+                <%= segment.identifier %>
+              </div>
+              <div class="flex flex-col gap-1">
+                <% segment.segment_values.each do |segment_value| %>
+                  <%= label_tag "segment_value_#{segment_value.id}" do %>
+                    <%= check_box_tag "announcement[segment_value_ids][]", segment_value.id, announcement.segment_value_ids.include?(segment_value.id), id: "segment_value_#{segment_value.id}" %>
+                    <%= segment_value.val %>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
       <div class="mt-8 flex justify-end gap-2">
         <%= link_to "Cancel", announcement.persisted? ?  @announcement : announcements_path, class: "btn btn-ghost" %>
         <%= form.submit class: "btn btn-primary" %>

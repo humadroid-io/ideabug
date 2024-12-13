@@ -25,7 +25,7 @@ module Api
       private
 
       def announcement_scope
-        Announcement
+        base_scope = Announcement
           .select(
             'announcements.*,
                       CASE
@@ -36,6 +36,26 @@ module Api
           )
           .left_joins(:announcement_reads)
           .where("announcement_reads.contact_id = ? OR announcement_reads.id IS NULL", Current.contact)
+
+        base_scope
+          .left_joins(:segment_values)
+          .where(
+            "NOT EXISTS (
+                      SELECT 1 FROM announcements_segment_values
+                      WHERE announcements_segment_values.announcement_id = announcements.id
+                    ) OR EXISTS (
+                      SELECT 1 FROM announcements_segment_values asv
+                      WHERE asv.announcement_id = announcements.id
+                      AND asv.segment_value_id IN (
+                        SELECT segment_value_id
+                        FROM contacts_segment_values
+                        WHERE contact_id = ?
+                      )
+                    )
+                  ",
+            Current.contact.id
+          )
+          .distinct
       end
 
       def find_announcement
