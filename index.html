@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>
+      IdeaBug - Privacy-First Product Updates & User Feedback Platform
+    </title>
+    <meta
+      name="description"
+      content="IdeaBug is an open-source platform for embedding product updates, gathering user feedback, and managing feature requests while maintaining complete data privacy."
+    />
+    <meta
+      name="keywords"
+      content="product updates, user feedback, feature requests, product roadmap, privacy-first, open source"
+    />
+
+    <!-- Open Graph Tags -->
+    <meta
+      property="og:title"
+      content="IdeaBug - Privacy-First Product Updates & Feedback"
+    />
+    <meta
+      property="og:description"
+      content="Embed product updates and gather user feedback while maintaining complete data privacy. Open-source and easy to integrate."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ideabug.io" />
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="IdeaBug - Privacy-First Product Updates & Feedback"
+    />
+    <meta
+      name="twitter:description"
+      content="Embed product updates and gather user feedback while maintaining complete data privacy. Open-source and easy to integrate."
+    />
+
+    <!-- Tailwind and Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Custom Styles -->
+    <style>
+      .glass {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+      }
+
+      .glass-dark {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow:
+          0 8px 32px 0 rgba(31, 38, 135, 0.07),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+      }
+
+      .glass-card:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow:
+          0 12px 40px 0 rgba(31, 38, 135, 0.1),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+
+      .gradient-bg {
+        background: radial-gradient(
+            circle at 0% 0%,
+            rgba(37, 99, 235, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 100% 100%,
+            rgba(79, 70, 229, 0.15) 0%,
+            transparent 50%
+          );
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    </style>
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              blue: {
+                600: "#2563eb",
+                700: "#1d4ed8",
+              },
+              indigo: {
+                600: "#4f46e5",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50"
+  >
+    <!-- Decorative Background -->
+    <div class="fixed inset-0 -z-10 overflow-hidden">
+      <div
+        class="absolute -top-1/2 -left-1/2 w-full h-full bg-blue-100 rounded-full opacity-20 blur-3xl"
+      ></div>
+      <div
+        class="absolute -bottom-1/2 -right-1/2 w-full h-full bg-indigo-100 rounded-full opacity-20 blur-3xl"
+      ></div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="container mx-auto px-4 py-16 relative">
+      <div class="glass rounded-2xl p-12 text-center">
+        <div
+          class="inline-block mb-4 px-6 py-2 glass-dark rounded-full text-blue-600 text-sm font-semibold"
+        >
+          🚀 Now Open Source
+        </div>
+        <h1 class="text-5xl font-bold mb-6 gradient-text">IdeaBug</h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          The privacy-focused platform for product updates, user feedback, and
+          feature management.
+        </p>
+        <div class="flex justify-center gap-4">
+          <a
+            href="https://github.com/humadroid-io/ideabug"
+            class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg font-medium inline-flex items-center hover:opacity-90 transition shadow-lg"
+          >
+            Get Started <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+          <!-- <a
+            href="#"
+            class="glass px-8 py-4 rounded-lg font-medium inline-flex items-center hover:bg-white/80 transition shadow-lg"
+          >
+            View Demo <i class="fas fa-code ml-2"></i>
+          </a> -->
+        </div>
+      </div>
+    </header>
+
+    <!-- Features Grid -->
+    <section class="container mx-auto px-4 py-16">
+      <h2 class="text-3xl font-bold text-center mb-12 gradient-text">
+        Everything You Need for Product Feedback
+      </h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Privacy First -->
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <i class="fas fa-lock text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Privacy First</h3>
+          <p class="text-gray-600">
+            Built with privacy in mind. Your users' data stays where it belongs
+            - with you.
+          </p>
+        </div>
+
+        <!-- Simple Integration -->
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <i class="fas fa-code text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Simple Integration</h3>
+          <p class="text-gray-600">
+            Add product updates to your app with just a few lines of JavaScript.
+          </p>
+        </div>
+
+        <!-- User Segmentation -->
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <i class="fas fa-users text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Smart Segmentation</h3>
+          <p class="text-gray-600">
+            Target updates to specific user segments for maximum relevance.
+          </p>
+        </div>
+
+        <!-- Feature Requests -->
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <div
+            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+          >
+            Coming Soon
+          </div>
+          <i class="fas fa-comment text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Feature Requests</h3>
+          <p class="text-gray-600">
+            Let users suggest new features and improvements directly within your
+            app.
+          </p>
+        </div>
+
+        <!-- Voting System -->
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <div
+            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+          >
+            Coming Soon
+          </div>
+          <i class="fas fa-vote-yea text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Community Voting</h3>
+          <p class="text-gray-600">
+            Enable users to vote on feature requests and prioritize what matters
+            most.
+          </p>
+        </div>
+
+        <!-- Product Roadmap -->
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <div
+            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+          >
+            Coming Soon
+          </div>
+          <i class="fas fa-map text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Public Roadmap</h3>
+          <p class="text-gray-600">
+            Share your product vision with a public roadmap that keeps users in
+            the loop.
+          </p>
+        </div>
+
+        <!-- Coming Soon Features -->
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <div
+            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+          >
+            Coming Soon
+          </div>
+          <i class="fas fa-bell text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Smart Notifications</h3>
+          <p class="text-gray-600">
+            Keep users engaged with intelligent notification systems and custom
+            delivery preferences.
+          </p>
+        </div>
+
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <div
+            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+          >
+            Coming Soon
+          </div>
+          <i class="fas fa-chart-line text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Analytics Dashboard</h3>
+          <p class="text-gray-600">
+            Gain insights into user engagement, feature popularity, and feedback
+            trends.
+          </p>
+        </div>
+
+        <div
+          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <div
+            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+          >
+            Coming Soon
+          </div>
+          <i class="fas fa-puzzle-piece text-4xl text-blue-600 mb-4"></i>
+          <h3 class="text-xl font-semibold mb-2">Integration Hub</h3>
+          <p class="text-gray-600">
+            Connect with your favorite tools: Jira, Trello, GitHub, and more
+            coming soon.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why IdeaBug Section -->
+    <section class="container mx-auto px-4 py-16">
+      <div class="glass rounded-2xl p-8 shadow-lg">
+        <h2 class="text-3xl font-bold mb-8 gradient-text text-center">
+          Why Choose IdeaBug?
+        </h2>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <i class="fas fa-shield-alt text-2xl text-blue-600 mt-1"></i>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">Privacy by Design</h3>
+                <p class="text-gray-600">
+                  Your data never leaves your servers. Period. We believe in
+                  absolute data sovereignty.
+                </p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <i class="fas fa-bolt text-2xl text-blue-600 mt-1"></i>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">Lightning Fast</h3>
+                <p class="text-gray-600">
+                  Optimized for performance with minimal impact on your
+                  application's load time.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <i class="fas fa-code-branch text-2xl text-blue-600 mt-1"></i>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">Open Source</h3>
+                <p class="text-gray-600">
+                  Full transparency, customizable, and backed by a growing
+                  community.
+                </p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <i class="fas fa-expand-alt text-2xl text-blue-600 mt-1"></i>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">Scalable</h3>
+                <p class="text-gray-600">
+                  Grows with your product from startup to enterprise with no
+                  compromises.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Code Preview -->
+    <section class="container mx-auto px-4 py-16">
+      <div class="glass-dark rounded-2xl p-8 shadow-lg">
+        <pre
+          class="text-gray-900 overflow-x-auto"
+        ><code>&lt;div id="notification-container">&lt;div>
+&lt;script src="//ideabug.yourdomain.com/script.js">&lt;/script>
+&lt;script>
+  const notifications = new IdeabugNotifications({
+    apiHost: 'https://ideabug.yourdomain.com',
+    targetElement: '#notification-container',
+    jwt: () => 'BACKEND_GENERATED_JWT',
+    pollInterval: 30000 // optional, defaults to 30 seconds
+  });
+&lt;/script></code></pre>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="container mx-auto px-4 py-8 border-t">
+      <div class="glass rounded-xl p-6 flex justify-between">
+        <p class="text-gray-600">© 2024 IdeaBug. Open source and proud.</p>
+        <div class="flex gap-6">
+          <a
+            href="https://github.com/humadroid-io/ideabug"
+            class="text-gray-600 hover:text-blue-600"
+          >
+            <i class="fab fa-github mr-2"></i>GitHub
+          </a>
+        </div>
+      </div>
+    </footer>
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "IdeaBug",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Privacy-first platform for product updates and user feedback management"
+      }
+    </script>
+  </body>
+</html>
+>
