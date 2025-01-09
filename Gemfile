@@ -50,7 +50,6 @@ gem "image_processing", "~> 1.2"
 
 gem "blueprinter"
 gem "jwt"
-gem "oj"
 gem "dotenv-rails"
 
 group :development, :test do
@@ -69,12 +68,12 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-  gem "rubocop"
-  gem "rubocop-factory_bot"
-  gem "rubocop-performance"
-  gem "standard"
-  gem "standard-performance"
-  gem "standard-rails"
+  gem "rubocop", require: false
+  gem "rubocop-factory_bot", require: false
+  gem "rubocop-performance", require: false
+  gem "standard", require: false
+  gem "standard-performance", require: false
+  gem "standard-rails", require: false
 end
 
 group :test do
