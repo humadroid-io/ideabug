@@ -4,7 +4,7 @@ class WelcomeController < ApplicationController
   layout "public"
 
   def home
-    redirect_to dashboard_path
+    redirect_to authenticated? ? dashboard_path : announcements_path
   end
 
   def script

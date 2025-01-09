@@ -1,9 +1,11 @@
 <div class="w-full">
   <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
     <h3 class="text-base font-semibold leading-6">Announcements</h3>
-    <%= link_to new_announcement_path, class: "btn btn-primary btn-sm" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
-      New Announcement
+    <% if authenticated? %>
+      <%= link_to new_announcement_path, class: "btn btn-primary btn-sm" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
+        New Announcement
+      <% end %>
     <% end %>
   </div>
 </div>
@@ -31,12 +33,14 @@
                 </button>
                 <ul class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box">
                   <li><%= link_to "View", announcement %></li>
-                  <li><%= link_to "Edit", edit_announcement_path(announcement) %></li>
-                  <li>
-                    <%= link_to "Delete", announcement,
-                  class: "text-error",
-                  data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
-                  </li>
+                  <% if authenticated? %>
+                    <li><%= link_to "Edit", edit_announcement_path(announcement) %></li>
+                    <li>
+                      <%= link_to "Delete", announcement,
+                        class: "text-error",
+                        data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+                    </li>
+                  <% end %>
                 </ul>
               </div>
             </div>

@@ -19,5 +19,11 @@ FactoryBot.define do
     preview { "Sample preview text" }
     published_at { Time.current }
     content { "Sample content" }
+
+    trait :with_segments do
+      after(:create) do |announcement|
+        announcement.segment_values << create(:segment_value)
+      end
+    end
   end
 end

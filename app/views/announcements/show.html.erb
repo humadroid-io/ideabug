@@ -1,12 +1,14 @@
 <div class="w-full">
   <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Announcements", :announcements %> &raquo; <%= @announcement.to_s %></h3>
+    <h3 class="text-primary font-semibold leading-6 ">
+      <%= link_to "Announcements", :announcements %> &raquo; <%= @announcement.to_s %>
+    </h3>
     <div class="flex gap-2">
-      <%= link_to "Delete", @announcement,
-      class: "btn btn-sm btn-ghost",
-      data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
-      <%= link_to "Edit", edit_announcement_path(@announcement), class: "btn btn-sm" %>
-      <%= link_to "Back", announcements_path, class: "btn btn-ghost btn-sm" %>
+      <% if authenticated? %>
+        <%= link_to "Delete", @announcement, class: "btn btn-sm btn-ghost", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+        <%= link_to "Edit", edit_announcement_path(@announcement), class: "btn btn-sm" %>
+        <%= link_to "Back", announcements_path, class: "btn btn-ghost btn-sm" %>
+      <% end %>
     </div>
   </div>
 </div>
