@@ -38,14 +38,18 @@
 
         <% Segment.includes(:segment_values).find_each do |segment| %>
           <% values = segment.segment_values.to_a %>
-          <div class="collapse collapse-arrow border border-base-300 bg-base-100"
-               data-controller="segment-picker">
-            <input type="checkbox" class="peer">
-            <div class="collapse-title flex items-center justify-between gap-3">
-              <span class="font-semibold"><%= segment.identifier %></span>
+          <% any_selected = values.any? { |v| announcement.segment_value_ids.include?(v.id) } %>
+          <details class="border border-base-300 bg-base-100 rounded-lg group"
+                   data-controller="segment-picker"
+                   <%= "open" if any_selected %>>
+            <summary class="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 select-none">
+              <span class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-open:rotate-90" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                <span class="font-semibold"><%= segment.identifier %></span>
+              </span>
               <span class="badge badge-ghost" data-segment-picker-target="count">0 / <%= values.size %></span>
-            </div>
-            <div class="collapse-content">
+            </summary>
+            <div class="px-4 pb-4 pt-1 border-t border-base-200">
               <% if values.size > 8 %>
                 <input type="search" placeholder="Filter values…"
                        class="input input-bordered input-sm w-full mb-3"
@@ -72,7 +76,7 @@
                         data-action="click->segment-picker#toggleAll" data-to-all="clear">Clear</button>
               </div>
             </div>
-          </div>
+          </details>
         <% end %>
       </fieldset>
 

@@ -435,6 +435,89 @@ Sign in at `/session/new` to access:
 - `/segments` — define targeting taxonomy (`plan`, `region`, etc.) and allowed values
 - `/contacts` — read-only list of identified + anonymous contacts; can delete
 
+### Targeting announcements with segments
+
+Segments let you slice announcements by user attribute — release a "Pro plan beta" note only to paying users, or a region-specific update only to EU contacts. The model is two-level:
+
+- A **segment** is a category (e.g. `plan`, `region`, `role`).
+- A **segment value** is one option inside a segment (e.g. `pro`, `eu`, `admin`).
+
+A contact gets linked to one or more segment values, and an announcement gets linked to one or more segment values. The visibility rule is then:
+
+> Show the announcement to a contact iff the announcement has **no** segment values **or** the contact and the announcement share **at least one** segment value.
+
+So an announcement with no segment values is a broadcast to everyone, and an announcement with `plan:pro` reaches only contacts whose `plan:pro` link is set.
+
+#### Step 1 — Define your segments
+
+In the admin, go to `/segments`, click **New segment**, and create a segment per dimension you want to slice by:
+
+| Field | What it does |
+|---|---|
+| **Identifier** | Lowercased slug (`plan`, `region`, `role`). This is the key your host app sends in the JWT. Must be unique. |
+| **Allow new values** | If checked, the API will auto-create new segment values when it sees a value it hasn't seen before. Leave **off** for closed enums (e.g. `plan ∈ {free, pro, enterprise}`); turn **on** for open ones (e.g. `team_id` where there's a long tail). |
+| **Values** | A list of allowed `SegmentValue`s. Add the ones you want pre-defined (e.g. `free`, `pro`). With *Allow new values* off, only these can be assigned. |
+
+Typical setups:
+
+```text
+plan:    allow_new_values=false   values: free, pro, enterprise
+region:  allow_new_values=false   values: eu, us, apac
+team_id: allow_new_values=true    values: (auto-created)
+```
+
+#### Step 2 — Tell ideabug which segment values each contact has
+
+You almost never enter this manually — the host app sends it via JWT. In your `IdeabugJwt.token_for(user)` helper (see [JWT setup](#2-optional-identify-users-via-jwt)), include a `segments` claim:
+
+```ruby
+JWT.encode({
+  id:       user.id.to_s,
+  exp:      1.hour.from_now.to_i,
+  iat:      Time.current.to_i,
+  jti:      SecureRandom.uuid,
+  info:     { email: user.email },
+  segments: { plan: user.plan, region: user.region, team_id: user.team_id.to_s }
+}, PRIVATE_KEY, "RS256")
+```
+
+On every API call ideabug will:
+
+1. Look up each segment by its identifier (`plan`, `region`, `team_id`).
+2. Find or create the matching `SegmentValue` (creation only if `allow_new_values` is on).
+3. Sync the contact ↔ segment_value links so they exactly reflect the JWT payload.
+
+The full payload is also stored on the contact's `segments_payload` column for debugging.
+
+If you don't use JWT auth, anonymous contacts have no segment links — they only see broadcast announcements.
+
+#### Step 3 — Pick segments when creating an announcement
+
+In the announcement form, the **Targeting** section lists every segment you defined as a collapsible block. Inside each:
+
+- Tick the values you want this announcement to reach.
+- Leave a segment **untouched** (no values selected) and it doesn't constrain visibility — the announcement still reaches everyone matching the *other* selected segments.
+
+The visibility logic is OR-within-segment, AND-across-segments only when you select values in multiple segments. Concretely:
+
+| Announcement targets | Visible to a contact with… | Visible? |
+|---|---|---|
+| (nothing) | anything | ✓ |
+| `plan: pro` | `plan: pro` | ✓ |
+| `plan: pro` | `plan: free` | ✗ |
+| `plan: pro, plan: enterprise` | `plan: pro` | ✓ |
+| `plan: pro` AND `region: eu` | `plan: pro, region: eu` | ✓ |
+| `plan: pro` AND `region: eu` | `plan: pro, region: us` | ✓ (rule is "share at least one value", not "match all") |
+
+> **Note on AND semantics:** the current rule is "contact shares ≥1 segment value with the announcement." If you need strict AND-across-segments ("must be Pro **and** in EU"), file a feature request — it's a query-level change in `Api::V1::AnnouncementsController#announcement_scope`.
+
+#### Quick recipes
+
+- **Broadcast to everyone:** create the announcement, leave Targeting empty.
+- **Beta cohort:** create a `cohort` segment with `allow_new_values=true`, send `cohort: "beta"` in the JWT for opted-in users, target announcements at `cohort:beta`.
+- **Plan-gated changelog:** `plan` segment with closed values; target Pro-only releases at `plan:pro,plan:enterprise`.
+- **Region-specific compliance notice:** `region` segment; target at `region:eu` only.
+
 ---
 
 ## Customization
