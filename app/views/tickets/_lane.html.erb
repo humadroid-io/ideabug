@@ -1,0 +1,20 @@
+<section class="bg-base-100 border border-base-300 rounded-xl p-4">
+  <h2 class="text-sm uppercase tracking-wide text-base-content/60 font-semibold mb-3"><%= title %></h2>
+  <% if tickets.empty? %>
+    <p class="text-sm text-base-content/40 italic"><%= empty %></p>
+  <% else %>
+    <ul class="space-y-3">
+      <% tickets.each do |t| %>
+        <li class="p-3 rounded-lg border border-base-300 bg-base-200/40">
+          <%= link_to t.title, edit_ticket_path(t), class: "font-medium link link-hover" %>
+          <div class="text-xs text-base-content/60 mt-1 flex items-center gap-2">
+            <%= classification_pill(t) %>
+            <% if t.scheduled_for %><span><%= l(t.scheduled_for.to_date, format: :default) %></span><% end %>
+            <% if t.shipped_at %><span>shipped <%= time_ago_in_words(t.shipped_at) %> ago</span><% end %>
+            <% if t.feature_request? %><span><%= t.votes_count %> votes</span><% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

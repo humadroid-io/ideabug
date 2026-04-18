@@ -1,12 +1,19 @@
 module Api
   module V1
     class AnnouncementsController < BaseController
+      LIST_LIMIT = 10
+      READ_WINDOW = 1.month
+
       before_action :find_announcement, only: %i[show read]
+
       def index
-        limit = 3
         announcements = announcement_scope
           .order(published_at: :desc)
-          .limit(limit)
+          .limit(LIST_LIMIT)
+          .to_a
+
+        unread = Current.contact.announcements_opted_out? ? 0 : unread_announcement_ids.size
+        response.headers["X-Ideabug-Unread"] = unread.to_s
         render json: AnnouncementBlueprint.render(announcements)
       end
 
@@ -22,10 +29,30 @@ module Api
         render json: AnnouncementBlueprint.render(@announcement.reload)
       end
 
+      def read_all
+        unread_ids = unread_announcement_ids
+        marked = mark_as_read(unread_ids)
+        response.headers["X-Ideabug-Unread"] = "0"
+        render json: {marked: marked}
+      end
+
+      def opt_out
+        Current.contact.update!(announcements_opted_out: true)
+        response.headers["X-Ideabug-Opted-Out"] = "true"
+        response.headers["X-Ideabug-Unread"] = "0"
+        render json: {opted_out: true}
+      end
+
+      def opt_in
+        Current.contact.update!(announcements_opted_out: false)
+        response.headers["X-Ideabug-Opted-Out"] = "false"
+        render json: {opted_out: false}
+      end
+
       private
 
       def announcement_scope
-        base_scope = Announcement
+        Announcement
           .select(
             'announcements.*,
                       CASE
@@ -36,8 +63,6 @@ module Api
           )
           .left_joins(:announcement_reads)
           .where("announcement_reads.contact_id = ? OR announcement_reads.id IS NULL", Current.contact)
-
-        base_scope
           .left_joins(:segment_values)
           .where(
             "NOT EXISTS (
@@ -56,6 +81,21 @@ module Api
             Current.contact.id
           )
           .distinct
+      end
+
+      def unread_announcement_ids
+        Announcement
+          .where("published_at > ?", READ_WINDOW.ago)
+          .where.not(id: AnnouncementRead.where(contact_id: Current.contact.id).select(:announcement_id))
+          .pluck(:id)
+      end
+
+      def mark_as_read(ids)
+        return 0 if ids.empty?
+        now = Time.current
+        rows = ids.map { |id| {announcement_id: id, contact_id: Current.contact.id, read_at: now, created_at: now, updated_at: now} }
+        AnnouncementRead.insert_all(rows, unique_by: %i[announcement_id contact_id])
+        ids.size
       end
 
       def find_announcement

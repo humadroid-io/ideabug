@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_11_135737) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_18_130300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,12 +79,17 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_135737) do
   end
 
   create_table "contacts", force: :cascade do |t|
-    t.string "external_id", null: false
+    t.string "external_id"
     t.jsonb "info_payload", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "segments_payload", default: {}
-    t.index ["external_id"], name: "index_contacts_on_external_id", unique: true
+    t.string "anonymous_id"
+    t.boolean "announcements_opted_out", default: false, null: false
+    t.datetime "last_seen_at"
+    t.index ["anonymous_id"], name: "index_contacts_on_anonymous_id", unique: true, where: "(anonymous_id IS NOT NULL)"
+    t.index ["external_id"], name: "index_contacts_on_external_id", unique: true, where: "(external_id IS NOT NULL)"
+    t.check_constraint "anonymous_id IS NOT NULL OR external_id IS NOT NULL", name: "contacts_identity_present"
   end
 
   create_table "contacts_segment_values", id: false, force: :cascade do |t|
@@ -118,6 +123,17 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_135737) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "ticket_votes", force: :cascade do |t|
+    t.bigint "ticket_id", null: false
+    t.bigint "contact_id", null: false
+    t.datetime "voted_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id"], name: "index_ticket_votes_on_contact_id"
+    t.index ["ticket_id", "contact_id"], name: "index_ticket_votes_on_ticket_id_and_contact_id", unique: true
+    t.index ["ticket_id"], name: "index_ticket_votes_on_ticket_id"
+  end
+
   create_table "tickets", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -125,6 +141,19 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_135737) do
     t.integer "classification", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "contact_id"
+    t.datetime "scheduled_for"
+    t.datetime "shipped_at"
+    t.boolean "public_on_roadmap", default: false, null: false
+    t.integer "votes_count", default: 0, null: false
+    t.string "source", default: "admin", null: false
+    t.jsonb "context", default: {}
+    t.index ["classification", "status"], name: "index_tickets_on_classification_and_status"
+    t.index ["contact_id"], name: "index_tickets_on_contact_id"
+    t.index ["public_on_roadmap", "classification"], name: "index_tickets_on_public_on_roadmap_and_classification"
+    t.index ["scheduled_for"], name: "index_tickets_on_scheduled_for"
+    t.index ["shipped_at"], name: "index_tickets_on_shipped_at"
+    t.index ["source"], name: "index_tickets_on_source"
   end
 
   create_table "users", force: :cascade do |t|
@@ -141,4 +170,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_135737) do
   add_foreign_key "announcement_reads", "contacts", on_delete: :cascade
   add_foreign_key "segment_values", "segments", on_delete: :cascade
   add_foreign_key "sessions", "users"
+  add_foreign_key "ticket_votes", "contacts", on_delete: :cascade
+  add_foreign_key "ticket_votes", "tickets", on_delete: :cascade
+  add_foreign_key "tickets", "contacts"
 end

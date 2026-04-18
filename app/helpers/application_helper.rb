@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include Pagy::Frontend
+
   def avatar_image_tag(user, opts = {})
     image_tag avatar_image_url(user, opts), **opts
   end

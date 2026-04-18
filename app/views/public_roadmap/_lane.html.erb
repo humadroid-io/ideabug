@@ -1,0 +1,24 @@
+<section class="bg-base-100 border border-base-300 rounded-xl p-4">
+  <h2 class="text-sm uppercase tracking-wide text-base-content/60 font-semibold mb-3"><%= title %></h2>
+
+  <% if tickets.empty? %>
+    <p class="text-sm text-base-content/50 italic">Nothing here yet.</p>
+  <% else %>
+    <ul class="space-y-3">
+      <% tickets.each do |ticket| %>
+        <li id="ticket-<%= ticket.id %>" class="p-3 rounded-lg border border-base-300 bg-base-200/40">
+          <div class="font-medium leading-snug"><%= ticket.title %></div>
+          <div class="mt-1 flex items-center gap-2 text-xs text-base-content/60">
+            <% if date_field && ticket.send(date_field) %>
+              <span><%= ticket.send(date_field).to_date.to_fs(:long) %></span>
+            <% end %>
+            <span class="badge badge-sm badge-ghost"><%= ticket.classification.humanize %></span>
+            <% if ticket.feature_request? %>
+              <span class="badge badge-sm badge-ghost"><%= ticket.votes_count %> votes</span>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

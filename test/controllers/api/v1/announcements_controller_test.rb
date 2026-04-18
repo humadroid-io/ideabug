@@ -21,15 +21,15 @@ module Api
           assert_equal 1, json_response.length
         end
 
-        should "respect the limit of 3 announcements" do
-          create_list(:announcement, 4, published_at: Time.current)
+        should "respect the LIST_LIMIT" do
+          create_list(:announcement, 12, published_at: Time.current)
 
           get api_v1_announcements_url,
             headers: {Authorization: "Bearer #{@token}"}
 
           assert_response :success
           json_response = JSON.parse(response.body)
-          assert_equal 3, json_response.length
+          assert_equal Api::V1::AnnouncementsController::LIST_LIMIT, json_response.length
         end
 
         should "not get index without token" do
@@ -181,6 +181,57 @@ module Api
           end
 
           assert_response :success
+        end
+      end
+
+      context "POST read_all" do
+        should "mark all unread announcements within window as read" do
+          create_list(:announcement, 3, published_at: 1.week.ago)
+          assert_difference "AnnouncementRead.where(contact_id: @contact.id).count", 4 do
+            post read_all_api_v1_announcements_url,
+              headers: {Authorization: "Bearer #{@token}"}
+          end
+
+          assert_response :success
+          body = JSON.parse(response.body)
+          assert_equal 4, body["marked"]
+          assert_equal "0", response.headers["X-Ideabug-Unread"]
+        end
+
+        should "be a no-op when nothing unread" do
+          create(:announcement_read, announcement: @announcement, contact: @contact)
+          assert_no_difference "AnnouncementRead.count" do
+            post read_all_api_v1_announcements_url,
+              headers: {Authorization: "Bearer #{@token}"}
+          end
+        end
+      end
+
+      context "POST opt_out / opt_in" do
+        should "set the contact's opted_out flag and zero the unread header" do
+          create_list(:announcement, 2, published_at: Time.current)
+
+          post opt_out_api_v1_announcements_url, headers: {Authorization: "Bearer #{@token}"}
+          assert_response :success
+          assert @contact.reload.announcements_opted_out
+          assert_equal "true", response.headers["X-Ideabug-Opted-Out"]
+
+          # Index still returns announcements but unread header is 0
+          get api_v1_announcements_url, headers: {Authorization: "Bearer #{@token}"}
+          assert_equal 3, JSON.parse(response.body).length
+          assert_equal "0", response.headers["X-Ideabug-Unread"]
+
+          post opt_in_api_v1_announcements_url, headers: {Authorization: "Bearer #{@token}"}
+          assert_response :success
+          refute @contact.reload.announcements_opted_out
+        end
+      end
+
+      context "headers" do
+        should "set X-Ideabug-Unread on index" do
+          get api_v1_announcements_url, headers: {Authorization: "Bearer #{@token}"}
+          # 1 unread (the @announcement created in setup)
+          assert_equal "1", response.headers["X-Ideabug-Unread"]
         end
       end
 

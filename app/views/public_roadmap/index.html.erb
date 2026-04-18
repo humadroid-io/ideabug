@@ -1,0 +1,38 @@
+<% content_for :title, "Roadmap" %>
+<% content_for :head do %>
+  <link rel="canonical" href="<%= request.base_url %>/roadmap">
+  <meta property="og:title" content="Roadmap">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= request.base_url %>/roadmap">
+<% end %>
+
+<div class="w-full max-w-6xl mx-auto px-4 py-10">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold">Roadmap</h1>
+    <p class="text-base-content/70 mt-2">What we're working on, what's coming next, and what's already shipped.</p>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <%= render "lane", title: "Now", tickets: @buckets[:now], date_field: nil %>
+    <%= render "lane", title: "Next", tickets: @buckets[:next], date_field: :scheduled_for %>
+    <%= render "lane", title: "Shipped", tickets: @buckets[:shipped], date_field: :shipped_at %>
+  </div>
+
+  <% if @buckets[:ideas].any? %>
+    <section class="mt-12">
+      <h2 class="text-xl font-semibold mb-4">Most requested ideas</h2>
+      <ul class="space-y-2">
+        <% @buckets[:ideas].each do |ticket| %>
+          <li id="ticket-<%= ticket.id %>" class="flex items-center justify-between p-3 rounded-lg border border-base-300 bg-base-100">
+            <span class="font-medium"><%= ticket.title %></span>
+            <span class="badge badge-ghost gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 5.5-9 10-9 10z"/></svg>
+              <%= ticket.votes_count %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+      <p class="mt-4 text-sm text-base-content/60">Voting happens inside the embedded widget.</p>
+    </section>
+  <% end %>
+</div>

@@ -29,7 +29,7 @@ class SegmentValue < ApplicationRecord
   belongs_to :segment
 
   ## VALIDATIONS
-  validates :val, presence: true, uniqueness: { scope: :segment_id }
+  validates :val, presence: true, uniqueness: {scope: :segment_id}
   ## CALLBACKS
   ## OTHER
 

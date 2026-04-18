@@ -17,20 +17,44 @@
       </div>
       <div class="form-control w-full">
         <%= form.label :description, class: "label" %>
-        <%= form.text_area :description, rows: 4, class: "input input-bordered w-full" %>
+        <%= form.text_area :description, rows: 4, class: "textarea textarea-bordered w-full" %>
       </div>
-      <% if form.object.persisted? %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% if form.object.persisted? %>
+          <div class="form-control w-full">
+            <%= form.label :status, class: "label" %>
+            <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered" %>
+          </div>
+        <% end %>
         <div class="form-control w-full">
-          <%= form.label :status, class: "label" %>
-          <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered" %>
+          <%= form.label :classification, class: "label" %>
+          <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered" %>
         </div>
-      <% end %>
-      <div class="form-control w-full">
-        <%= form.label :classification, class: "label" %>
-        <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered" %>
       </div>
+
+      <fieldset class="border border-base-300 rounded-lg p-4 space-y-3">
+        <legend class="px-2 text-sm font-semibold text-base-content/70">Roadmap</legend>
+        <div class="form-control">
+          <label class="cursor-pointer label justify-start gap-3">
+            <%= form.check_box :public_on_roadmap, class: "checkbox checkbox-sm" %>
+            <span class="label-text">Show on public roadmap</span>
+          </label>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control w-full">
+            <%= form.label :scheduled_for, "Scheduled for", class: "label" %>
+            <%= form.datetime_local_field :scheduled_for, value: ticket.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered w-full" %>
+          </div>
+          <div class="form-control w-full">
+            <%= form.label :shipped_at, "Shipped at", class: "label" %>
+            <%= form.datetime_local_field :shipped_at, value: ticket.shipped_at&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered w-full" %>
+          </div>
+        </div>
+      </fieldset>
+
       <div class="mt-8 flex justify-end gap-2">
-        <%= link_to "Cancel", ticket.persisted? ?  ticket : tickets_path, class: "btn btn-ghost" %>
+        <%= link_to "Cancel", ticket.persisted? ? ticket : tickets_path, class: "btn btn-ghost" %>
         <%= form.submit class: "btn btn-primary" %>
       </div>
     </div>

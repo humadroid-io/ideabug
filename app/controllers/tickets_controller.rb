@@ -1,31 +1,34 @@
 class TicketsController < ApplicationController
   before_action :set_ticket, only: %i[show edit update destroy]
 
-  # GET /tickets or /tickets.json
   def index
-    @tickets = Ticket
+    scope = filtered_scope
     respond_to do |format|
-      format.html do
-        @grouped_tickets = @tickets.ordered.group_by(&:status)
-      end
-      format.json { @tickets = Ticket.ordered }
+      format.html { @pagy, @tickets = pagy(scope) }
+      format.json { @tickets = scope.to_a }
     end
   end
 
-  # GET /tickets/1 or /tickets/1.json
+  def timeline
+    @now = Ticket.on_roadmap.in_progress_status.order(updated_at: :desc)
+    @next = Ticket.on_roadmap.scheduled.order(scheduled_for: :asc)
+    @shipped = Ticket.on_roadmap.shipped.order(shipped_at: :desc).limit(25)
+    @backlog = Ticket.on_roadmap.features.new_status
+      .where(scheduled_for: nil, shipped_at: nil)
+      .order(votes_count: :desc, created_at: :desc)
+      .limit(25)
+  end
+
   def show
   end
 
-  # GET /tickets/new
   def new
     @ticket = Ticket.new
   end
 
-  # GET /tickets/1/edit
   def edit
   end
 
-  # POST /tickets or /tickets.json
   def create
     @ticket = Ticket.new(ticket_params)
 
@@ -40,7 +43,6 @@ class TicketsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /tickets/1 or /tickets/1.json
   def update
     respond_to do |format|
       if @ticket.update(ticket_params)
@@ -53,7 +55,6 @@ class TicketsController < ApplicationController
     end
   end
 
-  # DELETE /tickets/1 or /tickets/1.json
   def destroy
     @ticket.destroy!
 
@@ -65,13 +66,30 @@ class TicketsController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
+  def filtered_scope
+    scope = Ticket.includes(:contact)
+    if (cls = params[:classification].presence) && Ticket.classifications.key?(cls)
+      scope = scope.where(classification: cls)
+    end
+    if (st = params[:status].presence) && Ticket.statuses.key?(st)
+      scope = scope.where(status: st)
+    end
+    if (q = params[:q].to_s.strip).present?
+      like = "%#{q}%"
+      scope = scope.where("title ILIKE ? OR description ILIKE ?", like, like)
+    end
+    case params[:sort]
+    when "votes" then scope.order(votes_count: :desc, created_at: :desc)
+    else scope.order(created_at: :desc)
+    end
+  end
+
   def set_ticket
     @ticket = Ticket.find(params[:id])
   end
 
-  # Only allow a list of trusted parameters through.
   def ticket_params
-    params.require(:ticket).permit(:title, :description, :status, :classification)
+    params.require(:ticket).permit(:title, :description, :status, :classification,
+      :public_on_roadmap, :scheduled_for, :shipped_at)
   end
 end

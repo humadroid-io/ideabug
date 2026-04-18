@@ -20,15 +20,44 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should group tickets by status in index" do
-    in_progress_ticket = create(:ticket, status: :in_progress)
+  test "should filter index by classification + status + search query" do
+    bug = create(:ticket, :bug, title: "DB exception")
+    feature = create(:ticket, :feature, title: "Add dark mode")
+    create(:ticket, status: :completed, classification: :task, title: "Cleanup logs")
 
-    get tickets_url
+    get tickets_url(classification: "bug")
+    assert_includes assigns(:tickets).map(&:id), bug.id
+    refute_includes assigns(:tickets).map(&:id), feature.id
+
+    get tickets_url(status: "completed")
+    titles = assigns(:tickets).map(&:title)
+    assert_includes titles, "Cleanup logs"
+
+    get tickets_url(q: "dark")
+    assert_equal [feature.id], assigns(:tickets).map(&:id)
+  end
+
+  test "should sort by votes when requested" do
+    a = create(:ticket, :feature)
+    b = create(:ticket, :feature)
+    create(:ticket_vote, ticket: b)
+
+    get tickets_url(sort: "votes", classification: "feature_request")
+    ids = assigns(:tickets).map(&:id)
+    assert_equal b.id, ids.first
+    assert_includes ids, a.id
+  end
+
+  test "should render the timeline action" do
+    create(:ticket, :feature, status: :in_progress, title: "In flight")
+    create(:ticket, :feature, scheduled_for: 1.week.from_now, title: "Coming soon")
+    create(:ticket, :feature, shipped_at: 1.day.ago, status: :completed, title: "Done")
+
+    get timeline_tickets_url
     assert_response :success
-
-    grouped_tickets = assigns(:grouped_tickets)
-    assert_equal [@ticket], grouped_tickets["new"]
-    assert_equal [in_progress_ticket], grouped_tickets["in_progress"]
+    assert_match "In flight", response.body
+    assert_match "Coming soon", response.body
+    assert_match "Done", response.body
   end
 
   test "should get new" do
