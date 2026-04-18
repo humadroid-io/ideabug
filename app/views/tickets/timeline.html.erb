@@ -1,11 +1,14 @@
-<div class="w-full max-w-7xl mx-auto p-4 space-y-6">
-  <header class="flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl font-bold">Roadmap timeline</h1>
-      <p class="text-sm text-base-content/60">Drag-free editor — set scheduled or shipped from each ticket's edit page.</p>
-    </div>
+<div class="app-page space-y-6 py-4">
+  <%= section_header \
+        title: "Roadmap timeline",
+        eyebrow: "Feedback",
+        meta_items: [
+          "#{pluralize(@now.size, "item")} in now",
+          "#{pluralize(@next.size, "item")} in next",
+          "#{pluralize(@shipped.size, "item")} shipped"
+        ] do %>
     <%= link_to "All tickets", tickets_path, class: "btn btn-sm btn-ghost" %>
-  </header>
+  <% end %>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <%= render "lane", title: "Now", tickets: @now, empty: "Nothing in flight." %>
@@ -18,7 +21,7 @@
       <h2 class="font-semibold mb-2">Top requested ideas (not yet scheduled)</h2>
       <ul class="space-y-2">
         <% @backlog.each do |t| %>
-          <li class="flex items-center justify-between bg-base-100 border border-base-300 rounded-lg p-3">
+          <li class="app-panel flex items-center justify-between p-3 shadow-none">
             <%= link_to t.title, edit_ticket_path(t), class: "link link-hover font-medium" %>
             <span class="badge badge-ghost"><%= t.votes_count %> votes</span>
           </li>

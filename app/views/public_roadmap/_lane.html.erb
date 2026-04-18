@@ -1,22 +1,41 @@
-<section class="bg-base-100 border border-base-300 rounded-xl p-4">
-  <h2 class="text-sm uppercase tracking-wide text-base-content/60 font-semibold mb-3"><%= title %></h2>
+<section class="public-panel overflow-hidden">
+  <div class="flex items-center justify-between border-b border-base-300 px-4 py-3 sm:px-5">
+    <h2 class="text-base font-semibold tracking-tight text-base-content"><%= title %></h2>
+    <span class="text-sm text-base-content/50"><%= pluralize(tickets.size, "item") %></span>
+  </div>
 
   <% if tickets.empty? %>
-    <p class="text-sm text-base-content/50 italic">Nothing here yet.</p>
+    <div class="px-4 py-8 text-center text-sm text-base-content/50 sm:px-5">
+      <%= empty_state %>
+    </div>
   <% else %>
-    <ul class="space-y-3">
+    <ul class="public-list">
       <% tickets.each do |ticket| %>
-        <li id="ticket-<%= ticket.id %>" class="p-3 rounded-lg border border-base-300 bg-base-200/40">
-          <div class="font-medium leading-snug"><%= ticket.title %></div>
-          <div class="mt-1 flex items-center gap-2 text-xs text-base-content/60">
-            <% if date_field && ticket.send(date_field) %>
-              <span><%= ticket.send(date_field).to_date.to_fs(:long) %></span>
-            <% end %>
-            <span class="badge badge-sm badge-ghost"><%= ticket.classification.humanize %></span>
-            <% if ticket.feature_request? %>
-              <span class="badge badge-sm badge-ghost"><%= ticket.votes_count %> votes</span>
-            <% end %>
+        <li id="ticket-<%= ticket.id %>" class="public-list-row">
+          <div class="min-w-0">
+            <h3 class="text-sm font-semibold leading-5 text-base-content sm:text-base">
+              <% if ticket.feature_request? %>
+                <%= link_to ticket.title, public_feature_path(ticket), class: "transition hover:opacity-80" %>
+              <% else %>
+                <%= ticket.title %>
+              <% end %>
+            </h3>
+
+            <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <span class="<%= roadmap_ticket_badge_classes(ticket) %>"><%= ticket.classification.humanize %></span>
+
+              <% if ticket.feature_request? && ticket.votes_count.positive? %>
+                <span class="badge badge-outline badge-sm"><%= pluralize(ticket.votes_count, "vote") %></span>
+              <% end %>
+            </div>
           </div>
+
+          <% if date_field && ticket.public_send(date_field) %>
+            <div class="text-right">
+              <div class="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary/70"><%= date_label %></div>
+              <div class="mt-0.5 text-sm font-medium text-base-content"><%= ticket.public_send(date_field).to_date.to_fs(:long) %></div>
+            </div>
+          <% end %>
         </li>
       <% end %>
     </ul>

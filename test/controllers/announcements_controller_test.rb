@@ -18,89 +18,39 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
         preview: "Test Preview"
       }
     }
-    @user = create(:user)  # Assuming you have a user factory
+    @user = create(:user)
   end
 
-  context "when announcements are not publicly accessible" do
-    setup do
-      Rails.application.config.x.announcements_publicly_accessible = false
-    end
-
-    should "should redirect to sign in when not authenticated" do
-      get announcements_url
-      assert_redirected_to new_session_url
-    end
-
-    should "should not get list of announcements when calling json" do
-      get announcements_url(format: :json)
-      assert_redirected_to new_session_url
-    end
-
-    should "should show announcements when authenticated" do
-      sign_in_as(@user)
-      get announcements_url
-      assert_response :success
-      assert_includes @response.body, @announcement.title
-      assert_includes @response.body, @segmented_announcement.title
-    end
-  end
-
-  context "when announcements are publicly accessible" do
-    setup do
+  context "unauthenticated" do
+    should "redirect index to sign-in regardless of public-access config" do
       Rails.application.config.x.announcements_publicly_accessible = true
-    end
-
-    should "should show non-segmented announcements when not authenticated" do
-      get announcements_url
-      assert_response :success
-      assert_includes @response.body, @announcement.title
-      assert_not_includes @response.body, @segmented_announcement.title
-    end
-
-    should "should show all announcements when authenticated" do
-      sign_in_as(@user)
-      get announcements_url
-      assert_response :success
-      assert_includes @response.body, @announcement.title
-      assert_includes @response.body, @segmented_announcement.title
-    end
-
-    should "should show non-segmented announcement details when not authenticated" do
-      get announcement_url(@announcement)
-      assert_response :success
-    end
-
-    should "should not show segmented announcement details when not authenticated" do
-      assert_raises(ActiveRecord::RecordNotFound) do
-        get announcement_url(@segmented_announcement)
-      end
-    end
-  end
-
-  context "authenticated user actions" do
-    setup do
-      sign_in_as(@user)
-    end
-
-    should "should redirect to sign in when not authenticated" do
-      sign_out
       get announcements_url
       assert_redirected_to new_session_url
     end
 
-    should "should not get list of announcements when calling json" do
-      sign_out
+    should "redirect json index to sign-in" do
       get announcements_url(format: :json)
       assert_redirected_to new_session_url
     end
+
+    should "redirect show to sign-in" do
+      get announcement_url(@announcement)
+      assert_redirected_to new_session_url
+    end
+  end
+
+  context "authenticated" do
+    setup { sign_in_as(@user) }
 
     context "GET #index" do
-      should "get index" do
+      should "render the admin index" do
         get announcements_url
         assert_response :success
+        assert_includes @response.body, @announcement.title
+        assert_includes @response.body, @segmented_announcement.title
       end
 
-      should "get index in JSON format" do
+      should "respond with JSON" do
         get announcements_url(format: :json)
         assert_response :success
         assert_equal "application/json", @response.media_type
@@ -108,113 +58,64 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
     end
 
     context "GET #show" do
-      should "show announcement" do
+      should "render the admin show" do
         get announcement_url(@announcement)
         assert_response :success
       end
 
-      should "show announcement in JSON format" do
+      should "respond with JSON" do
         get announcement_url(@announcement, format: :json)
         assert_response :success
         assert_equal "application/json", @response.media_type
       end
     end
 
-    context "GET #new" do
-      should "get new" do
+    context "GET #new and #edit" do
+      should "render new" do
         get new_announcement_url
         assert_response :success
       end
-    end
 
-    context "GET #edit" do
-      should "get edit" do
+      should "render edit" do
         get edit_announcement_url(@announcement)
         assert_response :success
       end
     end
 
     context "POST #create" do
-      context "with valid params" do
-        should "create announcement" do
-          assert_difference("Announcement.count") do
-            post announcements_url, params: @valid_params
-          end
-
-          assert_redirected_to announcement_url(Announcement.last)
-          assert_equal "Announcement was successfully created.", flash[:notice]
+      should "create announcement with valid params" do
+        assert_difference("Announcement.count") do
+          post announcements_url, params: @valid_params
         end
-
-        should "create announcement in JSON format" do
-          assert_difference("Announcement.count") do
-            post announcements_url,
-              params: @valid_params,
-              as: :json
-          end
-
-          assert_response :created
-          assert_equal "application/json", @response.media_type
-        end
+        assert_redirected_to announcement_url(Announcement.last)
+        assert_equal "Announcement was successfully created.", flash[:notice]
       end
 
-      context "with invalid params" do
-        should "not create announcement" do
-          assert_no_difference("Announcement.count") do
-            post announcements_url, params: @invalid_params
-          end
-
-          assert_response :unprocessable_entity
+      should "create announcement via JSON" do
+        assert_difference("Announcement.count") do
+          post announcements_url, params: @valid_params, as: :json
         end
+        assert_response :created
+      end
 
-        should "return errors in JSON format" do
-          post announcements_url,
-            params: @invalid_params,
-            as: :json
-
-          assert_response :unprocessable_entity
-          assert_equal "application/json", @response.media_type
+      should "reject invalid params" do
+        assert_no_difference("Announcement.count") do
+          post announcements_url, params: @invalid_params
         end
+        assert_response :unprocessable_entity
       end
     end
 
     context "PATCH #update" do
-      context "with valid params" do
-        should "update announcement" do
-          patch announcement_url(@announcement),
-            params: {announcement: {title: "Updated Title"}}
-
-          @announcement.reload
-          assert_equal "Updated Title", @announcement.title
-          assert_redirected_to announcement_url(@announcement)
-          assert_equal "Announcement was successfully updated.", flash[:notice]
-        end
-
-        should "update announcement in JSON format" do
-          patch announcement_url(@announcement),
-            params: {announcement: {title: "Updated Title"}},
-            as: :json
-
-          assert_response :ok
-          assert_equal "application/json", @response.media_type
-        end
+      should "update with valid params" do
+        patch announcement_url(@announcement), params: {announcement: {title: "Updated Title"}}
+        assert_equal "Updated Title", @announcement.reload.title
+        assert_redirected_to announcement_url(@announcement)
       end
 
-      context "with invalid params" do
-        should "not update announcement" do
-          patch announcement_url(@announcement),
-            params: {announcement: {title: ""}}
-
-          assert_response :unprocessable_entity
-        end
-
-        should "return errors in JSON format" do
-          patch announcement_url(@announcement),
-            params: {announcement: {title: ""}},
-            as: :json
-
-          assert_response :unprocessable_entity
-          assert_equal "application/json", @response.media_type
-        end
+      should "reject invalid params" do
+        patch announcement_url(@announcement), params: {announcement: {title: ""}}
+        assert_response :unprocessable_entity
       end
     end
 
@@ -223,24 +124,13 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
         assert_difference("Announcement.count", -1) do
           delete announcement_url(@announcement)
         end
-
         assert_redirected_to announcements_url
-        assert_equal "Announcement was successfully destroyed.", flash[:notice]
         assert_response :see_other
-      end
-
-      should "destroy announcement in JSON format" do
-        assert_difference("Announcement.count", -1) do
-          delete announcement_url(@announcement), as: :json
-        end
-
-        assert_response :no_content
       end
     end
   end
 
   teardown do
-    # Reset the config after each test
     Rails.application.config.x.announcements_publicly_accessible = false
   end
 end

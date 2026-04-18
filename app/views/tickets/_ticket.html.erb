@@ -1,30 +1,22 @@
-<article id="<%= dom_id ticket %>" class="card bg-base-100 border border-base-300 shadow-sm">
+<article id="<%= dom_id ticket %>" class="app-card">
   <div class="card-body space-y-6">
-    <header class="space-y-3">
-      <h1 class="text-2xl font-bold leading-tight"><%= ticket.title %></h1>
-      <div class="flex flex-wrap items-center gap-2 text-xs">
-        <%= classification_pill(ticket) %>
-        <span class="badge badge-ghost"><%= ticket.status.titleize %></span>
-        <% if ticket.public_on_roadmap %>
-          <span class="badge badge-success badge-outline gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.707 6.707l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L9 10.586l3.293-3.293a1 1 0 011.414 1.414z"/></svg>
-            Public on roadmap
-          </span>
-        <% end %>
-        <% if ticket.feature_request? %>
-          <span class="badge badge-ghost gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 5.5-9 10-9 10z"/></svg>
-            <%= ticket.votes_count %>
-            votes
-          </span>
-        <% end %>
-        <span class="text-base-content/50">·</span>
-        <span class="text-base-content/60" title="<%= ticket.created_at %>">
-          opened <%= time_ago_in_words(ticket.created_at) %> ago
-          via <span class="font-medium"><%= ticket.source %></span>
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <%= classification_pill(ticket) %>
+      <span class="badge badge-ghost"><%= ticket.status.titleize %></span>
+      <% if ticket.public_on_roadmap %>
+        <span class="badge badge-success badge-outline gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.707 6.707l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L9 10.586l3.293-3.293a1 1 0 011.414 1.414z"/></svg>
+          Public on roadmap
         </span>
-      </div>
-    </header>
+      <% end %>
+      <% if ticket.feature_request? %>
+        <span class="badge badge-ghost gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 5.5-9 10-9 10z"/></svg>
+          <%= ticket.votes_count %>
+          votes
+        </span>
+      <% end %>
+    </div>
 
     <% if ticket.description.present? %>
       <section>
@@ -34,7 +26,7 @@
     <% end %>
 
     <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-base-200/40 rounded-lg p-4">
+      <div class="app-subpanel">
         <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Roadmap</h2>
         <dl class="space-y-2 text-sm">
           <div class="flex justify-between gap-4">
@@ -70,7 +62,7 @@
         </dl>
       </div>
 
-      <div class="bg-base-200/40 rounded-lg p-4">
+      <div class="app-subpanel">
         <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Submitter</h2>
         <% if ticket.contact %>
           <dl class="space-y-2 text-sm">
@@ -101,7 +93,7 @@
     <% if ticket.context.present? && ticket.context.any? %>
       <section>
         <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-2">Submission context</h2>
-        <dl class="bg-base-200/40 rounded-lg p-4 text-xs space-y-1">
+        <dl class="app-subpanel space-y-1 text-xs">
           <% ticket.context.each do |key, value| %>
             <div class="flex gap-2">
               <dt class="text-base-content/60 min-w-24 shrink-0"><%= key.humanize %></dt>

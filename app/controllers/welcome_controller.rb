@@ -4,7 +4,9 @@ class WelcomeController < ApplicationController
   layout "public"
 
   def home
-    redirect_to authenticated? ? dashboard_path : announcements_path
+    return redirect_to dashboard_path if authenticated?
+    return redirect_to public_announcements_path if announcements_publicly_accessible?
+    # Otherwise render the marketing home view (welcome/home.html.erb).
   end
 
   def script

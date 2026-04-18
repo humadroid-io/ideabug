@@ -1,11 +1,10 @@
-<div class="w-full">
-  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Tickets", :tickets %> &raquo; Editing <%= @ticket.to_s %></h3>
-    <div class="flex gap-2">
-      <%= link_to "Back", @ticket, class: "btn btn-ghost btn-sm" %>
-    </div>
-  </div>
-</div>
-<div class="container max-w-3xl mx-auto p-4">
+<div class="app-page space-y-6 py-4">
+  <%= section_header \
+        title: "Edit ticket",
+        eyebrow: "Feedback",
+        meta_items: ["ticket ##{@ticket.id}", @ticket.title] do %>
+    <%= link_to "Back", @ticket, class: "btn btn-ghost btn-sm" %>
+  <% end %>
+
   <%= render "form", ticket: @ticket %>
 </div>

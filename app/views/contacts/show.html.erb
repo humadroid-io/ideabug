@@ -1,45 +1,30 @@
 <% reads_count = @contact.announcement_reads.count %>
 <% votes_count = @contact.ticket_votes.count %>
 <% submissions_count = @contact.submitted_tickets.count %>
+<% identity = @contact.identified? ? @contact.external_id : @contact.anonymous_id %>
 
-<div class="w-full max-w-7xl mx-auto p-4 space-y-6">
-  <header class="flex items-start justify-between gap-4 flex-wrap">
-    <div class="text-sm text-base-content/60">
-      <%= link_to "Contacts", contacts_path, class: "link link-hover" %>
-      <span class="mx-1">›</span>
-      <span class="font-mono"><%= @contact.identified? ? @contact.external_id : @contact.anonymous_id %></span>
-    </div>
+<div class="app-page space-y-6 py-4">
+  <%= section_header \
+        title: identity,
+        eyebrow: "Audience",
+        title_class: "font-mono break-all !text-xl sm:!text-2xl",
+        meta_items: [
+          (@contact.identified? ? "identified" : "anonymous"),
+          "first seen #{time_ago_in_words(@contact.created_at)} ago",
+          (@contact.last_seen_at ? "last seen #{time_ago_in_words(@contact.last_seen_at)} ago" : nil),
+          (@contact.announcements_opted_out? ? "announcements opt-out" : nil)
+        ] do %>
     <div class="flex gap-2">
       <%= link_to "Back", contacts_path, class: "btn btn-sm btn-ghost" %>
       <%= link_to "Delete", @contact,
             class: "btn btn-sm btn-ghost text-error",
             data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
     </div>
-  </header>
+  <% end %>
 
-  <article class="card bg-base-100 border border-base-300 shadow-sm">
+  <article class="app-card">
     <div class="card-body space-y-6">
-      <header class="space-y-2">
-        <div class="flex items-center gap-3 flex-wrap">
-          <% if @contact.identified? %>
-            <span class="badge badge-primary badge-outline">Identified</span>
-          <% else %>
-            <span class="badge badge-ghost">Anonymous</span>
-          <% end %>
-          <h1 class="text-xl font-mono break-all"><%= @contact.identified? ? @contact.external_id : @contact.anonymous_id %></h1>
-        </div>
-        <div class="text-xs text-base-content/60">
-          first seen <%= time_ago_in_words(@contact.created_at) %> ago
-          <% if @contact.last_seen_at %>
-            · last seen <%= time_ago_in_words(@contact.last_seen_at) %> ago
-          <% end %>
-          <% if @contact.announcements_opted_out? %>
-            · <span class="text-warning">opted out of announcements</span>
-          <% end %>
-        </div>
-      </header>
-
-      <section class="stats stats-horizontal shadow-sm bg-base-200/40 w-full">
+      <section class="stats stats-horizontal w-full rounded-box bg-base-200/40 shadow-sm">
         <div class="stat py-2">
           <div class="stat-title text-xs">Reads</div>
           <div class="stat-value text-xl"><%= reads_count %></div>
@@ -55,7 +40,7 @@
       </section>
 
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-base-200/40 rounded-lg p-4">
+        <div class="app-subpanel">
           <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Identity</h2>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between gap-4">
@@ -77,7 +62,7 @@
           </dl>
         </div>
 
-        <div class="bg-base-200/40 rounded-lg p-4">
+        <div class="app-subpanel">
           <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Info payload</h2>
           <% if @contact.info_payload.present? %>
             <dl class="space-y-1 text-sm">
@@ -116,7 +101,7 @@
       <% if @contact.segments_payload.present? && @contact.segments_payload.any? %>
         <section>
           <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-2">Last segments_payload (raw, from JWT)</h2>
-          <pre class="bg-base-200/40 rounded-lg p-3 text-xs overflow-x-auto"><%= JSON.pretty_generate(@contact.segments_payload) %></pre>
+          <pre class="app-subpanel overflow-x-auto p-3 text-xs"><%= JSON.pretty_generate(@contact.segments_payload) %></pre>
         </section>
       <% end %>
     </div>

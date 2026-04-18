@@ -1,14 +1,16 @@
-<div class="w-full max-w-7xl mx-auto p-4 space-y-4">
-  <div class="flex items-center justify-between gap-4 flex-wrap">
-    <div>
-      <h1 class="text-2xl font-bold">Tickets</h1>
-      <p class="text-sm text-base-content/60">All bug reports, feature requests, and tasks.</p>
-    </div>
+<div class="app-page space-y-4 py-4">
+  <%= section_header \
+        title: "Tickets",
+        eyebrow: "Feedback",
+        meta_items: [
+          pluralize(@pagy&.count || @tickets.size, "ticket"),
+          "bugs, features, tasks"
+        ] do %>
     <div class="flex gap-2">
       <%= link_to "Roadmap", timeline_tickets_path, class: "btn btn-ghost btn-sm" %>
       <%= link_to "New ticket", new_ticket_path, class: "btn btn-primary btn-sm" %>
     </div>
-  </div>
+  <% end %>
 
   <%= form_with url: tickets_path, method: :get, class: "flex flex-wrap items-end gap-2", local: true do %>
     <div class="form-control">
@@ -58,16 +60,11 @@
   <% end %>
 
   <% if @tickets.empty? %>
-    <div
-      class="
-        bg-base-100 border border-base-300 rounded-xl p-8 text-center
-        text-base-content/60
-      "
-    >
+    <div class="app-empty-state">
       No tickets match your filters.
     </div>
   <% else %>
-    <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+    <div class="app-panel overflow-x-auto overflow-hidden">
       <table class="table table-sm">
         <thead class="bg-base-200">
           <tr>

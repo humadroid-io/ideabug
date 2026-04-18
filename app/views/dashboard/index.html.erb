@@ -1,9 +1,14 @@
-<div class="w-full max-w-7xl mx-auto p-4 space-y-8">
-  <header>
-    <h1 class="text-2xl font-bold">Dashboard</h1>
-  </header>
+<div class="app-page space-y-8 py-4">
+  <%= section_header \
+        title: "Dashboard",
+        eyebrow: "Overview",
+        meta_items: [
+          pluralize(@stats[:contacts_total], "contact"),
+          pluralize(@stats[:announcements_total], "announcement"),
+          "#{@stats[:votes_last_7d]} votes in 7d"
+        ] %>
 
-  <section class="stats stats-vertical lg:stats-horizontal shadow w-full">
+  <section class="stats stats-vertical w-full rounded-box border border-base-300 bg-base-100 shadow-sm lg:stats-horizontal">
     <div class="stat">
       <div class="stat-title">Contacts</div>
       <div class="stat-value text-2xl"><%= @stats[:contacts_total] %></div>
@@ -29,14 +34,14 @@
   </section>
 
   <% if @reads_by_week.any? %>
-    <section class="bg-base-100 border border-base-300 rounded-xl p-4">
+    <section class="app-card">
       <h2 class="font-semibold mb-2">Announcement reads — last 8 weeks</h2>
       <%= sparkline_svg(@reads_by_week.map { |_, v| v }) %>
     </section>
   <% end %>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <section class="bg-base-100 border border-base-300 rounded-xl p-4">
+    <section class="app-card">
       <h2 class="font-semibold mb-3">Top requested features</h2>
       <% if @top_features.empty? %>
         <p class="text-sm text-base-content/60">No active feature requests yet.</p>
@@ -52,7 +57,7 @@
       <% end %>
     </section>
 
-    <section class="bg-base-100 border border-base-300 rounded-xl p-4">
+    <section class="app-card">
       <h2 class="font-semibold mb-3">Recent bugs</h2>
       <% if @recent_bugs.empty? %>
         <p class="text-sm text-base-content/60">No bug reports.</p>

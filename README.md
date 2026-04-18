@@ -18,7 +18,7 @@ The widget is **anonymous by default** (server mints an opaque ID, stored in `lo
 ## Table of contents
 
 1. [Embedding the widget](#embedding-the-widget) — for **host-app developers**
-2. [Public roadmap page](#public-roadmap-page)
+2. [Public pages (changelog + roadmap)](#public-pages)
 3. [Self-hosting the server](#self-hosting-the-server) — for **operators**
 4. [API reference](#api-reference)
 5. [Admin usage](#admin-usage)
@@ -321,11 +321,17 @@ If you already integrated the legacy `new IdeabugNotifications({...})` construct
 
 ---
 
-## Public roadmap page
+## Public pages
 
-Each ideabug instance exposes a public, no-auth `/roadmap` page suitable for sharing in your changelog, a footer link, or the widget's "Open public roadmap" button. It renders the same Now / Next / Shipped buckets with anchored ticket IDs (`/roadmap#ticket-123`) for deep links.
+Each ideabug instance exposes two no-auth pages suitable for linking from your marketing site, footer, or release emails:
 
-Voting requires the embedded widget (anonymous identity comes from `localStorage`), so the public page is intentionally read-only.
+- **`/changelog`** — a clean, minimal changelog of all published *broadcast* announcements (anything with no segment targeting and `published_at <= now`). Each entry has a permalink at `/changelog/:id` with OpenGraph tags for sharing. Pagination is deep-linkable. Set `ANNOUNCEMENTS_PUBLICLY_ACCESSIBLE=true` to enable; otherwise both routes return 404.
+
+  When public access is enabled, anonymous visitors hitting `/` are redirected to `/changelog` instead of seeing the marketing home.
+
+- **`/roadmap`** — Now / Next / Shipped Kanban + most-requested ideas, no auth required. Anchored ticket IDs (`/roadmap#ticket-123`) for deep links.
+
+Both pages are read-only. Voting and marking-as-read require the embedded widget's anonymous identity (stored in `localStorage`).
 
 ---
 
@@ -374,7 +380,7 @@ bin/rails console
 | `REDIS_URL` | `redis://localhost:6379/1` | Redis URL |
 | `RAILS_MASTER_KEY` | `config/master.key` | Decrypts `config/credentials.yml.enc` |
 | `JWT_PUBLIC_KEY` / `JWT_PUBLIC_KEY_FILE` | `config/jwt/public.pem` | Public key for verifying host-app JWTs (only required if you use JWT identity) |
-| `ANNOUNCEMENTS_PUBLICLY_ACCESSIBLE` | `false` | Show announcements list to unauthenticated admins (used by the home redirect) |
+| `ANNOUNCEMENTS_PUBLICLY_ACCESSIBLE` | `false` | Enables the public `/changelog` page (and redirects unauthenticated `/` visitors to it). When false, those routes return 404. |
 | `HCAPTCHA_SECRET` | unset | Enables hCaptcha verification on `POST /api/v1/tickets` (widget passes `hcaptcha_token` in the body) |
 
 ### Production deploy

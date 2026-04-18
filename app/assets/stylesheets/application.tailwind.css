@@ -2,13 +2,119 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-
 @layer components {
-  .btn-primary {
-    @apply py-2 px-4 bg-blue-200;
+  .app-page,
+  .public-shell {
+    @apply bg-base-100 text-base-content;
+  }
+
+  .app-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-5;
+  }
+
+  .public-page {
+    @apply mx-auto w-full max-w-4xl px-4 sm:px-5;
+  }
+
+  .app-panel,
+  .public-panel {
+    @apply rounded-box border border-base-300 bg-base-100 shadow-sm;
+  }
+
+  .app-card,
+  .public-card {
+    @apply rounded-box border border-base-300 bg-base-100 p-5 shadow-sm;
+  }
+
+  .app-subpanel {
+    @apply rounded-box bg-base-200/40 p-4;
+  }
+
+  .app-empty-state {
+    @apply rounded-box border border-base-300 bg-base-100 px-6 py-8 text-center text-base-content/60 shadow-sm;
+  }
+
+  .app-fieldset {
+    @apply rounded-box border border-base-300 p-4 space-y-3;
+  }
+
+  .public-shell {
+    background:
+      radial-gradient(circle at top left, hsl(var(--p) / 0.12), transparent 30%),
+      radial-gradient(circle at top right, hsl(var(--s) / 0.08), transparent 22%),
+      linear-gradient(180deg, hsl(var(--b2)) 0%, hsl(var(--b1)) 10rem, hsl(var(--b1)) 100%);
+  }
+
+  .public-eyebrow {
+    @apply text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-primary;
+  }
+
+  .public-title {
+    @apply text-2xl font-semibold tracking-tight text-base-content sm:text-3xl;
+  }
+
+  .public-subtitle {
+    @apply max-w-3xl text-sm leading-6 text-base-content/70;
+  }
+
+  .public-meta-chip {
+    @apply inline-flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-base-content/50;
+  }
+
+  .public-meta-chip::before {
+    content: "";
+    @apply inline-block h-1.5 w-1.5 rounded-full bg-primary/70;
+  }
+
+  .public-nav-link {
+    @apply inline-flex h-9 items-center border-b-2 border-transparent text-xs uppercase tracking-[0.18em] text-base-content/60 transition hover:text-base-content;
+  }
+
+  .public-nav-link-active {
+    @apply border-primary font-semibold text-primary;
+  }
+
+  .public-list {
+    @apply divide-y divide-base-300;
+  }
+
+  .public-list-row {
+    @apply grid gap-2 px-4 py-3 transition hover:bg-base-200/30 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start;
+  }
+
+  .public-prose {
+    @apply prose prose-base max-w-none;
+  }
+
+  .public-prose :where(h1, h2, h3, h4, strong, code) {
+    color: hsl(var(--bc));
+  }
+
+  .public-prose :where(p, li, blockquote) {
+    color: hsl(var(--bc) / 0.82);
+  }
+
+  .public-prose :where(a) {
+    color: hsl(var(--p));
+    text-decoration: none;
+  }
+
+  .public-prose :where(a:hover) {
+    text-decoration: underline;
+  }
+
+  .public-prose :where(blockquote) {
+    @apply rounded-box bg-base-200;
+    border-color: hsl(var(--p) / 0.3);
+    border-left-width: 4px;
+  }
+
+  .public-prose :where(pre) {
+    @apply rounded-box bg-neutral text-neutral-content;
+  }
+
+  .public-prose :where(img) {
+    @apply rounded-box;
   }
 }
-
-*/
 @import 'actiontext.css';

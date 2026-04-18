@@ -1,12 +1,9 @@
 class AnnouncementsController < ApplicationController
-  skip_before_action :require_authentication, if: -> { %w[index show].member?(params[:action].to_s) && announcements_publicly_accessible? }
-
   before_action :set_announcement, only: %i[show edit update destroy]
 
   # GET /announcements or /announcements.json
   def index
     scope = Announcement.includes(:segments).order(published_at: :desc)
-    scope = scope.where.missing(:segments) unless authenticated?
 
     if (q = params[:q].to_s.strip).present?
       like = "%#{q}%"
@@ -85,11 +82,7 @@ class AnnouncementsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_announcement
-    @announcement = Announcement
-    unless authenticated?
-      @announcement = @announcement.where.missing(:segments)
-    end
-    @announcement = @announcement.find(params[:id])
+    @announcement = Announcement.find(params[:id])
   end
 
   # Only allow a list of trusted parameters through.

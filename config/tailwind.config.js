@@ -20,5 +20,8 @@ module.exports = {
     require('@tailwindcss/typography'),
     require('@tailwindcss/container-queries'),
     require('daisyui'),
-  ]
+  ],
+  daisyui: {
+    themes: ['light', 'night'],
+  },
 }

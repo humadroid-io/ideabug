@@ -41,6 +41,9 @@ Rails.application.routes.draw do
   end
 
   get "roadmap", to: "public_roadmap#index"
+  get "features/:id", to: "public_features#show", as: :public_feature
+  get "changelog", to: "public_announcements#index", as: :public_announcements
+  get "changelog/:id", to: "public_announcements#show", as: :public_announcement
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

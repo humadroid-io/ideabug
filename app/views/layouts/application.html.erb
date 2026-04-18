@@ -10,100 +10,109 @@
     <%= javascript_importmap_tags %>
   </head>
   <body>
-    <div class="fixed top-0 z-50 container mx-auto inset-x-0 px-5">
-      <div class="navbar bg-base-100">
-        <div class="navbar-start">
-          <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+    <header class="sticky top-0 z-20 border-b border-base-300 bg-base-100/85 backdrop-blur">
+      <div class="app-page flex min-h-12 items-center justify-between gap-4">
+        <%= link_to dashboard_path, class: "text-sm font-semibold uppercase tracking-[0.24em] text-base-content" do %>
+          Ideabug
+        <% end %>
+
+        <div class="flex items-center gap-2">
+          <div class="dropdown lg:hidden">
+            <button type="button" tabindex="0" class="btn btn-ghost btn-xs btn-circle text-primary" aria-label="Open navigation">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
+                class="h-4 w-4"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor">
+                stroke="currentColor"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M4 6h16M4 12h8m-8 6h16" />
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
-            </div>
-            <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+            </button>
+
+            <ul
+              tabindex="0"
+              class="
+                dropdown-content menu menu-sm app-panel z-[1] mt-3 w-48 p-2 shadow-lg
+              "
+            >
               <li><%= link_to "Announcements", announcements_path %></li>
               <% if authenticated? %>
                 <li><%= link_to "Contacts", contacts_path %></li>
                 <li><%= link_to "Segments", segments_path %></li>
-                <!-- <li>
-                  <a>Parent</a>
-                  <ul class="p-2">
-                    <li><a>Submenu 1</a></li>
-                    <li><a>Submenu 2</a></li>
-                  </ul>
-                </li> -->
-                <li>
-                  <%= link_to tickets_path do %>
-                    Tickets
-                    <div class="badge badge-ghost">WIP</div>
-                  <% end %>
-                </li>
+                <li><%= link_to "Tickets", tickets_path %></li>
+                <li><%= link_to "Log out", session_path, data: { turbo_method: :delete } %></li>
+              <% else %>
+                <li><%= link_to "Sign in", new_session_path %></li>
               <% end %>
             </ul>
           </div>
-          <%= link_to "ideabug", dashboard_path, class: "btn btn-ghost text-xl" %>
-        </div>
-        <div class="navbar-center hidden lg:flex">
-          <ul class="menu menu-horizontal px-1">
-            <li><%= link_to "Announcements", announcements_path %></li>
+
+          <nav class="hidden items-center gap-3 sm:gap-4 lg:flex">
+            <%= link_to "Announcements", announcements_path,
+                  class: nav_link_classes(active: controller_path == "announcements") %>
             <% if authenticated? %>
-              <li><%= link_to "Contacts", contacts_path %></li>
-              <li><%= link_to "Segments", segments_path %></li>
-              <!-- <li>
-                <details>
-                  <summary>Parent</summary>
-                  <ul class="p-2">
-                    <li><a>Submenu 1</a></li>
-                    <li><a>Submenu 2</a></li>
-                  </ul>
-                </details>
-              </li> -->
-              <li>
-                <%= link_to tickets_path do %>
-                  Tickets
-                  <div class="badge badge-ghost">WIP</div>
-                <% end %>
-              </li>
+              <%= link_to "Contacts", contacts_path,
+                    class: nav_link_classes(active: controller_path == "contacts") %>
+              <%= link_to "Segments", segments_path,
+                    class: nav_link_classes(active: controller_path == "segments") %>
+              <%= link_to "Tickets", tickets_path,
+                    class: nav_link_classes(active: controller_path == "tickets") %>
+            <% else %>
+              <%= link_to "Sign in", new_session_path, class: "public-nav-link" %>
             <% end %>
-          </ul>
-        </div>
-        <div class="navbar-end">
+          </nav>
+
           <% if authenticated? %>
             <div class="dropdown dropdown-end">
-              <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                <div class="w-10 rounded-full">
-                  <%= avatar_image_tag Current.session.user %>
-                </div>
-              </div>
+              <button type="button"
+                      tabindex="0"
+                      class="inline-flex h-9 items-center gap-2 rounded-full pl-1 pr-2 text-xs font-medium uppercase tracking-[0.14em] text-base-content/60 transition hover:bg-base-200/60 hover:text-base-content"
+                      aria-label="Account menu">
+                <span class="h-7 w-7 overflow-hidden rounded-full">
+                  <%= avatar_image_tag Current.session.user, class: "h-full w-full object-cover" %>
+                </span>
+                <span class="hidden sm:inline">Account</span>
+              </button>
+
               <ul
                 tabindex="0"
-                class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-
-                <li><%= button_to "Logout", session_path, method: :delete  %></li>
+                class="
+                  dropdown-content menu menu-sm app-panel z-[1] mt-3 w-44 p-2 shadow-lg
+                "
+              >
+                <li><%= link_to "Dashboard", dashboard_path %></li>
+                <li><%= link_to "Log out", session_path, data: { turbo_method: :delete } %></li>
               </ul>
             </div>
           <% end %>
         </div>
       </div>
-    </div>
-    <main class="container mx-auto mt-20 px-5 flex flex-col">
+    </header>
+
+    <main class="flex flex-col pb-8 pt-4">
       <% if notice.present? %>
-        <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+        <div class="app-page">
+          <p
+            class="
+              mb-5 inline-block rounded-box bg-green-50 px-3 py-2 font-medium text-green-500
+            "
+            id="notice"
+          ><%= notice %></p>
+        </div>
       <% end %>
       <%= yield %>
     </main>
     <footer class="footer footer-center text-base-content p-4 mt-20">
       <aside>
-        <p>Crafted with ❤️ by guys from <a href="https://humadroid.io/" alt="Smart HRMS for smart business owners">humadroid.io</a> in beautiful city of Poznań
-          🇵🇱</p>
+        <p>Crafted with ❤️ by guys from
+          <a href="https://humadroid.io/" title="AI-first Compliance Management platform">humadroid.io</a>
+          in beautiful city of Poznań 🇵🇱</p>
       </aside>
     </footer>
   </body>
