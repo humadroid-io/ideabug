@@ -1,27 +1,137 @@
-<div id="<%= dom_id ticket %>">
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Title:</strong>
-    <%= ticket.title %>
-  </p>
+<article id="<%= dom_id ticket %>" class="card bg-base-100 border border-base-300 shadow-sm">
+  <div class="card-body space-y-6">
+    <header class="space-y-3">
+      <h1 class="text-2xl font-bold leading-tight"><%= ticket.title %></h1>
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <%= classification_pill(ticket) %>
+        <span class="badge badge-ghost"><%= ticket.status.titleize %></span>
+        <% if ticket.public_on_roadmap %>
+          <span class="badge badge-success badge-outline gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm3.707 6.707l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L9 10.586l3.293-3.293a1 1 0 011.414 1.414z"/></svg>
+            Public on roadmap
+          </span>
+        <% end %>
+        <% if ticket.feature_request? %>
+          <span class="badge badge-ghost gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 5.5-9 10-9 10z"/></svg>
+            <%= ticket.votes_count %>
+            votes
+          </span>
+        <% end %>
+        <span class="text-base-content/50">·</span>
+        <span class="text-base-content/60" title="<%= ticket.created_at %>">
+          opened <%= time_ago_in_words(ticket.created_at) %> ago
+          via <span class="font-medium"><%= ticket.source %></span>
+        </span>
+      </div>
+    </header>
 
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Description:</strong>
-    <%= ticket.description %>
-  </p>
+    <% if ticket.description.present? %>
+      <section>
+        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-2">Description</h2>
+        <div class="prose prose-sm max-w-none whitespace-pre-wrap"><%= ticket.description %></div>
+      </section>
+    <% end %>
 
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Status:</strong>
-    <%= ticket.status %>
-  </p>
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-base-200/40 rounded-lg p-4">
+        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Roadmap</h2>
+        <dl class="space-y-2 text-sm">
+          <div class="flex justify-between gap-4">
+            <dt class="text-base-content/60">Public</dt>
+            <dd><%= ticket.public_on_roadmap? ? "Yes" : "No" %></dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-base-content/60">Scheduled for</dt>
+            <dd>
+              <% if ticket.scheduled_for %>
+                <%= l(ticket.scheduled_for, format: :long) rescue ticket.scheduled_for.to_fs %>
+              <% else %>
+                <span class="text-base-content/40 italic">unscheduled</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-base-content/60">Shipped at</dt>
+            <dd>
+              <% if ticket.shipped_at %>
+                <%= l(ticket.shipped_at, format: :long) rescue ticket.shipped_at.to_fs %>
+              <% else %>
+                <span class="text-base-content/40 italic">not shipped</span>
+              <% end %>
+            </dd>
+          </div>
+          <% if ticket.feature_request? %>
+            <div class="flex justify-between gap-4">
+              <dt class="text-base-content/60">Votes</dt>
+              <dd><%= ticket.votes_count %></dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
 
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Classification:</strong>
-    <%= ticket.classification %>
-  </p>
+      <div class="bg-base-200/40 rounded-lg p-4">
+        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Submitter</h2>
+        <% if ticket.contact %>
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between gap-4">
+              <dt class="text-base-content/60">Type</dt>
+              <dd><%= ticket.contact.identified? ? "Identified" : "Anonymous" %></dd>
+            </div>
+            <% if ticket.contact.identified? %>
+              <div class="flex justify-between gap-4">
+                <dt class="text-base-content/60">External ID</dt>
+                <dd class="font-mono text-xs"><%= ticket.contact.external_id %></dd>
+              </div>
+            <% end %>
+            <div class="flex justify-between gap-4">
+              <dt class="text-base-content/60">Last seen</dt>
+              <dd><%= ticket.contact.last_seen_at ? time_ago_in_words(ticket.contact.last_seen_at) + " ago" : "never" %></dd>
+            </div>
+            <div class="pt-1">
+              <%= link_to "View contact →", ticket.contact, class: "link link-primary text-xs" %>
+            </div>
+          </dl>
+        <% else %>
+          <p class="text-sm text-base-content/50 italic">No submitter recorded — created via admin.</p>
+        <% end %>
+      </div>
+    </section>
 
-  <% if action_name != "show" %>
-    <%= link_to "Show this ticket", ticket, class: "rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <%= link_to "Edit this ticket", edit_ticket_path(ticket), class: "rounded-lg py-3 ml-2 px-5 bg-gray-100 inline-block font-medium" %>
-    <hr class="mt-6">
-  <% end %>
-</div>
+    <% if ticket.context.present? && ticket.context.any? %>
+      <section>
+        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-2">Submission context</h2>
+        <dl class="bg-base-200/40 rounded-lg p-4 text-xs space-y-1">
+          <% ticket.context.each do |key, value| %>
+            <div class="flex gap-2">
+              <dt class="text-base-content/60 min-w-24 shrink-0"><%= key.humanize %></dt>
+              <dd class="font-mono break-all"><%= value %></dd>
+            </div>
+          <% end %>
+        </dl>
+      </section>
+    <% end %>
+
+    <% if ticket.feature_request? && ticket.public_on_roadmap? && ticket.votes_count.positive? %>
+      <section>
+        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-2">Voters (<%= ticket.votes_count %>)</h2>
+        <ul class="flex flex-wrap gap-2">
+          <% ticket.voters.limit(20).each do |voter| %>
+            <li>
+              <%= link_to voter, class: "badge badge-ghost gap-1 hover:badge-primary" do %>
+                <span class="font-mono text-[10px]"><%= voter.identified? ? voter.external_id : (voter.anonymous_id || "anon") %></span>
+              <% end %>
+            </li>
+          <% end %>
+          <% if ticket.votes_count > 20 %>
+            <li class="badge badge-ghost">+<%= ticket.votes_count - 20 %> more</li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+
+    <footer class="text-xs text-base-content/50 pt-2 border-t border-base-300">
+      Last updated <%= time_ago_in_words(ticket.updated_at) %> ago.
+    </footer>
+  </div>
+</article>

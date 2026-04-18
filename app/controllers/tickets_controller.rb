@@ -1,5 +1,7 @@
 class TicketsController < ApplicationController
-  before_action :set_ticket, only: %i[show edit update destroy]
+  TRANSITIONS = %w[start ship unschedule reopen].freeze
+
+  before_action :set_ticket, only: %i[show edit update destroy transition]
 
   def index
     scope = filtered_scope
@@ -10,13 +12,11 @@ class TicketsController < ApplicationController
   end
 
   def timeline
-    @now = Ticket.on_roadmap.in_progress_status.order(updated_at: :desc)
-    @next = Ticket.on_roadmap.scheduled.order(scheduled_for: :asc)
-    @shipped = Ticket.on_roadmap.shipped.order(shipped_at: :desc).limit(25)
-    @backlog = Ticket.on_roadmap.features.new_status
-      .where(scheduled_for: nil, shipped_at: nil)
-      .order(votes_count: :desc, created_at: :desc)
-      .limit(25)
+    buckets = RoadmapPresenter.call(ideas_limit: 25, shipped_limit: 25)
+    @now = buckets[:now]
+    @next = buckets[:next]
+    @shipped = buckets[:shipped]
+    @backlog = buckets[:ideas]
   end
 
   def show
@@ -62,6 +62,24 @@ class TicketsController < ApplicationController
       format.html { redirect_to tickets_url, notice: "Ticket was successfully destroyed." }
       format.json { head :no_content }
     end
+  end
+
+  def transition
+    to = params[:to].to_s
+    return redirect_back(fallback_location: timeline_tickets_path, alert: "Unknown transition") unless TRANSITIONS.include?(to)
+
+    case to
+    when "start"
+      @ticket.update!(status: :in_progress, shipped_at: nil)
+    when "ship"
+      @ticket.update!(status: :completed, shipped_at: Time.current)
+    when "unschedule"
+      @ticket.update!(scheduled_for: nil)
+    when "reopen"
+      @ticket.update!(status: :in_progress, shipped_at: nil)
+    end
+
+    redirect_back(fallback_location: timeline_tickets_path, notice: "Ticket updated.")
   end
 
   private

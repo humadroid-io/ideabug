@@ -49,6 +49,29 @@ module Api
         end
       end
 
+      context "GET index?mine=1" do
+        should "return only tickets authored by the caller, including private bugs" do
+          mine_bug = create(:ticket, :bug, public_on_roadmap: false, contact: @contact)
+          mine_feature = create(:ticket, :feature, contact: @contact)
+          someone_else = create(:ticket, :feature, contact: create(:contact, :anonymous))
+
+          get api_v1_tickets_url(mine: 1), headers: @headers
+
+          assert_response :success
+          ids = JSON.parse(response.body).map { |t| t["id"] }
+          assert_includes ids, mine_bug.id
+          assert_includes ids, mine_feature.id
+          refute_includes ids, someone_else.id
+        end
+
+        should "return empty array when caller has submitted nothing" do
+          create(:ticket, :feature) # someone else's
+          get api_v1_tickets_url(mine: 1), headers: @headers
+          assert_response :success
+          assert_equal [], JSON.parse(response.body)
+        end
+      end
+
       context "GET show" do
         should "404 a private ticket the caller did not author" do
           ticket = create(:ticket, :bug, public_on_roadmap: false)

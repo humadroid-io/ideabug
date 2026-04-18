@@ -48,6 +48,36 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_includes ids, a.id
   end
 
+  test "transition: start sets status in_progress and clears shipped_at" do
+    t = create(:ticket, :feature, :shipped)
+    post transition_ticket_url(t), params: {to: "start"}
+    t.reload
+    assert t.in_progress_status?
+    assert_nil t.shipped_at
+  end
+
+  test "transition: ship sets shipped_at + completed status" do
+    t = create(:ticket, :feature)
+    freeze_time do
+      post transition_ticket_url(t), params: {to: "ship"}
+      assert_equal Time.current.to_i, t.reload.shipped_at.to_i
+    end
+    assert t.completed_status?
+  end
+
+  test "transition: unschedule clears scheduled_for" do
+    t = create(:ticket, :feature, :scheduled)
+    post transition_ticket_url(t), params: {to: "unschedule"}
+    assert_nil t.reload.scheduled_for
+  end
+
+  test "transition: rejects unknown action" do
+    t = create(:ticket, :feature)
+    post transition_ticket_url(t), params: {to: "yeet"}
+    assert_response :redirect
+    assert_match(/Unknown/, flash[:alert])
+  end
+
   test "should render the timeline action" do
     create(:ticket, :feature, status: :in_progress, title: "In flight")
     create(:ticket, :feature, scheduled_for: 1.week.from_now, title: "Coming soon")

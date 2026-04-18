@@ -6,6 +6,13 @@ module Api
       before_action :find_visible_ticket, only: %i[show vote unvote]
 
       def index
+        if ActiveModel::Type::Boolean.new.cast(params[:mine])
+          scope = Ticket.where(contact_id: Current.contact.id).order(created_at: :desc)
+          scope = with_voted_by_me(scope)
+          render json: TicketBlueprint.render(scope, contact: Current.contact)
+          return
+        end
+
         sort = (params[:sort] == "new") ? "new" : "top"
         type = params[:type].presence || "feature"
 

@@ -13,8 +13,8 @@ module TicketsHelper
   end
 
   def enum_keys_to_option_values(enum)
-    enum.keys.map do |k|
-      [k.to_s.upcase, k.to_s.titleize]
-    end
+    # Rails select helper expects [label, value]. Label = humanized for the
+    # user, value = the actual enum key so the model can persist it.
+    enum.keys.map { |k| [k.to_s.humanize, k.to_s] }
   end
 end

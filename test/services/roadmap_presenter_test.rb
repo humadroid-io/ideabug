@@ -20,10 +20,37 @@ class RoadmapPresenterTest < ActiveSupport::TestCase
     assert_equal [idea_high.id, idea_low.id], out[:ideas].map(&:id)
   end
 
-  test "limits ideas to IDEAS_LIMIT" do
-    create_list(:ticket, RoadmapPresenter::IDEAS_LIMIT + 3, :feature)
+  test "scheduled_for trumps in_progress: ticket with a date appears in next, not now" do
+    started_and_scheduled = create(:ticket, :feature, status: :in_progress, scheduled_for: 1.week.from_now)
 
     out = RoadmapPresenter.call
-    assert_equal RoadmapPresenter::IDEAS_LIMIT, out[:ideas].size
+
+    assert_includes out[:next].map(&:id), started_and_scheduled.id
+    refute_includes out[:now].map(&:id), started_and_scheduled.id
+  end
+
+  test "in_progress without a scheduled date stays in now" do
+    started_no_date = create(:ticket, :feature, status: :in_progress, scheduled_for: nil)
+
+    out = RoadmapPresenter.call
+
+    assert_includes out[:now].map(&:id), started_no_date.id
+    refute_includes out[:next].map(&:id), started_no_date.id
+  end
+
+  test "limits ideas to default" do
+    create_list(:ticket, RoadmapPresenter::DEFAULT_IDEAS_LIMIT + 3, :feature)
+
+    out = RoadmapPresenter.call
+    assert_equal RoadmapPresenter::DEFAULT_IDEAS_LIMIT, out[:ideas].size
+  end
+
+  test "honors custom ideas_limit + shipped_limit" do
+    create_list(:ticket, 15, :feature)
+    15.times { create(:ticket, :feature, shipped_at: rand(1..30).days.ago, status: :completed) }
+
+    out = RoadmapPresenter.call(ideas_limit: 5, shipped_limit: 5)
+    assert_equal 5, out[:ideas].size
+    assert_equal 5, out[:shipped].size
   end
 end

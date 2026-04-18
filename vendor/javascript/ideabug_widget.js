@@ -3,8 +3,9 @@
 
   const STORAGE_KEY = "ideabug:state";
   const ANON_HEADER = "X-Ideabug-Anon-Id";
-  const POLL_VISIBLE_MS = 60000;
-  const POLL_HIDDEN_MS = 300000;
+  const POLL_VISIBLE_MS_DEFAULT = 60000;
+  const POLL_HIDDEN_MS_DEFAULT = 300000;
+  const POLL_MIN_MS = 5000;
   const VOTE_DEBOUNCE_MS = 600;
 
   function loadState() {
@@ -119,6 +120,7 @@
     optOut() { return this.request("POST", "/api/v1/announcements/opt_out"); }
     optIn() { return this.request("POST", "/api/v1/announcements/opt_in"); }
     listFeatures(sort) { return this.request("GET", "/api/v1/tickets?type=feature&sort=" + (sort || "top")); }
+    listMine() { return this.request("GET", "/api/v1/tickets?mine=1"); }
     submit(payload) { return this.request("POST", "/api/v1/tickets", { ticket: payload }); }
     vote(id) { return this.request("POST", "/api/v1/tickets/" + id + "/vote"); }
     unvote(id) { return this.request("DELETE", "/api/v1/tickets/" + id + "/vote"); }
@@ -198,7 +200,9 @@
       const tick = () => this.refreshAnnouncements();
       const schedule = () => {
         clearTimeout(this._pollTimer);
-        const ms = document.visibilityState === "hidden" ? POLL_HIDDEN_MS : POLL_VISIBLE_MS;
+        const visibleMs = Math.max(POLL_MIN_MS, this.config.pollInterval || POLL_VISIBLE_MS_DEFAULT);
+        const hiddenMs = Math.max(visibleMs, this.config.pollIntervalHidden || POLL_HIDDEN_MS_DEFAULT);
+        const ms = document.visibilityState === "hidden" ? hiddenMs : visibleMs;
         this._pollTimer = setTimeout(async () => {
           await tick();
           schedule();
@@ -287,6 +291,13 @@
         .addEventListener("click", () => this.navigateModal(1));
 
       document.body.appendChild(this.root);
+
+      // Stop clicks inside our chrome from reaching the document-level
+      // outside-click handler. Without this, any click handler that
+      // re-renders innerHTML detaches the click target from the DOM, making
+      // root.contains(e.target) return false → panel mistakenly closes.
+      this.root.addEventListener("click", (e) => e.stopPropagation());
+
       document.addEventListener("click", (e) => {
         if (this.modalOverlay.classList.contains("is-open")) return;
         if (!this.root.contains(e.target)) this.closePanel();
@@ -490,7 +501,32 @@
     }
 
     renderSuggest() {
+      const subTab = this._suggestSubTab || "new";
       const body = this.body();
+      body.innerHTML =
+        '<div class="ideabug-suggest-tabs">' +
+        '<button type="button" class="ideabug-suggest-tab ' + (subTab === "new" ? "is-active" : "") + '" data-suggest-sub="new">New</button>' +
+        '<button type="button" class="ideabug-suggest-tab ' + (subTab === "mine" ? "is-active" : "") + '" data-suggest-sub="mine">My submissions</button>' +
+        "</div>" +
+        '<div data-testid="ideabug-suggest-body"></div>';
+
+      body.querySelectorAll("[data-suggest-sub]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          this._suggestSubTab = btn.dataset.suggestSub;
+          this.renderSuggest();
+        });
+      });
+
+      if (subTab === "new") this.renderSuggestForm();
+      else this.renderMySubmissions();
+    }
+
+    suggestBody() {
+      return this.body().querySelector('[data-testid="ideabug-suggest-body"]');
+    }
+
+    renderSuggestForm() {
+      const body = this.suggestBody();
       body.innerHTML =
         '<form class="ideabug-form" data-action="suggest-form">' +
         '<div class="ideabug-segmented" role="tablist">' +
@@ -532,7 +568,7 @@
         const res = await this.client.submit(payload);
         if (!res.ok) {
           button.disabled = false;
-          this.body().insertAdjacentHTML(
+          body.insertAdjacentHTML(
             "afterbegin",
             '<div class="ideabug-banner">Could not submit. Please try again.</div>'
           );
@@ -541,12 +577,61 @@
         body.innerHTML =
           '<div class="ideabug-success">' +
           (kind === "feature_request"
-            ? '<p>Thanks! Your idea is on the public roadmap.</p><button type="button" class="ideabug-link" data-action="goto-roadmap">View roadmap</button>'
-            : "<p>Thanks for reporting. We will look into it.</p>") +
+            ? '<p>Thanks! Your idea is on the public roadmap.</p>' +
+              '<button type="button" class="ideabug-link" data-action="goto-mine">View your submissions</button>'
+            : '<p>Thanks for reporting. We will look into it.</p>' +
+              '<button type="button" class="ideabug-link" data-action="goto-mine">View your submissions</button>') +
           "</div>";
-        const goto = body.querySelector('[data-action="goto-roadmap"]');
-        if (goto) goto.addEventListener("click", () => this.activateTab("roadmap"));
+        const goto = body.querySelector('[data-action="goto-mine"]');
+        if (goto) {
+          goto.addEventListener("click", () => {
+            this._suggestSubTab = "mine";
+            this.renderSuggest();
+          });
+        }
       });
+    }
+
+    async renderMySubmissions() {
+      const body = this.suggestBody();
+      body.innerHTML = '<div class="ideabug-empty">Loading…</div>';
+      const res = await this.client.listMine();
+      if (!res.ok) {
+        body.innerHTML = '<div class="ideabug-empty">Could not load your submissions.</div>';
+        return;
+      }
+      const items = res.data || [];
+      if (!items.length) {
+        body.innerHTML =
+          '<div class="ideabug-empty">' +
+          'You have not submitted anything yet.' +
+          '<div style="margin-top:8px"><button type="button" class="ideabug-link" data-action="goto-new">Submit something</button></div>' +
+          "</div>";
+        const goto = body.querySelector('[data-action="goto-new"]');
+        if (goto) goto.addEventListener("click", () => { this._suggestSubTab = "new"; this.renderSuggest(); });
+        return;
+      }
+
+      let html = "";
+      items.forEach((t) => {
+        const status = (t.status || "").replace("_", " ");
+        const cls = (t.classification || "").replace("_", " ");
+        const statusClass = "ideabug-status-" + (t.status || "new");
+        html +=
+          '<div class="ideabug-item">' +
+          '<div class="ideabug-item-title">' + escapeHtml(t.title || "(no title)") + "</div>" +
+          '<div class="ideabug-item-meta">' +
+          '<span class="ideabug-chip">' + escapeHtml(cls) + "</span>" +
+          '<span class="ideabug-chip ' + statusClass + '">' + escapeHtml(status) + "</span>" +
+          '<span style="margin-left:6px">' + timeAgo(t.created_at) + "</span>" +
+          (t.classification === "feature_request" && t.public_on_roadmap
+            ? '<span style="margin-left:6px">' + (t.votes_count || 0) + " votes</span>"
+            : "") +
+          "</div>" +
+          (t.description ? '<div class="ideabug-item-preview">' + escapeHtml(t.description.slice(0, 140)) + (t.description.length > 140 ? "…" : "") + "</div>" : "") +
+          "</div>";
+      });
+      body.innerHTML = html;
     }
 
     async renderRoadmap() {
@@ -598,11 +683,19 @@
         return html;
       };
 
+      // Ideas should only show items NOT already represented in now/next/shipped.
+      const placedIds = new Set([
+        ...(this.roadmapData.now || []).map((t) => t.id),
+        ...(this.roadmapData.next || []).map((t) => t.id),
+        ...(this.roadmapData.shipped || []).map((t) => t.id)
+      ]);
+      const ideas = this.featuresData.filter((f) => !placedIds.has(f.id));
+
       let html = "";
       html += renderSection("Now", this.roadmapData.now, { allowVote: false });
       html += renderSection("Next", this.roadmapData.next, { dateField: "scheduled_for", allowVote: false });
       html += renderSection("Shipped", this.roadmapData.shipped, { dateField: "shipped_at", allowVote: false });
-      html += renderSection("Ideas", this.featuresData, { allowVote: true });
+      html += renderSection("Ideas", ideas, { allowVote: true });
       if (!html) html = '<div class="ideabug-empty">Roadmap is empty so far.</div>';
 
       html +=

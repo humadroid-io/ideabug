@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   resources :segments
   resources :tickets do
     collection { get :timeline }
+    member { post :transition }
   end
 
   get "roadmap", to: "public_roadmap#index"
@@ -45,6 +46,10 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", :as => :rails_health_check
 
   get "script.js", to: "welcome#script"
+
+  if Rails.env.test?
+    get "_test/widget_host", to: "test_widget_hosts#show"
+  end
 
   # Defines the root path route ("/")
   root "welcome#home"

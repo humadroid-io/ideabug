@@ -58,6 +58,20 @@ That's it. The widget will:
 | `data-ideabug-host` | yes | Origin of your ideabug server, e.g. `https://feedback.acme.com` |
 | `data-ideabug-target` | yes | CSS selector for the element that should host the bell |
 
+#### Runtime configuration
+
+`IdeabugWidget.configure()` accepts these (all optional):
+
+| Key | Default | Description |
+|---|---|---|
+| `jwt` | — | Function (sync or async) returning the current user's JWT, or `null` for anonymous. See [JWT setup](#2-optional-identify-users-via-jwt). |
+| `pollInterval` | `60000` | Poll cadence (ms) when the page is visible. Min `5000`. |
+| `pollIntervalHidden` | `300000` | Poll cadence (ms) when the tab is hidden. Will be clamped to at least `pollInterval`. |
+
+```js
+window.IdeabugWidget.configure({ pollInterval: 30000 });
+```
+
 ### 2. (Optional) Identify users via JWT
 
 If your app already has authenticated users, you can promote anonymous contacts to identified ones. The widget keeps the original `localStorage` anon ID and sends it alongside a JWT — the server merges the two contacts on the next request, preserving read-state and votes.
