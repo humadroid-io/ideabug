@@ -114,7 +114,9 @@
     }
 
     identify() { return this.request("POST", "/api/v1/identity"); }
+    state() { return this.request("GET", "/api/v1/state"); }
     listAnnouncements() { return this.request("GET", "/api/v1/announcements"); }
+    fetchAnnouncement(id) { return this.request("GET", "/api/v1/announcements/" + id); }
     markRead(id) { return this.request("POST", "/api/v1/announcements/" + id + "/read"); }
     markAllRead() { return this.request("POST", "/api/v1/announcements/read_all"); }
     optOut() { return this.request("POST", "/api/v1/announcements/opt_out"); }
@@ -137,13 +139,16 @@
       this.bell = null;
       this.state = loadState();
       this.tab = this.state.last_tab || "updates";
-      this.announcements = [];
+      this.announcements = null;       // null = not loaded yet
       this.unread = 0;
       this.optedOut = false;
       this.roadmapData = null;
       this.featuresData = null;
+      this.mineData = null;
       this._pollTimer = null;
       this._voteLock = {};
+      this._loadedTabs = {};
+      this._announcementContent = {};  // id → fetched content
     }
 
     configure(config) {
@@ -204,23 +209,26 @@
     isOptedOut()     { return !!this.optedOut; }
 
     async start() {
-      this.renderShell();
+      // Identify FIRST so we have an anonymous_id before any other request
+      // can be issued. Without this, a fast user could click the bell before
+      // /identity resolves and trigger a 401 on the lazy list fetch.
       try {
         const id = await this.client.identify();
         if (id.ok && id.data) {
           this.state.anonymous_id = id.data.anonymous_id || this.state.anonymous_id;
           this.optedOut = !!id.data.opted_out;
+          this.unread = id.data.unread_count || 0;
           saveState(this.state);
         }
       } catch (e) {
         console.warn("[ideabug] identity failed", e);
       }
-      await this.refreshAnnouncements();
+      this.renderShell();
       this.startPolling();
     }
 
     startPolling() {
-      const tick = () => this.refreshAnnouncements();
+      const tick = () => this.refreshState();
       const schedule = () => {
         clearTimeout(this._pollTimer);
         const visibleMs = Math.max(POLL_MIN_MS, this.config.pollInterval || POLL_VISIBLE_MS_DEFAULT);
@@ -235,15 +243,40 @@
       schedule();
     }
 
-    async refreshAnnouncements() {
-      const res = await this.client.listAnnouncements();
-      if (!res.ok) return;
-      this.announcements = res.data || [];
-      const u = parseInt(res.headers.get("X-Ideabug-Unread") || "0", 10);
-      this.unread = isNaN(u) ? 0 : u;
-      const optHeader = res.headers.get("X-Ideabug-Opted-Out");
-      if (optHeader != null) this.optedOut = optHeader === "true";
+    async refreshState() {
+      const res = await this.client.state();
+      if (!res.ok || !res.data) return;
+      this.unread = res.data.unread_count || 0;
+      this.optedOut = !!res.data.opted_out;
       this.renderBell();
+
+      // If updates list is already loaded and unread count went up, force a
+      // re-fetch so the list gains the new rows.
+      if (this._loadedTabs.updates && this.panel.classList.contains("is-open") && this.tab === "updates") {
+        const known = (this.announcements || []).filter((a) => !a.read).length;
+        if (this.unread > known) {
+          this._loadedTabs.updates = false;
+          await this.loadUpdates();
+        }
+      }
+    }
+
+    async loadUpdates(force) {
+      if (!force && this._loadedTabs.updates) {
+        this.renderUpdates();
+        return;
+      }
+      this.renderSpinner();
+      const res = await this.client.listAnnouncements();
+      if (res.ok) {
+        this.announcements = res.data || [];
+        this._loadedTabs.updates = true;
+        const u = parseInt(res.headers.get("X-Ideabug-Unread") || "0", 10);
+        if (!isNaN(u)) this.unread = u;
+        this.renderBell();
+      } else {
+        this.announcements = [];
+      }
       if (this.tab === "updates") this.renderUpdates();
     }
 
@@ -377,9 +410,13 @@
       this.panel.querySelectorAll(".ideabug-tab").forEach((t) => {
         t.classList.toggle("is-active", t.dataset.tab === name);
       });
-      if (name === "updates") this.renderUpdates();
+      if (name === "updates") this.loadUpdates();
       else if (name === "suggest") this.renderSuggest();
-      else if (name === "roadmap") this.renderRoadmap();
+      else if (name === "roadmap") this.loadRoadmap();
+    }
+
+    renderSpinner() {
+      this.body().innerHTML = '<div class="ideabug-spinner-wrap"><div class="ideabug-spinner" aria-label="Loading"></div></div>';
     }
 
     renderBell() {
@@ -426,7 +463,7 @@
 
     renderUpdates() {
       const body = this.body();
-      const items = this.announcements;
+      const items = this.announcements || [];
       const banner = this.optedOut
         ? '<div class="ideabug-banner">Updates are muted. <button type="button" class="ideabug-link" data-action="opt-in">Re-enable</button></div>'
         : "";
@@ -480,6 +517,7 @@
     }
 
     openAnnouncement(id) {
+      if (!this.announcements) return;
       const idx = this.announcements.findIndex((a) => a.id === id);
       if (idx < 0) return;
       this._modalIndex = idx;
@@ -493,7 +531,7 @@
     }
 
     navigateModal(delta) {
-      if (this._modalIndex == null) return;
+      if (this._modalIndex == null || !this.announcements) return;
       const next = this._modalIndex + delta;
       if (next < 0 || next >= this.announcements.length) return;
       this._modalIndex = next;
@@ -513,14 +551,28 @@
 
       titleEl.textContent = item.title || "";
       metaEl.textContent = timeAgo(item.published_at || item.created_at);
-      bodyEl.innerHTML = item.content || '<p style="color:var(--ib-muted)">No content.</p>';
-      bodyEl.scrollTop = 0;
       positionEl.textContent = (this._modalIndex + 1) + " of " + this.announcements.length;
-
       prevBtn.disabled = this._modalIndex === 0;
       nextBtn.disabled = this._modalIndex >= this.announcements.length - 1;
 
-      // Mark as read on open + re-render the list row state in the panel.
+      // Lazy-fetch detail (rich-text body) only when needed; cache by id so
+      // navigating back to an item is instant.
+      const cachedContent = this._announcementContent[item.id];
+      if (cachedContent !== undefined) {
+        bodyEl.innerHTML = cachedContent || '<p style="color:var(--ib-muted)">No content.</p>';
+        bodyEl.scrollTop = 0;
+      } else {
+        bodyEl.innerHTML = '<div class="ideabug-spinner-wrap"><div class="ideabug-spinner" aria-label="Loading"></div></div>';
+        const openedIndex = this._modalIndex;
+        const res = await this.client.fetchAnnouncement(item.id);
+        // If the user navigated away while we were fetching, drop the result.
+        if (this._modalIndex !== openedIndex || !this.modalOverlay.classList.contains("is-open")) return;
+        const content = res.ok && res.data ? (res.data.content || "") : "";
+        this._announcementContent[item.id] = content;
+        bodyEl.innerHTML = content || '<p style="color:var(--ib-muted)">No content.</p>';
+        bodyEl.scrollTop = 0;
+      }
+
       if (!item.read) {
         const res = await this.client.markRead(item.id);
         if (res.ok && res.data) {
@@ -629,6 +681,10 @@
           );
           return;
         }
+        // Invalidate caches so the new submission shows up in My submissions
+        // and (for features) in the Roadmap tab on next visit.
+        this.mineData = null;
+        if (kind === "feature_request") this._loadedTabs.roadmap = false;
         body.innerHTML =
           '<div class="ideabug-success">' +
           (kind === "feature_request"
@@ -649,13 +705,16 @@
 
     async renderMySubmissions() {
       const body = this.suggestBody();
-      body.innerHTML = '<div class="ideabug-empty">Loading…</div>';
-      const res = await this.client.listMine();
-      if (!res.ok) {
-        body.innerHTML = '<div class="ideabug-empty">Could not load your submissions.</div>';
-        return;
+      let items = this.mineData;
+      if (items === null) {
+        body.innerHTML = '<div class="ideabug-spinner-wrap"><div class="ideabug-spinner" aria-label="Loading"></div></div>';
+        const res = await this.client.listMine();
+        if (!res.ok) {
+          body.innerHTML = '<div class="ideabug-empty">Could not load your submissions.</div>';
+          return;
+        }
+        this.mineData = items = res.data || [];
       }
-      const items = res.data || [];
       if (!items.length) {
         body.innerHTML =
           '<div class="ideabug-empty">' +
@@ -689,17 +748,28 @@
       body.innerHTML = html;
     }
 
-    async renderRoadmap() {
+    async loadRoadmap(force) {
+      if (!force && this._loadedTabs.roadmap) {
+        this.renderRoadmap();
+        return;
+      }
+      this.renderSpinner();
+      const [roadmapRes, featuresRes] = await Promise.all([
+        this.client.roadmap(),
+        this.client.listFeatures("top")
+      ]);
+      this.roadmapData = roadmapRes.ok ? roadmapRes.data : null;
+      this.featuresData = featuresRes.ok ? (featuresRes.data || []) : [];
+      this._loadedTabs.roadmap = true;
+      if (this.tab === "roadmap") this.renderRoadmap();
+    }
+
+    renderRoadmap() {
       const body = this.body();
-      body.innerHTML = '<div class="ideabug-empty">Loading…</div>';
-      const res = await this.client.roadmap();
-      if (!res.ok) {
+      if (!this.roadmapData) {
         body.innerHTML = '<div class="ideabug-empty">Roadmap unavailable.</div>';
         return;
       }
-      this.roadmapData = res.data;
-      const featuresRes = await this.client.listFeatures("top");
-      this.featuresData = featuresRes.ok ? featuresRes.data || [] : [];
       const votedSet = new Set(this.featuresData.filter((f) => f.voted_by_me).map((f) => f.id));
 
       const renderSection = (label, items, opts) => {
@@ -770,6 +840,10 @@
     }
 
     async toggleVote(btn) {
+      // A vote changes counts shown in the roadmap; the optimistic update
+      // already keeps the UI in sync, but invalidate any cached lists so a
+      // refetch reflects the latest counts after a tab switch.
+      this._loadedTabs.roadmap = false;
       const id = parseInt(btn.dataset.id, 10);
       if (this._voteLock[id]) return;
       this._voteLock[id] = true;

@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       post "identity", to: "identity#create"
+      get "state", to: "state#show"
 
       resources :announcements, only: %i[index show] do
         member do

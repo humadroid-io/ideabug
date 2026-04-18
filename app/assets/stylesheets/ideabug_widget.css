@@ -441,6 +441,28 @@
   font-size: 13px;
 }
 
+/* Loading spinner used while a tab fetches data on first activation. */
+.ideabug-spinner-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+}
+.ideabug-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--ib-border);
+  border-top-color: var(--ib-accent);
+  animation: ideabug-spin 0.8s linear infinite;
+}
+@keyframes ideabug-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ideabug-spinner { animation-duration: 1.6s; }
+}
+
 /* Suggest tab */
 .ideabug-suggest-tabs {
   display: flex;

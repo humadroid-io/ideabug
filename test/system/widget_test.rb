@@ -17,13 +17,15 @@ class WidgetTest < ApplicationSystemTestCase
     bell.click
 
     assert_selector ".ideabug-panel.is-open", wait: 5
-    assert_selector ".ideabug-item-title", text: "Big News"
+    # Updates list is lazy-loaded after bell click; wait for it to render.
+    assert_selector ".ideabug-item-title", text: "Big News", wait: 5
 
     # Open modal — click the row
     find(".ideabug-item", text: "Big News").click
     assert_selector ".ideabug-modal-overlay.is-open", wait: 3
     assert_selector ".ideabug-modal-title", text: "Big News"
-    assert_selector ".ideabug-modal-body", text: "Long form content"
+    # Body content is lazy-fetched on modal open; spinner appears first.
+    assert_selector ".ideabug-modal-body", text: "Long form content", wait: 5
 
     # Close with overlay click (we click the close button instead — overlay click
     # in headless can be flaky)

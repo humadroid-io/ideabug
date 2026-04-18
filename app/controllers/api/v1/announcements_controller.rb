@@ -14,11 +14,13 @@ module Api
 
         unread = Current.contact.announcements_opted_out? ? 0 : unread_announcement_ids.size
         response.headers["X-Ideabug-Unread"] = unread.to_s
+        # Slim list — no rich-text body. The widget fetches /announcements/:id
+        # for the body when it opens the modal.
         render json: AnnouncementBlueprint.render(announcements)
       end
 
       def show
-        render json: AnnouncementBlueprint.render(@announcement)
+        render json: AnnouncementBlueprint.render(@announcement, view: :detail)
       end
 
       def read
@@ -26,7 +28,7 @@ module Api
           a.read_at = Time.current
         end
 
-        render json: AnnouncementBlueprint.render(@announcement.reload)
+        render json: AnnouncementBlueprint.render(@announcement.reload, view: :detail)
       end
 
       def read_all

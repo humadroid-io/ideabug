@@ -16,14 +16,18 @@ module Api
         contact.update_columns(last_seen_at: Time.current)
 
         Current.contact = contact
+        unread = contact.announcements_opted_out? ? 0 : Api::V1::StateController.unread_count_for(contact)
+
         response.headers["X-Ideabug-Contact-Id"] = contact.id.to_s
         response.headers["X-Ideabug-Opted-Out"] = contact.announcements_opted_out.to_s
+        response.headers["X-Ideabug-Unread"] = unread.to_s
 
         render json: {
           anonymous_id: contact.anonymous_id,
           external_id: contact.external_id,
           identified: contact.identified?,
           opted_out: contact.announcements_opted_out,
+          unread_count: unread,
           contact_id: contact.id
         }
       end

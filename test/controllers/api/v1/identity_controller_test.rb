@@ -15,7 +15,17 @@ module Api
         refute body["identified"]
         assert_match(/\Aib_[A-Za-z0-9]{22}\z/, body["anonymous_id"])
         assert_equal false, body["opted_out"]
+        assert_equal 0, body["unread_count"]
         assert_equal body["anonymous_id"], Contact.last.anonymous_id
+      end
+
+      test "identity returns unread_count so the widget can render the bell without a list fetch" do
+        create_list(:announcement, 4, published_at: 1.day.ago)
+
+        post api_v1_identity_url
+        body = JSON.parse(response.body)
+        assert_equal 4, body["unread_count"]
+        assert_equal "4", response.headers["X-Ideabug-Unread"]
       end
 
       test "echoes existing anonymous contact" do

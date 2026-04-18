@@ -150,13 +150,28 @@ module Api
       end
 
       context "GET show" do
-        should "return single announcement" do
+        should "return single announcement with content" do
+          @announcement.content = "<p>Long form body</p>"
+          @announcement.save!
+
           get api_v1_announcement_url(@announcement),
             headers: {Authorization: "Bearer #{@token}"}
 
           assert_response :success
           json_response = JSON.parse(response.body)
           assert_equal @announcement.title, json_response["title"]
+          assert_includes json_response["content"], "Long form body"
+        end
+      end
+
+      context "lazy-load contract" do
+        should "GET index does NOT serialize the rich-text body" do
+          @announcement.content = "<p>Heavy body</p>"
+          @announcement.save!
+
+          get api_v1_announcements_url, headers: {Authorization: "Bearer #{@token}"}
+          json_response = JSON.parse(response.body)
+          refute json_response.first.key?("content"), "list should be slim"
         end
       end
 
