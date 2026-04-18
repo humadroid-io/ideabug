@@ -435,7 +435,7 @@ CORS is open (`*`) for `/api/v1/*` and `/script.js`. Response headers exposed to
 Sign in at `/session/new` to access:
 
 - `/dashboard` — contact / announcement / read / vote stats with weekly sparkline; top-requested features and recent bugs
-- `/announcements` — CRUD for changelog entries; segment targeting via collapsible per-segment pickers (filter, select-all, clear); rich-text body via Trix
+- `/announcements` — CRUD for changelog entries; segment targeting via collapsible per-segment pickers (filter, select-all, clear); rich-text body via Lexxy
 - `/tickets` — table view with classification / status / search / sort / pagination
 - `/tickets/timeline` — Now / Next / Shipped lanes; click any card to set `scheduled_for` or `shipped_at`
 - `/segments` — define targeting taxonomy (`plan`, `region`, etc.) and allowed values

@@ -4,7 +4,7 @@ Self-hosted, embeddable widget for in-app announcements + bug/feature feedback. 
 
 ## Stack
 - Rails 8 (Ruby 3.4.8) + Postgres + Redis
-- Hotwire (Turbo + Stimulus, importmap-rails), Tailwind + DaisyUI, ActionText/Trix
+- Hotwire (Turbo + Stimulus, importmap-rails), Tailwind + DaisyUI, ActionText/Lexxy
 - Auth: cookie sessions for admin (Rails 8 generated `Authentication` concern), RS256 JWT for embed API
 - Serializers: Blueprinter (`app/blueprints/`)
 - Tests: Minitest + shoulda + capybara/selenium + factory_bot. **No RSpec** despite stray `.rspec` file.
