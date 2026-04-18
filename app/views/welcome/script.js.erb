@@ -16,6 +16,7 @@
     dataset.ideabugHost ||
     (script && script.src ? new URL(script.src).origin : "<%= request.base_url %>");
   var target = dataset.ideabugTarget;
+  var trigger = dataset.ideabugTrigger;
 
   function inject(tag, attrs) {
     var el = document.createElement(tag);
@@ -37,10 +38,14 @@
   });
 
   js.addEventListener("load", function () {
-    if (window.IdeabugWidget && target) {
-      window.IdeabugWidget.configure({ apiHost: host, targetElement: target });
+    if (window.IdeabugWidget && (target || trigger)) {
+      window.IdeabugWidget.configure({
+        apiHost: host,
+        targetElement: target,
+        trigger: trigger
+      });
     }
-    // Fire AFTER apiHost+targetElement are configured so user listeners can
+    // Fire AFTER apiHost+target/trigger are configured so user listeners can
     // safely call IdeabugWidget.configure({ jwt: … }).
     document.dispatchEvent(new CustomEvent("ideabug:ready"));
   });

@@ -160,18 +160,34 @@
 
     _maybeStart() {
       if (this._started) return;
-      if (!this.config.apiHost || !this.config.targetElement) return;
+      if (!this.config.apiHost) return;
 
-      const target =
-        typeof this.config.targetElement === "string"
-          ? document.querySelector(this.config.targetElement)
-          : this.config.targetElement;
-      if (!target) {
-        console.warn("[ideabug] target not found", this.config.targetElement);
+      const triggerRef = this.config.trigger;
+      const targetRef = this.config.targetElement;
+      if (!triggerRef && !targetRef) return;
+
+      const resolve = (ref) => {
+        if (!ref) return null;
+        return typeof ref === "string" ? document.querySelector(ref) : ref;
+      };
+
+      const trigger = resolve(triggerRef);
+      const target = resolve(targetRef);
+
+      if (triggerRef && !trigger) {
+        console.warn("[ideabug] trigger not found", triggerRef);
+        return;
+      }
+      if (!triggerRef && !target) {
+        console.warn("[ideabug] target not found", targetRef);
         return;
       }
 
-      this.target = target;
+      // When a custom trigger is provided we skip rendering our bell entirely
+      // and use the trigger as both the click source and the panel anchor.
+      this.customTrigger = trigger || null;
+      this.target = target || trigger;
+
       this.client = new IdeabugClient(this.config.apiHost);
       if (typeof this.config.jwt === "function") {
         this.client.setJwtFn(this.config.jwt);
@@ -179,6 +195,13 @@
       this._started = true;
       this.start();
     }
+
+    // --- Public programmatic API -----------------------------------------
+    open()   { if (this._started) this.openPanel(); }
+    close()  { if (this._started) this.closePanel(); }
+    toggle() { if (this._started) this.togglePanel(); }
+    getUnreadCount() { return this.unread; }
+    isOptedOut()     { return !!this.optedOut; }
 
     async start() {
       this.renderShell();
@@ -229,16 +252,26 @@
       this.root.className = "ideabug-root";
       this.root.dataset.testid = "ideabug-root";
 
-      this.bell = document.createElement("button");
-      this.bell.type = "button";
-      this.bell.className = "ideabug-bell";
-      this.bell.setAttribute("aria-label", "Open updates");
-      this.bell.innerHTML = bellSvg() + '<span class="ideabug-bell-badge is-hidden"></span>';
-      this.bell.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.togglePanel();
-      });
-      this.target.appendChild(this.bell);
+      if (this.customTrigger) {
+        // Caller provided their own trigger; bind click + keep a reference,
+        // but render no bell of our own.
+        this.bell = null;
+        this.customTrigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.togglePanel();
+        });
+      } else {
+        this.bell = document.createElement("button");
+        this.bell.type = "button";
+        this.bell.className = "ideabug-bell";
+        this.bell.setAttribute("aria-label", "Open updates");
+        this.bell.innerHTML = bellSvg() + '<span class="ideabug-bell-badge is-hidden"></span>';
+        this.bell.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.togglePanel();
+        });
+        this.target.appendChild(this.bell);
+      }
 
       this.panel = document.createElement("div");
       this.panel.className = "ideabug-panel";
@@ -350,6 +383,8 @@
     }
 
     renderBell() {
+      this.notifyTrigger();
+      if (!this.bell) return;
       const badge = this.bell.querySelector(".ideabug-bell-badge");
       if (this.optedOut || this.unread <= 0) {
         badge.className = "ideabug-bell-badge is-hidden";
@@ -363,6 +398,26 @@
         badge.className = "ideabug-bell-badge is-count";
         badge.textContent = this.unread > 99 ? "99+" : String(this.unread);
       }
+    }
+
+    // For custom triggers: emit a CustomEvent and update any opt-in DOM hooks
+    // so the host can render its own badge however it likes.
+    notifyTrigger() {
+      const detail = { count: this.unread, optedOut: !!this.optedOut };
+
+      if (this.customTrigger) {
+        this.customTrigger.classList.toggle("ideabug-has-unread", !this.optedOut && this.unread > 0);
+        this.customTrigger.classList.toggle("ideabug-opted-out", !!this.optedOut);
+        this.customTrigger.setAttribute("data-ideabug-unread", String(this.unread));
+        this.customTrigger.querySelectorAll("[data-ideabug-unread-count]").forEach((el) => {
+          el.textContent = this.unread > 0 ? String(this.unread) : "";
+          el.toggleAttribute("hidden", this.unread === 0 || this.optedOut);
+        });
+      }
+
+      // Always dispatch — useful even with the default bell, e.g. for analytics.
+      const evt = new CustomEvent("ideabug:unread", { detail: detail });
+      (this.customTrigger || this.target || document).dispatchEvent(evt);
     }
 
     body() {

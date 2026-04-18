@@ -3,7 +3,7 @@
 /* Default theme tokens. Wrapped in :where() so they have ZERO specificity
    and the host page can override them with any normal selector regardless
    of stylesheet load order. */
-:where(.ideabug-root, .ideabug-bell) {
+:where(.ideabug-root, .ideabug-bell, .ideabug-pulse-dot) {
   --ib-accent: #4f46e5;
   --ib-bg: #ffffff;
   --ib-fg: #1f2937;
@@ -77,6 +77,34 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .ideabug-bell-badge:not(.is-hidden):not(.is-count)::after { animation: none; }
+}
+
+/* Reusable pulsing-dot indicator for custom triggers. Drop a
+   <span class="ideabug-pulse-dot"></span> inside your trigger element; it
+   will appear and pulse when the trigger has the ideabug-has-unread class
+   that the widget toggles on every poll. */
+.ideabug-pulse-dot {
+  display: none;
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ib-notification);
+  vertical-align: middle;
+}
+.ideabug-has-unread .ideabug-pulse-dot { display: inline-block; }
+.ideabug-has-unread .ideabug-pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ib-notification);
+  animation: ideabug-pulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+.ideabug-opted-out .ideabug-pulse-dot { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .ideabug-has-unread .ideabug-pulse-dot::after { animation: none; }
 }
 .ideabug-bell-badge.is-count {
   width: auto;

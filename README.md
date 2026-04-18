@@ -56,7 +56,10 @@ That's it. The widget will:
 | Attribute | Required | Description |
 |---|---|---|
 | `data-ideabug-host` | yes | Origin of your ideabug server, e.g. `https://feedback.acme.com` |
-| `data-ideabug-target` | yes | CSS selector for the element that should host the bell |
+| `data-ideabug-target` | yes¹ | CSS selector for the element that should host the default bell |
+| `data-ideabug-trigger` | yes¹ | CSS selector for a pre-existing element to use as a custom trigger; the widget binds click + emits unread events but renders no bell of its own. Mutually exclusive with `data-ideabug-target`. |
+
+¹ Provide either `data-ideabug-target` (default bell) **or** `data-ideabug-trigger` (your own button).
 
 #### Runtime configuration
 
@@ -235,7 +238,68 @@ connect-src https://YOUR-IDEABUG-HOST
 
 The widget **does not** inject inline `<style>` tags — it loads an external stylesheet. So you do not need `style-src 'unsafe-inline'`.
 
-### 4. Theming
+### 4. Custom trigger (use your own button)
+
+Don't want the default bell? Point the widget at any element you already have in your nav and the widget will use it as the click trigger and the panel anchor:
+
+```html
+<button id="my-feedback-btn" type="button" class="my-styles">
+  Feedback
+  <span data-ideabug-unread-count hidden></span>
+</button>
+
+<script
+  src="https://feedback.acme.com/script.js"
+  data-ideabug-host="https://feedback.acme.com"
+  data-ideabug-trigger="#my-feedback-btn"
+  defer
+></script>
+```
+
+What you get:
+
+- The widget binds click to `#my-feedback-btn` (no extra DOM injection).
+- Any descendant element with the `data-ideabug-unread-count` attribute receives the unread count as `textContent` — and the `hidden` attribute is toggled when the count is zero or the user is opted out.
+- The trigger element gets `class="ideabug-has-unread"` toggled, and `data-ideabug-unread="N"` mirrored, so you can hand-roll your own indicator. **Easiest:** drop a `<span class="ideabug-pulse-dot"></span>` inside your trigger — it stays hidden when there's nothing unread, and pulses with `--ib-notification` color when there is:
+
+  ```html
+  <button id="my-feedback-btn" type="button">
+    Feedback
+    <span class="ideabug-pulse-dot"></span>
+  </button>
+  ```
+
+  Or write your own from scratch:
+
+  ```css
+  #my-feedback-btn.ideabug-has-unread::after {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: tomato; position: absolute; top: 4px; right: 4px;
+  }
+  ```
+- A `CustomEvent("ideabug:unread", { detail: { count, optedOut } })` fires on the trigger element on every poll cycle — useful for analytics or driving framework-specific reactivity.
+
+For multiple triggers (e.g. a button in the navbar AND a "Send feedback" link in the footer), use programmatic control:
+
+```js
+document.addEventListener("ideabug:ready", () => {
+  document.querySelectorAll(".feedback-link").forEach((el) =>
+    el.addEventListener("click", (e) => { e.preventDefault(); IdeabugWidget.toggle(); })
+  );
+});
+```
+
+Public methods (available after `ideabug:ready`):
+
+| Method | Purpose |
+|---|---|
+| `IdeabugWidget.open()` | Open the panel |
+| `IdeabugWidget.close()` | Close the panel |
+| `IdeabugWidget.toggle()` | Toggle |
+| `IdeabugWidget.getUnreadCount()` | Current unread count |
+| `IdeabugWidget.isOptedOut()` | True if user has muted updates |
+
+### 5. Theming
 
 The widget exposes a handful of CSS custom properties. Defaults are declared with `:where()` so they have **zero specificity** — your override wins from anywhere on the page, in any load order, with any selector:
 
@@ -251,7 +315,7 @@ The widget exposes a handful of CSS custom properties. Defaults are declared wit
 
 Full token list: `--ib-accent`, `--ib-bg`, `--ib-fg`, `--ib-muted`, `--ib-border`, `--ib-hover`, `--ib-unread`, `--ib-notification`, `--ib-danger`.
 
-### 5. Backwards compatibility
+### 6. Backwards compatibility
 
 If you already integrated the legacy `new IdeabugNotifications({...})` constructor, it continues to work — the bootstrap shim maps it to the new `IdeabugWidget.configure()`.
 
