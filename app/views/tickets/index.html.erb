@@ -13,11 +13,22 @@
   <%= form_with url: tickets_path, method: :get, class: "flex flex-wrap items-end gap-2", local: true do %>
     <div class="form-control">
       <label class="label label-text" for="q">Search</label>
-      <input id="q" type="text" name="q" value="<%= params[:q] %>" placeholder="Title or description" class="input input-bordered input-sm w-64">
+      <input
+        id="q"
+        type="text"
+        name="q"
+        value="<%= params[:q] %>"
+        placeholder="Title or description"
+        class="input input-bordered input-sm w-64"
+      >
     </div>
     <div class="form-control">
       <label class="label label-text" for="classification">Classification</label>
-      <select id="classification" name="classification" class="select select-bordered select-sm">
+      <select
+        id="classification"
+        name="classification"
+        class="select select-bordered select-sm py-0"
+      >
         <option value="">All</option>
         <% Ticket.classifications.keys.each do |cls| %>
           <option value="<%= cls %>" <%= "selected" if params[:classification] == cls %>><%= cls.titleize %></option>
@@ -26,7 +37,7 @@
     </div>
     <div class="form-control">
       <label class="label label-text" for="status">Status</label>
-      <select id="status" name="status" class="select select-bordered select-sm">
+      <select id="status" name="status" class="select select-bordered select-sm py-0">
         <option value="">All</option>
         <% Ticket.statuses.keys.each do |st| %>
           <option value="<%= st %>" <%= "selected" if params[:status] == st %>><%= st.titleize %></option>
@@ -35,17 +46,24 @@
     </div>
     <div class="form-control">
       <label class="label label-text" for="sort">Sort</label>
-      <select id="sort" name="sort" class="select select-bordered select-sm">
+      <select id="sort" name="sort" class="select select-bordered select-sm py-0">
         <option value="">Newest</option>
         <option value="votes" <%= "selected" if params[:sort] == "votes" %>>Most voted</option>
       </select>
     </div>
     <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-    <%= link_to "Reset", tickets_path, class: "btn btn-sm btn-ghost" if params.values_at(:q, :classification, :status, :sort).any?(&:present?) %>
+    <%= if params.values_at(:q, :classification, :status, :sort).any?(&:present?)
+      link_to "Reset", tickets_path, class: "btn btn-sm btn-ghost"
+    end %>
   <% end %>
 
   <% if @tickets.empty? %>
-    <div class="bg-base-100 border border-base-300 rounded-xl p-8 text-center text-base-content/60">
+    <div
+      class="
+        bg-base-100 border border-base-300 rounded-xl p-8 text-center
+        text-base-content/60
+      "
+    >
       No tickets match your filters.
     </div>
   <% else %>
@@ -72,7 +90,8 @@
               <td class="text-right"><%= ticket.votes_count %></td>
               <td><%= l(ticket.scheduled_for.to_date, format: :default) if ticket.scheduled_for %></td>
               <td><span class="text-xs text-base-content/60"><%= ticket.source %></span></td>
-              <td class="text-xs text-base-content/60" title="<%= ticket.created_at %>"><%= time_ago_in_words(ticket.created_at) %> ago</td>
+              <td class="text-xs text-base-content/60" title="<%= ticket.created_at %>"><%= time_ago_in_words(ticket.created_at) %>
+                ago</td>
               <td><%= link_to "Edit", edit_ticket_path(ticket), class: "link link-primary text-xs" %></td>
             </tr>
           <% end %>

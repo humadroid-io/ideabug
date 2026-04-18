@@ -1,37 +1,57 @@
-<div class="w-full">
-  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Segments", :segments %> &raquo; <%= @segment.to_s %></h3>
+<% contacts_count = Contact.joins(:segment_values).where(segment_values: {segment_id: @segment.id}).distinct.count %>
+<% announcements_count = Announcement.joins(:segment_values).where(segment_values: {segment_id: @segment.id}).distinct.count %>
+
+<div class="w-full max-w-7xl mx-auto p-4 space-y-6">
+  <header class="flex items-start justify-between gap-4 flex-wrap">
+    <div class="text-sm text-base-content/60">
+      <%= link_to "Segments", segments_path, class: "link link-hover" %>
+      <span class="mx-1">›</span>
+      <span><%= @segment.identifier %></span>
+    </div>
     <div class="flex gap-2">
-      <%= link_to "Delete", @segment,
-      class: "btn btn-sm btn-ghost",
-      data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+      <%= link_to "Back", segments_path, class: "btn btn-sm btn-ghost" %>
       <%= link_to "Edit", edit_segment_path(@segment), class: "btn btn-sm" %>
-      <%= link_to "Back", segments_path, class: "btn btn-ghost btn-sm" %>
+      <%= link_to "Delete", @segment,
+            class: "btn btn-sm btn-ghost text-error",
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
     </div>
-  </div>
-</div>
-<div class="container max-w-3xl mx-auto p-4">
-  <div class="card bg-base-100">
-    <div class="card-body">
-      <div class="grid grid-cols-1 gap-4">
-        <div>
-          <label class="text-sm opacity-70">Identifier</label>
-          <div class="mt-1"><%= @segment.identifier %></div>
+  </header>
+
+  <article class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body space-y-6">
+      <header class="space-y-2">
+        <h1 class="text-2xl font-bold leading-tight font-mono"><%= @segment.identifier %></h1>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-base-content/60">
+          <% if @segment.allow_new_values %>
+            <span class="badge badge-success badge-outline">Open — new values auto-created from JWT</span>
+          <% else %>
+            <span class="badge badge-ghost">Closed — only the values below are accepted</span>
+          <% end %>
+          <span>·</span>
+          <span><%= pluralize(@segment.segment_values.size, "value") %></span>
+          <span>·</span>
+          <span><%= pluralize(contacts_count, "contact") %></span>
+          <span>·</span>
+          <span><%= pluralize(announcements_count, "announcement") %></span>
         </div>
-        <div>
-          <label class="text-sm opacity-70">Allow new values</label>
-          <div class="mt-1"><%= @segment.allow_new_values %></div>
-        </div>
-        <div>
-          <label class="text-sm opacity-70">Values</label>
-          <div class="mt-1 ml-8">
-            <ul class="list-disc">
-              <% @segment.segment_values.each do |segment_value| %>
-                <li><%= segment_value.val %></li>
-              <% end %>
-            </ul>
+      </header>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Values</h2>
+        <% if @segment.segment_values.empty? %>
+          <p class="text-sm text-base-content/50 italic">No values defined yet.</p>
+        <% else %>
+          <div class="flex flex-wrap gap-2">
+            <% @segment.segment_values.order(:val).each do |sv| %>
+              <span class="badge badge-ghost"><%= sv.val %></span>
+            <% end %>
           </div>
-        </div>
-      </div>
+        <% end %>
+      </section>
+
+      <footer class="text-xs text-base-content/50 pt-2 border-t border-base-300">
+        Created <%= time_ago_in_words(@segment.created_at) %> ago.
+      </footer>
     </div>
-  </div>
+  </article>
+</div>

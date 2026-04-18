@@ -3,7 +3,14 @@ class SegmentsController < ApplicationController
 
   # GET /segments or /segments.json
   def index
-    @segments = Segment.all
+    scope = Segment.includes(:segment_values).order(:identifier)
+    if (q = params[:q].to_s.strip).present?
+      scope = scope.where("identifier ILIKE ?", "%#{q}%")
+    end
+    respond_to do |format|
+      format.html { @pagy, @segments = pagy(scope) }
+      format.json { @segments = scope.to_a }
+    end
   end
 
   # GET /segments/1 or /segments/1.json

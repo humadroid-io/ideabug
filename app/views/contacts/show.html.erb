@@ -1,37 +1,124 @@
-<div class="w-full">
-  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Contacts", :contacts %> &raquo; <%= @contact.to_s %></h3>
+<% reads_count = @contact.announcement_reads.count %>
+<% votes_count = @contact.ticket_votes.count %>
+<% submissions_count = @contact.submitted_tickets.count %>
+
+<div class="w-full max-w-7xl mx-auto p-4 space-y-6">
+  <header class="flex items-start justify-between gap-4 flex-wrap">
+    <div class="text-sm text-base-content/60">
+      <%= link_to "Contacts", contacts_path, class: "link link-hover" %>
+      <span class="mx-1">›</span>
+      <span class="font-mono"><%= @contact.identified? ? @contact.external_id : @contact.anonymous_id %></span>
+    </div>
     <div class="flex gap-2">
+      <%= link_to "Back", contacts_path, class: "btn btn-sm btn-ghost" %>
       <%= link_to "Delete", @contact,
-      class: "btn btn-sm btn-ghost",
-      data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
-      <%= link_to "Back", contacts_path, class: "btn btn-ghost btn-sm" %>
+            class: "btn btn-sm btn-ghost text-error",
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
     </div>
-  </div>
-</div>
-<div class="container max-w-3xl mx-auto p-4">
-  <div class="card bg-base-100">
-    <div class="card-body">
-      <div class="grid grid-cols-1 gap-4">
-        <div>
-          <label class="text-sm opacity-70">External</label>
-          <div class="mt-1"><%= @contact.external_id %></div>
+  </header>
+
+  <article class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body space-y-6">
+      <header class="space-y-2">
+        <div class="flex items-center gap-3 flex-wrap">
+          <% if @contact.identified? %>
+            <span class="badge badge-primary badge-outline">Identified</span>
+          <% else %>
+            <span class="badge badge-ghost">Anonymous</span>
+          <% end %>
+          <h1 class="text-xl font-mono break-all"><%= @contact.identified? ? @contact.external_id : @contact.anonymous_id %></h1>
         </div>
-        <div>
-          <label class="text-sm opacity-70">Info payload</label>
-          <div class="mt-1"><%= readable_hash @contact.info_payload %></div>
+        <div class="text-xs text-base-content/60">
+          first seen <%= time_ago_in_words(@contact.created_at) %> ago
+          <% if @contact.last_seen_at %>
+            · last seen <%= time_ago_in_words(@contact.last_seen_at) %> ago
+          <% end %>
+          <% if @contact.announcements_opted_out? %>
+            · <span class="text-warning">opted out of announcements</span>
+          <% end %>
         </div>
-        <div>
-          <label class="text-sm opacity-70">Segments payload</label>
-          <div class="mt-1 ml-8">
-            <ul class="list-disc">
-              <% @contact.segments_payload.each do |key, val| %>
-                <li><span class="font-medium"><%= key %>:</span> <%= val %></li>
+      </header>
+
+      <section class="stats stats-horizontal shadow-sm bg-base-200/40 w-full">
+        <div class="stat py-2">
+          <div class="stat-title text-xs">Reads</div>
+          <div class="stat-value text-xl"><%= reads_count %></div>
+        </div>
+        <div class="stat py-2">
+          <div class="stat-title text-xs">Votes</div>
+          <div class="stat-value text-xl"><%= votes_count %></div>
+        </div>
+        <div class="stat py-2">
+          <div class="stat-title text-xs">Submissions</div>
+          <div class="stat-value text-xl"><%= submissions_count %></div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-base-200/40 rounded-lg p-4">
+          <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Identity</h2>
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between gap-4">
+              <dt class="text-base-content/60">External ID</dt>
+              <dd class="font-mono text-xs break-all">
+                <%= @contact.external_id || content_tag(:span, "—", class: "text-base-content/40") %>
+              </dd>
+            </div>
+            <div class="flex justify-between gap-4">
+              <dt class="text-base-content/60">Anonymous ID</dt>
+              <dd class="font-mono text-xs break-all">
+                <%= @contact.anonymous_id || content_tag(:span, "—", class: "text-base-content/40") %>
+              </dd>
+            </div>
+            <div class="flex justify-between gap-4">
+              <dt class="text-base-content/60">Database ID</dt>
+              <dd class="font-mono text-xs">#<%= @contact.id %></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="bg-base-200/40 rounded-lg p-4">
+          <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Info payload</h2>
+          <% if @contact.info_payload.present? %>
+            <dl class="space-y-1 text-sm">
+              <% @contact.info_payload.each do |key, value| %>
+                <div class="flex gap-2">
+                  <dt class="text-base-content/60 min-w-24 shrink-0"><%= key.to_s.humanize %></dt>
+                  <dd class="break-all"><%= value %></dd>
+                </div>
               <% end %>
-            </ul>
-          </div>
+            </dl>
+          <% else %>
+            <p class="text-sm text-base-content/50 italic">No metadata received.</p>
+          <% end %>
         </div>
-      </div>
+      </section>
+
+      <section>
+        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Segments</h2>
+        <% if @contact.segments.any? %>
+          <div class="space-y-2">
+            <% @contact.segments.each do |segment| %>
+              <% values = @contact.segment_values.where(segment: segment) %>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-medium text-sm min-w-24"><%= segment.identifier %></span>
+                <% values.each do |sv| %>
+                  <span class="badge badge-ghost"><%= sv.val %></span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-base-content/50 italic">No segment values assigned.</p>
+        <% end %>
+      </section>
+
+      <% if @contact.segments_payload.present? && @contact.segments_payload.any? %>
+        <section>
+          <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-2">Last segments_payload (raw, from JWT)</h2>
+          <pre class="bg-base-200/40 rounded-lg p-3 text-xs overflow-x-auto"><%= JSON.pretty_generate(@contact.segments_payload) %></pre>
+        </section>
+      <% end %>
     </div>
-  </div>
+  </article>
 </div>

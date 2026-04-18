@@ -1,41 +1,97 @@
-<div class="w-full">
-  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6">Contacts</h3>
+<div class="w-full max-w-7xl mx-auto p-4 space-y-4">
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold">Contacts</h1>
+      <p class="text-sm text-base-content/60">Anonymous and identified users seen by the widget.</p>
+    </div>
   </div>
-</div>
-<div class="">
-  <table class="table table-zebra w-full">
-    <thead>
-      <tr>
-        <th>External Id</th>
-        <th>Info payload</th>
-        <th class="w-20"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @contacts.each do |contact| %>
-        <tr>
-          <td><%= link_to contact.to_s, contact %></td>
-          <td><%= readable_hash contact.info_payload %></td>
-          <td>
-            <div class="flex justify-end gap-1">
-              <div class="dropdown dropdown-left">
-                <button class="btn btn-ghost btn-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                </button>
-                <ul class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box">
-                  <li><%= link_to "View", contact %></li>
-                  <li>
-                    <%= link_to "Delete", contact,
-                  class: "text-error",
-                  data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+
+  <%= form_with url: contacts_path, method: :get, class: "flex flex-wrap items-end gap-2", local: true do %>
+    <div class="form-control">
+      <label class="label label-text" for="q">Search</label>
+      <input id="q" type="text" name="q" value="<%= params[:q] %>" placeholder="External or anonymous ID" class="input input-bordered input-sm w-72">
+    </div>
+    <div class="form-control">
+      <label class="label label-text" for="type">Type</label>
+      <select id="type" name="type" class="select select-bordered select-sm py-0">
+        <option value="">All</option>
+        <option value="identified" <%= "selected" if params[:type] == "identified" %>>Identified</option>
+        <option value="anonymous"  <%= "selected" if params[:type] == "anonymous"  %>>Anonymous</option>
+      </select>
+    </div>
+    <div class="form-control">
+      <label class="label label-text" for="active">Activity</label>
+      <select id="active" name="active" class="select select-bordered select-sm py-0">
+        <option value="">All time</option>
+        <option value="24h" <%= "selected" if params[:active] == "24h" %>>Active in last 24h</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+    <% if params.values_at(:q, :type, :active).any?(&:present?) %>
+      <%= link_to "Reset", contacts_path, class: "btn btn-sm btn-ghost" %>
+    <% end %>
+  <% end %>
+
+  <% if @contacts.empty? %>
+    <div class="bg-base-100 border border-base-300 rounded-xl p-8 text-center text-base-content/60">
+      No contacts match your filters.
+    </div>
+  <% else %>
+    <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+      <table class="table table-sm">
+        <thead class="bg-base-200">
+          <tr>
+            <th>Identity</th>
+            <th>Type</th>
+            <th>Info</th>
+            <th>Last seen</th>
+            <th>First seen</th>
+            <th class="w-12"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @contacts.each do |contact| %>
+            <tr>
+              <td class="font-mono text-xs">
+                <%= link_to (contact.identified? ? contact.external_id : contact.anonymous_id), contact, class: "link link-hover" %>
+              </td>
+              <td>
+                <% if contact.identified? %>
+                  <span class="badge badge-primary badge-outline badge-sm">Identified</span>
+                <% else %>
+                  <span class="badge badge-ghost badge-sm">Anonymous</span>
+                <% end %>
+              </td>
+              <td class="text-xs text-base-content/70 truncate max-w-md">
+                <%= readable_hash(contact.info_payload) if contact.info_payload.present? %>
+              </td>
+              <td class="text-xs text-base-content/60">
+                <% if contact.last_seen_at %>
+                  <%= time_ago_in_words(contact.last_seen_at) %> ago
+                <% else %>
+                  <span class="italic">never</span>
+                <% end %>
+              </td>
+              <td class="text-xs text-base-content/60"><%= time_ago_in_words(contact.created_at) %> ago</td>
+              <td>
+                <div class="dropdown dropdown-left">
+                  <button class="btn btn-ghost btn-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
+                  </button>
+                  <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
+                    <li><%= link_to "View", contact %></li>
+                    <li><%= link_to "Delete", contact, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @pagy %>
+      <div class="flex justify-center"><%== pagy_nav(@pagy) %></div>
+    <% end %>
+  <% end %>
 </div>

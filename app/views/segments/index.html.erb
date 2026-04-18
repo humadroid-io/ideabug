@@ -1,46 +1,83 @@
-<div class="w-full">
-  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6">Segments</h3>
+<div class="w-full max-w-7xl mx-auto p-4 space-y-4">
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-bold">Segments</h1>
+      <p class="text-sm text-base-content/60">Targeting taxonomy used by announcements and contacts.</p>
+    </div>
     <%= link_to new_segment_path, class: "btn btn-primary btn-sm" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
-      New Segment
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
+      New segment
     <% end %>
   </div>
-</div>
-<div class="">
-  <table class="table table-zebra w-full">
-    <thead>
-      <tr>
-        <th>Identifier</th>
-        <th>Allow new values</th>
-        <th class="w-20"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @segments.each do |segment| %>
-        <tr>
-          <td><%= link_to segment.identifier, segment %></td>
-          <td><%= segment.allow_new_values %></td>
-          <td>
-            <div class="flex justify-end gap-1">
-              <div class="dropdown dropdown-left">
-                <button class="btn btn-ghost btn-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                </button>
-                <ul class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box">
-                  <li><%= link_to "View", segment %></li>
-                  <li><%= link_to "Edit", edit_segment_path(segment) %></li>
-                  <li>
-                    <%= link_to "Delete", segment,
-                  class: "text-error",
-                  data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+
+  <%= form_with url: segments_path, method: :get, class: "flex flex-wrap items-end gap-2", local: true do %>
+    <div class="form-control">
+      <label class="label label-text" for="q">Search</label>
+      <input id="q" type="text" name="q" value="<%= params[:q] %>" placeholder="Identifier" class="input input-bordered input-sm w-64">
+    </div>
+    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+    <% if params[:q].present? %>
+      <%= link_to "Reset", segments_path, class: "btn btn-sm btn-ghost" %>
+    <% end %>
+  <% end %>
+
+  <% if @segments.empty? %>
+    <div class="bg-base-100 border border-base-300 rounded-xl p-8 text-center text-base-content/60">
+      No segments yet — create one to start targeting announcements.
+    </div>
+  <% else %>
+    <div class="bg-base-100 border border-base-300 rounded-xl overflow-hidden">
+      <table class="table table-sm">
+        <thead class="bg-base-200">
+          <tr>
+            <th>Identifier</th>
+            <th>Allows new values</th>
+            <th>Values</th>
+            <th class="w-12"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @segments.each do |segment| %>
+            <tr>
+              <td class="font-medium"><%= link_to segment.identifier, segment, class: "link link-hover" %></td>
+              <td>
+                <% if segment.allow_new_values %>
+                  <span class="badge badge-success badge-outline badge-sm">Open</span>
+                <% else %>
+                  <span class="badge badge-ghost badge-sm">Closed</span>
+                <% end %>
+              </td>
+              <td>
+                <% segment.segment_values.first(5).each do |sv| %>
+                  <span class="badge badge-ghost badge-sm"><%= sv.val %></span>
+                <% end %>
+                <% if segment.segment_values.size > 5 %>
+                  <span class="text-xs text-base-content/50">+<%= segment.segment_values.size - 5 %></span>
+                <% end %>
+                <% if segment.segment_values.empty? %>
+                  <span class="text-xs text-base-content/50 italic">none yet</span>
+                <% end %>
+              </td>
+              <td>
+                <div class="dropdown dropdown-left">
+                  <button class="btn btn-ghost btn-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
+                  </button>
+                  <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
+                    <li><%= link_to "View", segment %></li>
+                    <li><%= link_to "Edit", edit_segment_path(segment) %></li>
+                    <li><%= link_to "Delete", segment, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @pagy %>
+      <div class="flex justify-center"><%== pagy_nav(@pagy) %></div>
+    <% end %>
+  <% end %>
 </div>
