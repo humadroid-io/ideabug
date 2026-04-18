@@ -9,13 +9,13 @@
           <%= form.label :email_address, class: "label label-text" %>
           <%= form.email_field :email_address, required: true, autofocus: true,
             autocomplete: "username", value: params[:email_address],
-            class: "input input-bordered w-full" %>
+            class: "input input-bordered input-sm w-full" %>
         </div>
 
         <div class="form-control">
           <%= form.label :password, class: "label label-text" %>
           <%= form.password_field :password, required: true, autocomplete: "current-password",
-            maxlength: 72, class: "input input-bordered w-full" %>
+            maxlength: 72, class: "input input-bordered input-sm w-full" %>
         </div>
 
         <div class="flex items-center justify-between">

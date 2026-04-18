@@ -38,56 +38,56 @@
       No contacts match your filters.
     </div>
   <% else %>
-    <div class="app-panel overflow-x-auto overflow-hidden">
-      <table class="table table-sm">
-        <thead class="bg-base-200">
-          <tr>
-            <th>Identity</th>
-            <th>Type</th>
-            <th>Info</th>
-            <th>Last seen</th>
-            <th>First seen</th>
-            <th class="w-12"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @contacts.each do |contact| %>
+    <div class="app-panel overflow-visible">
+      <table class="table">
+          <thead class="bg-base-200">
             <tr>
-              <td class="font-mono text-xs">
-                <%= link_to (contact.identified? ? contact.external_id : contact.anonymous_id), contact, class: "link link-hover" %>
-              </td>
-              <td>
-                <% if contact.identified? %>
-                  <span class="badge badge-primary badge-outline badge-sm">Identified</span>
-                <% else %>
-                  <span class="badge badge-ghost badge-sm">Anonymous</span>
-                <% end %>
-              </td>
-              <td class="text-xs text-base-content/70 truncate max-w-md">
-                <%= readable_hash(contact.info_payload) if contact.info_payload.present? %>
-              </td>
-              <td class="text-xs text-base-content/60">
-                <% if contact.last_seen_at %>
-                  <%= time_ago_in_words(contact.last_seen_at) %> ago
-                <% else %>
-                  <span class="italic">never</span>
-                <% end %>
-              </td>
-              <td class="text-xs text-base-content/60"><%= time_ago_in_words(contact.created_at) %> ago</td>
-              <td>
-                <div class="dropdown dropdown-left">
-                  <button class="btn btn-ghost btn-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                  </button>
-                  <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
-                    <li><%= link_to "View", contact %></li>
-                    <li><%= link_to "Delete", contact, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
-                  </ul>
-                </div>
-              </td>
+              <th>Identity</th>
+              <th>Type</th>
+              <th>Info</th>
+              <th>Last seen</th>
+              <th>First seen</th>
+              <th class="w-12"></th>
             </tr>
-          <% end %>
-        </tbody>
+          </thead>
+          <tbody>
+            <% @contacts.each do |contact| %>
+              <tr>
+                <td class="font-mono text-xs">
+                  <%= link_to (contact.identified? ? contact.external_id : contact.anonymous_id), contact, class: "link link-hover" %>
+                </td>
+                <td>
+                  <% if contact.identified? %>
+                    <span class="badge badge-primary badge-outline badge-sm">Identified</span>
+                  <% else %>
+                    <span class="badge badge-ghost badge-sm">Anonymous</span>
+                  <% end %>
+                </td>
+                <td class="text-xs text-base-content/70 truncate max-w-md">
+                  <%= readable_hash(contact.info_payload) if contact.info_payload.present? %>
+                </td>
+                <td class="text-xs text-base-content/60">
+                  <% if contact.last_seen_at %>
+                    <%= time_ago_in_words(contact.last_seen_at) %> ago
+                  <% else %>
+                    <span class="italic">never</span>
+                  <% end %>
+                </td>
+                <td class="text-xs text-base-content/60"><%= time_ago_in_words(contact.created_at) %> ago</td>
+                <td class="relative overflow-visible">
+                  <div class="dropdown dropdown-left">
+                    <button class="btn btn-ghost btn-xs">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
+                    </button>
+                    <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
+                      <li><%= link_to "View", contact %></li>
+                      <li><%= link_to "Delete", contact, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
       </table>
     </div>
 

@@ -13,23 +13,23 @@
     <div class="space-y-4">
       <div class="form-control w-full">
         <%= form.label :title, class: "label" %>
-        <%= form.text_field :title, class: "input input-bordered w-full" %>
+        <%= form.text_field :title, class: "input input-bordered input-sm w-full" %>
       </div>
       <div class="form-control w-full">
         <%= form.label :description, class: "label" %>
-        <%= form.text_area :description, rows: 4, class: "textarea textarea-bordered w-full" %>
+        <%= form.text_area :description, rows: 4, class: "textarea textarea-bordered textarea-sm w-full" %>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <% if form.object.persisted? %>
           <div class="form-control w-full">
             <%= form.label :status, class: "label" %>
-            <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered" %>
+            <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered select-sm" %>
           </div>
         <% end %>
         <div class="form-control w-full">
           <%= form.label :classification, class: "label" %>
-          <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered" %>
+          <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered select-sm" %>
         </div>
       </div>
 
@@ -44,11 +44,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control w-full">
             <%= form.label :scheduled_for, "Scheduled for", class: "label" %>
-            <%= form.datetime_local_field :scheduled_for, value: ticket.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered w-full" %>
+            <%= form.datetime_local_field :scheduled_for, value: ticket.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered input-sm w-full" %>
           </div>
           <div class="form-control w-full">
             <%= form.label :shipped_at, "Shipped at", class: "label" %>
-            <%= form.datetime_local_field :shipped_at, value: ticket.shipped_at&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered w-full" %>
+            <%= form.datetime_local_field :shipped_at, value: ticket.shipped_at&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered input-sm w-full" %>
           </div>
         </div>
       </fieldset>

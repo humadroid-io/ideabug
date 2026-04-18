@@ -48,61 +48,61 @@
       No announcements match your filters.
     </div>
   <% else %>
-    <div class="app-panel overflow-x-auto overflow-hidden">
-      <table class="table table-sm">
-        <thead class="bg-base-200">
-          <tr>
-            <th>Title</th>
-            <th>Preview</th>
-            <th>Targeting</th>
-            <th>Published</th>
-            <th class="w-12"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @announcements.each do |announcement| %>
-            <% future = announcement.published_at && announcement.published_at > Time.current %>
+    <div class="app-panel overflow-visible">
+      <table class="table">
+          <thead class="bg-base-200">
             <tr>
-              <td class="font-medium"><%= link_to announcement.title, announcement, class: "link link-hover" %></td>
-              <td class="text-base-content/70 truncate max-w-md"><%= announcement.preview %></td>
-              <td>
-                <% if announcement.segments.any? %>
-                  <% announcement.segments.first(3).each do |s| %>
-                    <span class="badge badge-ghost badge-sm"><%= s.identifier %></span>
-                  <% end %>
-                  <% if announcement.segments.size > 3 %>
-                    <span class="text-xs text-base-content/50">+<%= announcement.segments.size - 3 %></span>
-                  <% end %>
-                <% else %>
-                  <span class="badge badge-success badge-outline badge-sm">Broadcast</span>
-                <% end %>
-              </td>
-              <td class="text-xs text-base-content/60" title="<%= announcement.published_at %>">
-                <% if future %>
-                  in <%= time_ago_in_words(announcement.published_at) %>
-                <% else %>
-                  <%= time_ago_in_words(announcement.published_at) %> ago
-                <% end %>
-              </td>
-              <td>
-                <% if authenticated? %>
-                  <div class="dropdown dropdown-left">
-                    <button class="btn btn-ghost btn-xs">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                    </button>
-                    <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
-                      <li><%= link_to "View", announcement %></li>
-                      <li><%= link_to "Edit", edit_announcement_path(announcement) %></li>
-                      <li><%= link_to "Delete", announcement, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
-                    </ul>
-                  </div>
-                <% else %>
-                  <%= link_to "View", announcement, class: "link link-primary text-xs" %>
-                <% end %>
-              </td>
+              <th>Title</th>
+              <th>Preview</th>
+              <th>Targeting</th>
+              <th>Published</th>
+              <th class="w-12"></th>
             </tr>
-          <% end %>
-        </tbody>
+          </thead>
+          <tbody>
+            <% @announcements.each do |announcement| %>
+              <% future = announcement.published_at && announcement.published_at > Time.current %>
+              <tr>
+                <td class="font-medium"><%= link_to announcement.title, announcement, class: "link link-hover" %></td>
+                <td class="text-base-content/70 truncate max-w-md"><%= announcement.preview %></td>
+                <td>
+                  <% if announcement.segments.any? %>
+                    <% announcement.segments.first(3).each do |s| %>
+                      <span class="badge badge-ghost badge-sm"><%= s.identifier %></span>
+                    <% end %>
+                    <% if announcement.segments.size > 3 %>
+                      <span class="text-xs text-base-content/50">+<%= announcement.segments.size - 3 %></span>
+                    <% end %>
+                  <% else %>
+                    <span class="badge badge-success badge-outline badge-sm">Broadcast</span>
+                  <% end %>
+                </td>
+                <td class="text-xs text-base-content/60" title="<%= announcement.published_at %>">
+                  <% if future %>
+                    in <%= time_ago_in_words(announcement.published_at) %>
+                  <% else %>
+                    <%= time_ago_in_words(announcement.published_at) %> ago
+                  <% end %>
+                </td>
+                <td class="relative overflow-visible">
+                  <% if authenticated? %>
+                    <div class="dropdown dropdown-left">
+                      <button class="btn btn-ghost btn-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
+                      </button>
+                      <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
+                        <li><%= link_to "View", announcement %></li>
+                        <li><%= link_to "Edit", edit_announcement_path(announcement) %></li>
+                        <li><%= link_to "Delete", announcement, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
+                      </ul>
+                    </div>
+                  <% else %>
+                    <%= link_to "View", announcement, class: "link link-primary text-xs" %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
       </table>
     </div>
 

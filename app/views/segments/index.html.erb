@@ -28,53 +28,53 @@
       No segments yet — create one to start targeting announcements.
     </div>
   <% else %>
-    <div class="app-panel overflow-x-auto overflow-hidden">
-      <table class="table table-sm">
-        <thead class="bg-base-200">
-          <tr>
-            <th>Identifier</th>
-            <th>Allows new values</th>
-            <th>Values</th>
-            <th class="w-12"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @segments.each do |segment| %>
+    <div class="app-panel overflow-visible">
+      <table class="table">
+          <thead class="bg-base-200">
             <tr>
-              <td class="font-medium"><%= link_to segment.identifier, segment, class: "link link-hover" %></td>
-              <td>
-                <% if segment.allow_new_values %>
-                  <span class="badge badge-success badge-outline badge-sm">Open</span>
-                <% else %>
-                  <span class="badge badge-ghost badge-sm">Closed</span>
-                <% end %>
-              </td>
-              <td>
-                <% segment.segment_values.first(5).each do |sv| %>
-                  <span class="badge badge-ghost badge-sm"><%= sv.val %></span>
-                <% end %>
-                <% if segment.segment_values.size > 5 %>
-                  <span class="text-xs text-base-content/50">+<%= segment.segment_values.size - 5 %></span>
-                <% end %>
-                <% if segment.segment_values.empty? %>
-                  <span class="text-xs text-base-content/50 italic">none yet</span>
-                <% end %>
-              </td>
-              <td>
-                <div class="dropdown dropdown-left">
-                  <button class="btn btn-ghost btn-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                  </button>
-                  <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
-                    <li><%= link_to "View", segment %></li>
-                    <li><%= link_to "Edit", edit_segment_path(segment) %></li>
-                    <li><%= link_to "Delete", segment, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
-                  </ul>
-                </div>
-              </td>
+              <th>Identifier</th>
+              <th>Allows new values</th>
+              <th>Values</th>
+              <th class="w-12"></th>
             </tr>
-          <% end %>
-        </tbody>
+          </thead>
+          <tbody>
+            <% @segments.each do |segment| %>
+              <tr>
+                <td class="font-medium"><%= link_to segment.identifier, segment, class: "link link-hover" %></td>
+                <td>
+                  <% if segment.allow_new_values %>
+                    <span class="badge badge-success badge-outline badge-sm">Open</span>
+                  <% else %>
+                    <span class="badge badge-ghost badge-sm">Closed</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% segment.segment_values.first(5).each do |sv| %>
+                    <span class="badge badge-ghost badge-sm"><%= sv.val %></span>
+                  <% end %>
+                  <% if segment.segment_values.size > 5 %>
+                    <span class="text-xs text-base-content/50">+<%= segment.segment_values.size - 5 %></span>
+                  <% end %>
+                  <% if segment.segment_values.empty? %>
+                    <span class="text-xs text-base-content/50 italic">none yet</span>
+                  <% end %>
+                </td>
+                <td class="relative overflow-visible">
+                  <div class="dropdown dropdown-left">
+                    <button class="btn btn-ghost btn-xs">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
+                    </button>
+                    <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
+                      <li><%= link_to "View", segment %></li>
+                      <li><%= link_to "Edit", edit_segment_path(segment) %></li>
+                      <li><%= link_to "Delete", segment, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
       </table>
     </div>
 

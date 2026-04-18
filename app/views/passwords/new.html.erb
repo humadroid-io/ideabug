@@ -10,7 +10,7 @@
           <%= form.label :email_address, class: "label label-text" %>
           <%= form.email_field :email_address, required: true, autofocus: true,
             autocomplete: "username", value: params[:email_address],
-            class: "input input-bordered w-full" %>
+            class: "input input-bordered input-sm w-full" %>
         </div>
         <div class="flex items-center justify-between">
           <%= form.submit "Email reset instructions", class: "btn btn-primary" %>
