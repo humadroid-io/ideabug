@@ -43,6 +43,20 @@ module Api
 
           assert_response :unauthorized
         end
+
+        should "return announcements unread by the current contact even when another contact read them" do
+          other_contact = create(:contact)
+          create(:announcement_read, announcement: @announcement, contact: other_contact)
+
+          get api_v1_announcements_url,
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :success
+          json_response = JSON.parse(response.body)
+
+          assert_equal [@announcement.id], json_response.map { |announcement| announcement["id"] }
+          assert_equal false, json_response.first["read"]
+        end
       end
 
       context "GET index with segments" do
@@ -147,6 +161,14 @@ module Api
           announcement_ids = json_response.map { |a| a["id"] }
           assert_includes announcement_ids, @announcement_all_regions.id
         end
+
+        should "set unread header based only on announcements visible to the contact" do
+          get api_v1_announcements_url,
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :success
+          assert_equal "2", response.headers["X-Ideabug-Unread"]
+        end
       end
 
       context "GET show" do
@@ -161,6 +183,19 @@ module Api
           json_response = JSON.parse(response.body)
           assert_equal @announcement.title, json_response["title"]
           assert_includes json_response["content"], "Long form body"
+        end
+
+        should "return announcements another contact has already read" do
+          other_contact = create(:contact)
+          create(:announcement_read, announcement: @announcement, contact: other_contact)
+
+          get api_v1_announcement_url(@announcement),
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :success
+          json_response = JSON.parse(response.body)
+          assert_equal @announcement.id, json_response["id"]
+          assert_equal false, json_response["read"]
         end
       end
 
