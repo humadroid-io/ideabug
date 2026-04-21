@@ -19,6 +19,7 @@ module Api
         unread = contact.announcements_opted_out? ? 0 : Api::V1::StateController.unread_count_for(contact)
 
         response.headers["X-Ideabug-Contact-Id"] = contact.id.to_s
+        response.headers["X-Ideabug-Anonymous-Id"] = contact.anonymous_id.to_s
         response.headers["X-Ideabug-Opted-Out"] = contact.announcements_opted_out.to_s
         response.headers["X-Ideabug-Unread"] = unread.to_s
 

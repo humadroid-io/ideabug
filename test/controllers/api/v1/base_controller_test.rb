@@ -175,6 +175,7 @@ module Api
 
         assert_response :success
         assert_equal @contact.id.to_s, response.headers["X-Ideabug-Contact-Id"]
+        assert_equal "", response.headers["X-Ideabug-Anonymous-Id"]
         assert_equal "false", response.headers["X-Ideabug-Opted-Out"]
       end
 
@@ -192,6 +193,7 @@ module Api
         assert_nil Contact.find_by(id: anon.id)
         assert_equal 1, AnnouncementRead.where(contact_id: @contact.id).count
         assert_equal @contact.id, JSON.parse(response.body)["contact_id"]
+        assert_equal "", response.headers["X-Ideabug-Anonymous-Id"]
       end
     end
   end

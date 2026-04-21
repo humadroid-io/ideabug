@@ -54,31 +54,16 @@ module Api
       private
 
       def announcement_scope
-        contact_id = Current.contact.id.to_i
-
         Announcement
-          .select(
-            <<~SQL.squish
-              announcements.*,
-              CASE
-                WHEN EXISTS (
-                  SELECT 1 FROM announcement_reads
-                  WHERE announcement_reads.announcement_id = announcements.id
-                    AND announcement_reads.contact_id = #{contact_id}
-                ) THEN true
-                WHEN announcements.published_at > CURRENT_TIMESTAMP - INTERVAL '1 month' THEN false
-                ELSE true
-              END as read
-            SQL
-          )
-          .where(segment_targeting_sql, contact_id)
+          .visible_to_contact(Current.contact)
+          .select(Announcement.read_state_select_for(Current.contact, unread_cutoff: READ_WINDOW.ago))
       end
 
       def unread_announcement_ids
         Announcement
+          .visible_to_contact(Current.contact)
           .where("published_at > ?", READ_WINDOW.ago)
           .where.not(id: AnnouncementRead.where(contact_id: Current.contact.id).select(:announcement_id))
-          .where(segment_targeting_sql, Current.contact.id)
           .pluck(:id)
       end
 
@@ -92,23 +77,6 @@ module Api
 
       def find_announcement
         @announcement = announcement_scope.find(params[:id])
-      end
-
-      def segment_targeting_sql
-        <<~SQL.squish
-          NOT EXISTS (
-            SELECT 1 FROM announcements_segment_values
-            WHERE announcements_segment_values.announcement_id = announcements.id
-          ) OR EXISTS (
-            SELECT 1 FROM announcements_segment_values asv
-            WHERE asv.announcement_id = announcements.id
-              AND asv.segment_value_id IN (
-                SELECT segment_value_id
-                FROM contacts_segment_values
-                WHERE contact_id = ?
-              )
-          )
-        SQL
       end
     end
   end

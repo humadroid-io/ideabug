@@ -20,23 +20,9 @@ module Api
 
       def self.unread_count_for(contact)
         Announcement
+          .visible_to_contact(contact)
           .where("published_at > ?", READ_WINDOW.ago)
           .where.not(id: AnnouncementRead.where(contact_id: contact.id).select(:announcement_id))
-          .where(
-            "NOT EXISTS (
-              SELECT 1 FROM announcements_segment_values
-              WHERE announcements_segment_values.announcement_id = announcements.id
-            ) OR EXISTS (
-              SELECT 1 FROM announcements_segment_values asv
-              WHERE asv.announcement_id = announcements.id
-              AND asv.segment_value_id IN (
-                SELECT segment_value_id
-                FROM contacts_segment_values
-                WHERE contact_id = ?
-              )
-            )",
-            contact.id
-          )
           .count
       end
     end

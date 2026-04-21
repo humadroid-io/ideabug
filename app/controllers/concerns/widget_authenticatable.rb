@@ -65,6 +65,7 @@ module WidgetAuthenticatable
   def set_widget_response_headers
     return unless Current.contact
     response.headers["X-Ideabug-Contact-Id"] = Current.contact.id.to_s
+    response.headers["X-Ideabug-Anonymous-Id"] = Current.contact.anonymous_id.to_s
     response.headers["X-Ideabug-Opted-Out"] = Current.contact.announcements_opted_out.to_s
   end
 

@@ -59,26 +59,30 @@ class Contact < ApplicationRecord
     normalized_segments_data = normalize_hash(segments_data)
     return if normalized_segments_data == normalize_hash(segments_payload)
 
-    self.segments_payload = normalized_segments_data
-
-    # Process segments only if the payload was changed
-    normalized_segments_data.each do |identifier, value|
-      segment = Segment.find_by(identifier: identifier.to_s.strip.downcase)
-      next unless segment && value.present?
-
-      segment_value = segment.segment_values.find_by(val: value.to_s)
-
-      if segment_value.nil? && segment.allow_new_values?
-        segment_value = segment.segment_values.create(val: value.to_s)
-      end
-
-      segment_values << segment_value if segment_value && !segment_values.include?(segment_value)
+    transaction do
+      self.segments_payload = normalized_segments_data
+      segment_values.replace(segment_values_for_payload(normalized_segments_data))
+      save!
     end
-
-    save
   end
 
   private
+
+  def segment_values_for_payload(segments_data)
+    segments_by_identifier = Segment.includes(:segment_values)
+      .where(identifier: segments_data.keys)
+      .index_by(&:identifier)
+
+    segments_data.filter_map do |identifier, value|
+      next if value.blank?
+
+      segment = segments_by_identifier[identifier]
+      next unless segment
+
+      segment.segment_values.find { |segment_value| segment_value.val == value.to_s } ||
+        (segment.allow_new_values? && segment.segment_values.create!(val: value.to_s))
+    end
+  end
 
   def normalize_hash(hash)
     return {} unless hash.is_a?(Hash)

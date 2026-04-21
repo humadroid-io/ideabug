@@ -137,4 +137,18 @@ class ContactTest < ActiveSupport::TestCase
     contact.update_segments_from_payload({region: "south"})
     assert_not_equal before, contact.reload.updated_at
   end
+
+  test "replaces stale segment memberships when a payload value changes" do
+    segment = create(:segment, identifier: "region", allow_new_values: true)
+    north = create(:segment_value, segment: segment, val: "north")
+    south = create(:segment_value, segment: segment, val: "south")
+    contact = create(:contact, segments_payload: {"region" => "north"})
+    contact.segment_values << north
+
+    contact.update_segments_from_payload({"region" => "south"})
+
+    contact.reload
+    assert_equal({"region" => "south"}, contact.segments_payload)
+    assert_equal [south.id], contact.segment_values.where(segment: segment).pluck(:id)
+  end
 end

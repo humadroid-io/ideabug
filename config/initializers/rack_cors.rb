@@ -19,6 +19,6 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     resource "/api/v1/*",
       headers: :any,
       methods: [:get, :post, :delete, :options],
-      expose: %w[X-Ideabug-Unread X-Ideabug-Opted-Out X-Ideabug-Contact-Id]
+      expose: %w[X-Ideabug-Unread X-Ideabug-Opted-Out X-Ideabug-Contact-Id X-Ideabug-Anonymous-Id]
   end
 end

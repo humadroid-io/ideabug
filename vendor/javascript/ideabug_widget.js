@@ -105,10 +105,21 @@
       this._jwtFn = fn;
     }
 
+    syncStateFromResponseHeaders(headers) {
+      const anonymousId = headers.get("X-Ideabug-Anonymous-Id");
+      if (anonymousId === null) return;
+
+      const state = loadState();
+      if (anonymousId) state.anonymous_id = anonymousId;
+      else delete state.anonymous_id;
+      saveState(state);
+    }
+
     async request(method, path, body) {
       const opts = { method: method, headers: await this.headers(), credentials: "omit" };
       if (body !== undefined) opts.body = JSON.stringify(body);
       const res = await fetch(this.host + path, opts);
+      this.syncStateFromResponseHeaders(res.headers);
       const data = res.status === 204 ? null : await res.json().catch(() => null);
       return { ok: res.ok, status: res.status, data: data, headers: res.headers };
     }
@@ -160,7 +171,17 @@
         this.client.setJwtFn(this.config.jwt);
       }
 
-      this._maybeStart();
+      this._scheduleStart();
+    }
+
+    _scheduleStart() {
+      if (this._started || this._startScheduled) return;
+      this._startScheduled = true;
+
+      setTimeout(() => {
+        this._startScheduled = false;
+        this._maybeStart();
+      }, 0);
     }
 
     _maybeStart() {
@@ -212,19 +233,38 @@
       // Identify FIRST so we have an anonymous_id before any other request
       // can be issued. Without this, a fast user could click the bell before
       // /identity resolves and trigger a 401 on the lazy list fetch.
-      try {
-        const id = await this.client.identify();
-        if (id.ok && id.data) {
-          this.state.anonymous_id = id.data.anonymous_id || this.state.anonymous_id;
-          this.optedOut = !!id.data.opted_out;
-          this.unread = id.data.unread_count || 0;
-          saveState(this.state);
-        }
-      } catch (e) {
-        console.warn("[ideabug] identity failed", e);
-      }
+      await this.refreshIdentity();
       this.renderShell();
       this.startPolling();
+    }
+
+    async refreshIdentity() {
+      if (!this.client) return;
+      if (this._identityPromise) return this._identityPromise;
+
+      this._identityPromise = (async () => {
+        try {
+          const id = await this.client.identify();
+          if (id.ok && id.data) {
+            // Clear any stale anonymous id after an identified upgrade so a
+            // later request without JWT does not silently recreate the old
+            // anonymous contact.
+            this.state.anonymous_id = id.data.anonymous_id || null;
+            this.optedOut = !!id.data.opted_out;
+            this.unread = id.data.unread_count || 0;
+            saveState(this.state);
+            this.renderBell();
+          }
+        } catch (e) {
+          console.warn("[ideabug] identity failed", e);
+        }
+      })();
+
+      try {
+        await this._identityPromise;
+      } finally {
+        this._identityPromise = null;
+      }
     }
 
     startPolling() {
@@ -589,13 +629,36 @@
       if (row) row.classList.remove("is-unread");
     }
 
+    showUpdatesBanner(message) {
+      const body = this.body();
+      if (!body) return;
+      const existing = body.querySelector(".ideabug-banner");
+      if (existing) existing.remove();
+      body.insertAdjacentHTML("afterbegin", '<div class="ideabug-banner">' + escapeHtml(message) + "</div>");
+    }
+
     async markAllRead() {
+      const button = this.body().querySelector('[data-action="mark-all"]');
+      if (button) button.disabled = true;
+
       const res = await this.client.markAllRead();
-      if (!res.ok) return;
-      this.announcements.forEach((a) => (a.read = true));
-      this.unread = 0;
+      if (!res.ok) {
+        if (button) button.disabled = false;
+        this.showUpdatesBanner("Could not mark announcements as read. Please try again.");
+        return;
+      }
+
+      if (this.announcements) {
+        this.announcements.forEach((a) => (a.read = true));
+      }
+
+      const unread = parseInt(res.headers.get("X-Ideabug-Unread") || "0", 10);
+      this.unread = isNaN(unread) ? 0 : unread;
       this.renderBell();
-      this.renderUpdates();
+
+      // Re-fetch so the list always reflects the server's persisted read state
+      // instead of relying only on the optimistic local mutation.
+      await this.loadUpdates(true);
     }
 
     async toggleOptOut(out) {

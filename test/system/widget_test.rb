@@ -46,4 +46,85 @@ class WidgetTest < ApplicationSystemTestCase
     end
     assert @feature.votes_count > initial_count, "vote should increment ticket counter on server"
   end
+
+  test "marks all visible announcements as read from the updates footer" do
+    second = create(:announcement, title: "Another Update",
+      preview: "Second preview", published_at: 30.minutes.ago)
+
+    visit "/_test/widget_host"
+
+    find(".ideabug-bell", wait: 5).click
+
+    assert_selector ".ideabug-panel.is-open", wait: 5
+    assert_selector ".ideabug-item.is-unread", text: "Big News", wait: 5
+    assert_selector ".ideabug-item.is-unread", text: "Another Update", wait: 5
+
+    click_button "Mark all as read"
+
+    deadline = Time.current + 5
+    while Time.current < deadline && AnnouncementRead.count < 2
+      sleep 0.1
+    end
+
+    assert_equal 2, AnnouncementRead.count
+    assert AnnouncementRead.exists?(announcement_id: @announcement.id)
+    assert AnnouncementRead.exists?(announcement_id: second.id)
+    assert_no_selector ".ideabug-item.is-unread", wait: 5
+  end
+
+  test "boots as identified when JWT is configured during ideabug ready" do
+    identified = create(:contact, :identified)
+    create(:announcement_read, announcement: @announcement, contact: identified)
+    anonymous_count = Contact.where(external_id: nil).count
+
+    visit "/_test/widget_host?contact_id=#{identified.id}"
+
+    find(".ideabug-bell", wait: 5)
+
+    deadline = Time.current + 5
+    while Time.current < deadline && evaluate_script("window.IdeabugWidget.getUnreadCount()") != 0
+      sleep 0.1
+    end
+
+    state = JSON.parse(evaluate_script("localStorage.getItem('ideabug:state')"))
+    assert_equal 0, evaluate_script("window.IdeabugWidget.getUnreadCount()")
+    assert_equal anonymous_count, Contact.where(external_id: nil).count
+    assert_nil state["anonymous_id"]
+  end
+
+  test "clears stale anonymous identity after upgrading to JWT so unread does not reappear" do
+    announcement = create(:announcement, title: "Upgrade Notice",
+      preview: "JWT upgrade", published_at: 20.minutes.ago)
+    identified = create(:contact, :identified)
+    anonymous = create(:contact, :anonymous, anonymous_id: "ib_upgrade_stale_anon_123")
+
+    visit "/_test/widget_host?contact_id=#{identified.id}&anon_id=#{anonymous.anonymous_id}"
+
+    find(".ideabug-bell", wait: 5).click
+    assert_selector ".ideabug-item.is-unread", text: "Upgrade Notice", wait: 5
+
+    click_button "Mark all as read"
+
+    deadline = Time.current + 5
+    while Time.current < deadline && !AnnouncementRead.exists?(announcement_id: announcement.id, contact_id: identified.id)
+      sleep 0.1
+    end
+
+    assert AnnouncementRead.exists?(announcement_id: announcement.id, contact_id: identified.id)
+    assert_nil Contact.find_by(id: anonymous.id)
+
+    execute_script("window.__ideabugProvideJwt = false")
+    execute_script("window.IdeabugWidget.refreshState()")
+
+    deadline = Time.current + 5
+    while Time.current < deadline
+      stale = Contact.find_by(anonymous_id: anonymous.anonymous_id)
+      unread = evaluate_script("window.IdeabugWidget.getUnreadCount()")
+      break if stale.nil? && unread == 0
+      sleep 0.1
+    end
+
+    assert_nil Contact.find_by(anonymous_id: anonymous.anonymous_id)
+    assert_equal 0, evaluate_script("window.IdeabugWidget.getUnreadCount()")
+  end
 end

@@ -22,7 +22,7 @@ module Api
         end
 
         should "respect the LIST_LIMIT" do
-          create_list(:announcement, 12, published_at: Time.current)
+          create_list(:announcement, Api::V1::AnnouncementsController::LIST_LIMIT + 2, published_at: Time.current)
 
           get api_v1_announcements_url,
             headers: {Authorization: "Bearer #{@token}"}
@@ -54,7 +54,7 @@ module Api
           assert_response :success
           json_response = JSON.parse(response.body)
 
-          assert_equal [@announcement.id], json_response.map { |announcement| announcement["id"] }
+          assert_equal [@announcement.id], json_response.pluck("id")
           assert_equal false, json_response.first["read"]
         end
       end
@@ -86,7 +86,7 @@ module Api
           assert_response :success
           json_response = JSON.parse(response.body)
 
-          announcement_ids = json_response.map { |a| a["id"] }
+          announcement_ids = json_response.pluck("id")
           assert_includes announcement_ids, @north_announcement.id
           assert_includes announcement_ids, @public_announcement.id
           refute_includes announcement_ids, @south_announcement.id
@@ -99,7 +99,7 @@ module Api
           assert_response :success
           json_response = JSON.parse(response.body)
 
-          announcement_ids = json_response.map { |a| a["id"] }
+          announcement_ids = json_response.pluck("id")
           assert_includes announcement_ids, @public_announcement.id
           refute_includes announcement_ids, @north_announcement.id
           refute_includes announcement_ids, @south_announcement.id
@@ -114,13 +114,13 @@ module Api
           assert_response :success
           json_response = JSON.parse(response.body)
 
-          announcement_ids = json_response.map { |a| a["id"] }
+          announcement_ids = json_response.pluck("id")
           assert_includes announcement_ids, @north_announcement.id
           assert_includes announcement_ids, @south_announcement.id
           assert_includes announcement_ids, @public_announcement.id
         end
 
-        should "return announcement when it has multiple segments but contact matches any" do
+        should "hide an announcement unless the contact matches every targeted segment" do
           segment2 = create(:segment, identifier: "department")
           dept_value = create(:segment_value, segment: segment2, val: "sales")
 
@@ -137,7 +137,25 @@ module Api
           assert_response :success
           json_response = JSON.parse(response.body)
 
-          announcement_ids = json_response.map { |a| a["id"] }
+          announcement_ids = json_response.pluck("id")
+          refute_includes announcement_ids, @multi_segment_announcement.id
+        end
+
+        should "return an announcement when the contact matches every targeted segment" do
+          segment2 = create(:segment, identifier: "department")
+          dept_value = create(:segment_value, segment: segment2, val: "sales")
+
+          @multi_segment_announcement = create(:announcement, published_at: Time.current)
+          @multi_segment_announcement.segment_values << [@north_value, dept_value]
+          @contact.segment_values << [@north_value, dept_value]
+
+          get api_v1_announcements_url,
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :success
+          json_response = JSON.parse(response.body)
+
+          announcement_ids = json_response.pluck("id")
           assert_includes announcement_ids, @multi_segment_announcement.id
         end
 
@@ -158,7 +176,7 @@ module Api
           assert_response :success
           json_response = JSON.parse(response.body)
 
-          announcement_ids = json_response.map { |a| a["id"] }
+          announcement_ids = json_response.pluck("id")
           assert_includes announcement_ids, @announcement_all_regions.id
         end
 
