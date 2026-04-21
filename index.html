@@ -4,396 +4,430 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- SEO Meta Tags -->
-    <title>
-      IdeaBug - Privacy-First Product Updates & User Feedback Platform
-    </title>
+    <title>IdeaBug — Self-hosted feedback widget for product teams</title>
     <meta
       name="description"
-      content="IdeaBug is an open-source platform for embedding product updates, gathering user feedback, and managing feature requests while maintaining complete data privacy."
+      content="Open-source, self-hosted feedback platform: in-app announcements, bug reports, feature requests with voting, and a public roadmap — all driven by a single embeddable widget."
     />
     <meta
       name="keywords"
-      content="product updates, user feedback, feature requests, product roadmap, privacy-first, open source"
+      content="product updates, user feedback, feature requests, bug reports, public roadmap, self-hosted, open source, embeddable widget"
     />
 
-    <!-- Open Graph Tags -->
-    <meta
-      property="og:title"
-      content="IdeaBug - Privacy-First Product Updates & Feedback"
-    />
+    <meta property="og:title" content="IdeaBug — Self-hosted feedback widget" />
     <meta
       property="og:description"
-      content="Embed product updates and gather user feedback while maintaining complete data privacy. Open-source and easy to integrate."
+      content="In-app announcements, bug reports, feature voting, and a public roadmap. Self-host in an afternoon."
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://ideabug.io" />
 
-    <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="IdeaBug - Privacy-First Product Updates & Feedback"
-    />
+    <meta name="twitter:title" content="IdeaBug — Self-hosted feedback widget" />
     <meta
       name="twitter:description"
-      content="Embed product updates and gather user feedback while maintaining complete data privacy. Open-source and easy to integrate."
+      content="In-app announcements, bug reports, feature voting, and a public roadmap. Self-host in an afternoon."
     />
 
-    <!-- Tailwind and Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Custom Styles -->
     <style>
-      .glass {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+      html {
+        font-family: "Inter", ui-sans-serif, system-ui, -apple-system,
+          "Segoe UI", Roboto, sans-serif;
       }
-
-      .glass-dark {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+      code,
+      pre {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+          monospace;
       }
-
-      .glass-card {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow:
-          0 8px 32px 0 rgba(31, 38, 135, 0.07),
-          inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-      }
-
-      .glass-card:hover {
-        background: rgba(255, 255, 255, 0.25);
-        transform: translateY(-2px);
-        box-shadow:
-          0 12px 40px 0 rgba(31, 38, 135, 0.1),
-          inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-      }
-
-      .gradient-bg {
-        background: radial-gradient(
-            circle at 0% 0%,
-            rgba(37, 99, 235, 0.1) 0%,
-            transparent 50%
+      .grid-bg {
+        background-image:
+          radial-gradient(
+            circle at 20% 10%,
+            rgba(251, 146, 60, 0.18) 0%,
+            transparent 45%
           ),
           radial-gradient(
-            circle at 100% 100%,
-            rgba(79, 70, 229, 0.15) 0%,
-            transparent 50%
+            circle at 85% 20%,
+            rgba(249, 115, 22, 0.12) 0%,
+            transparent 40%
           );
       }
-
-      .gradient-text {
-        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
     </style>
-
-    <!-- Tailwind Config -->
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              blue: {
-                600: "#2563eb",
-                700: "#1d4ed8",
-              },
-              indigo: {
-                600: "#4f46e5",
-              },
-            },
-          },
-        },
-      };
-    </script>
   </head>
-  <body
-    class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50"
-  >
-    <!-- Decorative Background -->
-    <div class="fixed inset-0 -z-10 overflow-hidden">
-      <div
-        class="absolute -top-1/2 -left-1/2 w-full h-full bg-blue-100 rounded-full opacity-20 blur-3xl"
-      ></div>
-      <div
-        class="absolute -bottom-1/2 -right-1/2 w-full h-full bg-indigo-100 rounded-full opacity-20 blur-3xl"
-      ></div>
-    </div>
-
-    <!-- Hero Section -->
-    <header class="container mx-auto px-4 py-16 relative">
-      <div class="glass rounded-2xl p-12 text-center">
-        <div
-          class="inline-block mb-4 px-6 py-2 glass-dark rounded-full text-blue-600 text-sm font-semibold"
-        >
-          🚀 Now Open Source
-        </div>
-        <h1 class="text-5xl font-bold mb-6 gradient-text">IdeaBug</h1>
-        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          The privacy-focused platform for product updates, user feedback, and
-          feature management.
-        </p>
-        <div class="flex justify-center gap-4">
+  <body class="bg-amber-50 text-orange-900 antialiased">
+    <!-- Nav -->
+    <header class="sticky top-0 z-20 border-b border-orange-200/70 bg-amber-50/85 backdrop-blur">
+      <div class="mx-auto flex min-h-14 max-w-7xl items-center justify-between gap-4 px-6">
+        <a href="#" class="text-sm font-semibold uppercase tracking-[0.24em] text-orange-900">
+          Ideabug
+        </a>
+        <nav class="hidden items-center gap-6 text-sm font-medium text-orange-700 md:flex">
+          <a href="#features" class="hover:text-orange-500">Features</a>
+          <a href="#embed" class="hover:text-orange-500">Embed</a>
+          <a href="#why" class="hover:text-orange-500">Why self-host</a>
           <a
             href="https://github.com/humadroid-io/ideabug"
-            class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg font-medium inline-flex items-center hover:opacity-90 transition shadow-lg"
+            class="hover:text-orange-500"
+            >GitHub</a
           >
-            Get Started <i class="fas fa-arrow-right ml-2"></i>
-          </a>
-          <!-- <a
-            href="#"
-            class="glass px-8 py-4 rounded-lg font-medium inline-flex items-center hover:bg-white/80 transition shadow-lg"
-          >
-            View Demo <i class="fas fa-code ml-2"></i>
-          </a> -->
-        </div>
+        </nav>
+        <a
+          href="https://github.com/humadroid-io/ideabug"
+          class="inline-flex items-center gap-2 rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-400"
+        >
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill-rule="evenodd"
+              d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Source
+        </a>
       </div>
     </header>
 
-    <!-- Features Grid -->
-    <section class="container mx-auto px-4 py-16">
-      <h2 class="text-3xl font-bold text-center mb-12 gradient-text">
-        Everything You Need for Product Feedback
-      </h2>
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Privacy First -->
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+    <!-- Hero -->
+    <section class="grid-bg relative isolate px-6 pt-16 pb-24 lg:pt-24">
+      <div class="mx-auto max-w-4xl text-center">
+        <span
+          class="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600"
         >
-          <i class="fas fa-lock text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Privacy First</h3>
-          <p class="text-gray-600">
-            Built with privacy in mind. Your users' data stays where it belongs
-            - with you.
-          </p>
-        </div>
-
-        <!-- Simple Integration -->
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
+          <span class="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+          Open source · MIT
+        </span>
+        <h1
+          class="text-4xl font-bold tracking-tight text-orange-800 sm:text-6xl"
         >
-          <i class="fas fa-code text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Simple Integration</h3>
-          <p class="text-gray-600">
-            Add product updates to your app with just a few lines of JavaScript.
-          </p>
-        </div>
-
-        <!-- User Segmentation -->
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
-        >
-          <i class="fas fa-users text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Smart Segmentation</h3>
-          <p class="text-gray-600">
-            Target updates to specific user segments for maximum relevance.
-          </p>
-        </div>
-
-        <!-- Feature Requests -->
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
-        >
-          <div
-            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+          Turn user feedback into product excellence
+        </h1>
+        <p class="mx-auto mt-6 max-w-2xl text-lg leading-8 text-orange-700">
+          Self-hosted feedback platform: in-app announcements, bug reports,
+          feature requests with voting, and a public roadmap — all driven by a
+          single embeddable widget.
+        </p>
+        <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <a
+            href="https://github.com/humadroid-io/ideabug"
+            class="inline-flex items-center gap-2 rounded-md bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-orange-400"
           >
-            Coming Soon
-          </div>
-          <i class="fas fa-comment text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Feature Requests</h3>
-          <p class="text-gray-600">
-            Let users suggest new features and improvements directly within your
-            app.
+            Get Started
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </a>
+          <a
+            href="#embed"
+            class="inline-flex items-center gap-2 rounded-md border border-orange-300 bg-white/60 px-6 py-3 text-base font-semibold text-orange-700 hover:bg-white"
+          >
+            See the embed snippet
+          </a>
+        </div>
+        <p class="mt-6 text-sm text-orange-600/80">
+          No SaaS lock-in · Your data stays on your servers · Two lines of HTML to embed
+        </p>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="bg-orange-50 py-24 sm:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:text-center">
+          <h2 class="text-base font-semibold leading-7 text-orange-600">
+            Deploy in minutes
+          </h2>
+          <p
+            class="mt-2 text-3xl font-bold tracking-tight text-orange-800 sm:text-4xl"
+          >
+            Everything you need to collect actionable feedback
           </p>
         </div>
-
-        <!-- Voting System -->
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
-        >
-          <div
-            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
+        <div class="mx-auto mt-16 max-w-2xl lg:mt-20 lg:max-w-none">
+          <dl
+            class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-12 lg:max-w-none lg:grid-cols-4"
           >
-            Coming Soon
-          </div>
-          <i class="fas fa-vote-yea text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Community Voting</h3>
-          <p class="text-gray-600">
-            Enable users to vote on feature requests and prioritize what matters
-            most.
-          </p>
-        </div>
-
-        <!-- Product Roadmap -->
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
-        >
-          <div
-            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
-          >
-            Coming Soon
-          </div>
-          <i class="fas fa-map text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Public Roadmap</h3>
-          <p class="text-gray-600">
-            Share your product vision with a public roadmap that keeps users in
-            the loop.
-          </p>
-        </div>
-
-        <!-- Coming Soon Features -->
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
-        >
-          <div
-            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
-          >
-            Coming Soon
-          </div>
-          <i class="fas fa-bell text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Smart Notifications</h3>
-          <p class="text-gray-600">
-            Keep users engaged with intelligent notification systems and custom
-            delivery preferences.
-          </p>
-        </div>
-
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
-        >
-          <div
-            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
-          >
-            Coming Soon
-          </div>
-          <i class="fas fa-chart-line text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Analytics Dashboard</h3>
-          <p class="text-gray-600">
-            Gain insights into user engagement, feature popularity, and feedback
-            trends.
-          </p>
-        </div>
-
-        <div
-          class="glass-card p-6 rounded-xl shadow-lg hover:shadow-xl transition"
-        >
-          <div
-            class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-600 mb-4"
-          >
-            Coming Soon
-          </div>
-          <i class="fas fa-puzzle-piece text-4xl text-blue-600 mb-4"></i>
-          <h3 class="text-xl font-semibold mb-2">Integration Hub</h3>
-          <p class="text-gray-600">
-            Connect with your favorite tools: Jira, Trello, GitHub, and more
-            coming soon.
-          </p>
+            <div class="flex flex-col">
+              <div
+                class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </div>
+              <dt class="text-lg font-semibold leading-7 text-orange-800">
+                Announcements
+              </dt>
+              <dd class="mt-2 text-base leading-7 text-orange-700">
+                Push product updates straight into the host app's bell. Group by
+                week so a few-per-week cadence never feels noisy. Mark all read
+                or mute future updates with one click.
+              </dd>
+            </div>
+            <div class="flex flex-col">
+              <div
+                class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <dt class="text-lg font-semibold leading-7 text-orange-800">
+                Bug reports
+              </dt>
+              <dd class="mt-2 text-base leading-7 text-orange-700">
+                One-click bug submission with auto-attached page URL, viewport,
+                and user agent. Routed straight to your admin queue, never
+                published.
+              </dd>
+            </div>
+            <div class="flex flex-col">
+              <div
+                class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                </svg>
+              </div>
+              <dt class="text-lg font-semibold leading-7 text-orange-800">
+                Feature voting
+              </dt>
+              <dd class="mt-2 text-base leading-7 text-orange-700">
+                Users suggest features and vote on existing ideas. Prioritize
+                what to build next based on real demand, not loudest voices.
+              </dd>
+            </div>
+            <div class="flex flex-col">
+              <div
+                class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+              </div>
+              <dt class="text-lg font-semibold leading-7 text-orange-800">
+                Public roadmap
+              </dt>
+              <dd class="mt-2 text-base leading-7 text-orange-700">
+                Now / Next / Shipped lanes — a shareable roadmap page plus a tab
+                inside the widget. Keep customers aligned with where you're
+                heading.
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
     </section>
 
-    <!-- Why IdeaBug Section -->
-    <section class="container mx-auto px-4 py-16">
-      <div class="glass rounded-2xl p-8 shadow-lg">
-        <h2 class="text-3xl font-bold mb-8 gradient-text text-center">
-          Why Choose IdeaBug?
-        </h2>
-        <div class="grid md:grid-cols-2 gap-8">
-          <div class="space-y-6">
-            <div class="flex items-start gap-4">
-              <i class="fas fa-shield-alt text-2xl text-blue-600 mt-1"></i>
-              <div>
-                <h3 class="text-lg font-semibold mb-2">Privacy by Design</h3>
-                <p class="text-gray-600">
-                  Your data never leaves your servers. Period. We believe in
-                  absolute data sovereignty.
-                </p>
-              </div>
-            </div>
-            <div class="flex items-start gap-4">
-              <i class="fas fa-bolt text-2xl text-blue-600 mt-1"></i>
-              <div>
-                <h3 class="text-lg font-semibold mb-2">Lightning Fast</h3>
-                <p class="text-gray-600">
-                  Optimized for performance with minimal impact on your
-                  application's load time.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-6">
-            <div class="flex items-start gap-4">
-              <i class="fas fa-code-branch text-2xl text-blue-600 mt-1"></i>
-              <div>
-                <h3 class="text-lg font-semibold mb-2">Open Source</h3>
-                <p class="text-gray-600">
-                  Full transparency, customizable, and backed by a growing
-                  community.
-                </p>
-              </div>
-            </div>
-            <div class="flex items-start gap-4">
-              <i class="fas fa-expand-alt text-2xl text-blue-600 mt-1"></i>
-              <div>
-                <h3 class="text-lg font-semibold mb-2">Scalable</h3>
-                <p class="text-gray-600">
-                  Grows with your product from startup to enterprise with no
-                  compromises.
-                </p>
-              </div>
-            </div>
-          </div>
+    <!-- Embed snippet -->
+    <section id="embed" class="bg-amber-50 py-24 sm:py-32">
+      <div class="mx-auto max-w-3xl px-6 lg:px-8">
+        <div class="text-center">
+          <h2 class="text-base font-semibold leading-7 text-orange-600">
+            Two lines of HTML
+          </h2>
+          <p
+            class="mt-2 text-3xl font-bold tracking-tight text-orange-800 sm:text-4xl"
+          >
+            Add the widget to any page
+          </p>
         </div>
-      </div>
-    </section>
-
-    <!-- Code Preview -->
-    <section class="container mx-auto px-4 py-16">
-      <div class="glass-dark rounded-2xl p-8 shadow-lg">
         <pre
-          class="text-gray-900 overflow-x-auto"
-        ><code>&lt;div id="notification-container">&lt;div>
-&lt;script src="//ideabug.yourdomain.com/script.js">&lt;/script>
-&lt;script>
-  const notifications = new IdeabugNotifications({
-    apiHost: 'https://ideabug.yourdomain.com',
-    targetElement: '#notification-container',
-    jwt: () => 'BACKEND_GENERATED_JWT',
-    pollInterval: 30000 // optional, defaults to 30 seconds
-  });
-&lt;/script></code></pre>
+          class="mt-10 overflow-x-auto rounded-xl bg-orange-900 p-6 text-sm leading-relaxed text-orange-100 shadow-lg"
+        ><code>&lt;div id="feedback"&gt;&lt;/div&gt;
+&lt;script src="https://ideabug.yourdomain.com/script.js"
+        data-ideabug-host="https://ideabug.yourdomain.com"
+        data-ideabug-target="#feedback"
+        defer&gt;&lt;/script&gt;</code></pre>
+        <p class="mt-4 text-sm text-orange-700">
+          No auth required: the widget mints an anonymous identity on first
+          load. Optionally pass a JWT to upgrade to identified users without
+          losing their read state or votes.
+        </p>
+      </div>
+    </section>
+
+    <!-- Origin story -->
+    <section id="origin" class="bg-orange-600/5 py-24 sm:py-32">
+      <div class="mx-auto max-w-4xl px-6 lg:px-8">
+        <div class="rounded-3xl border border-orange-200 bg-white/70 p-10 shadow-sm sm:p-14">
+          <div class="flex flex-col gap-8 lg:flex-row lg:items-start">
+            <div class="lg:w-1/3">
+              <h2 class="text-base font-semibold leading-7 text-orange-600">
+                Why we built it
+              </h2>
+              <p
+                class="mt-2 text-3xl font-bold tracking-tight text-orange-800"
+              >
+                Born at
+                <a
+                  href="https://humadroid.io/"
+                  class="underline decoration-orange-300 underline-offset-4 hover:decoration-orange-500"
+                  >humadroid.io</a
+                >
+              </p>
+            </div>
+            <div class="space-y-5 text-base leading-7 text-orange-700 lg:w-2/3">
+              <p>
+                We needed an elegant way to surface recent announcements to our
+                users inside
+                <a
+                  href="https://humadroid.io/"
+                  class="font-semibold text-orange-800 underline decoration-orange-300 underline-offset-4 hover:decoration-orange-500"
+                  >humadroid.io</a
+                >
+                — our compliance management platform.
+              </p>
+              <p>
+                Every off-the-shelf option wanted to phone home. For a product
+                built around compliance and the trust of customers handling
+                sensitive data, shipping user identifiers to a third-party
+                changelog widget was a non-starter.
+              </p>
+              <p>
+                So we built IdeaBug. Anonymous by design, self-hosted, and with
+                the full data lifecycle under our control — from the moment an
+                announcement is written to the moment a user marks it read.
+                Then we open-sourced it so other privacy-conscious teams don't
+                have to rebuild it from scratch.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why self-host -->
+    <section id="why" class="bg-orange-50 py-24 sm:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:text-center">
+          <h2 class="text-base font-semibold leading-7 text-orange-600">
+            Why self-host
+          </h2>
+          <p
+            class="mt-2 text-3xl font-bold tracking-tight text-orange-800 sm:text-4xl"
+          >
+            Your data, your branding, your roadmap
+          </p>
+        </div>
+        <div class="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
+          <div class="rounded-2xl border border-orange-200 bg-white/60 p-8">
+            <h3 class="text-lg font-semibold text-orange-800">Privacy by design</h3>
+            <p class="mt-2 leading-7 text-orange-700">
+              Contact identifiers never leave your infrastructure. Deploy behind
+              your VPN or expose only the embed endpoint — your call.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-orange-200 bg-white/60 p-8">
+            <h3 class="text-lg font-semibold text-orange-800">Built on Rails</h3>
+            <p class="mt-2 leading-7 text-orange-700">
+              Rails 8 + Postgres + Redis. Hotwire on the front. Docker or plain
+              <code class="rounded bg-orange-100 px-1.5 py-0.5 text-xs text-orange-800">bin/dev</code> —
+              familiar stack, boring tech.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-orange-200 bg-white/60 p-8">
+            <h3 class="text-lg font-semibold text-orange-800">Segment targeting</h3>
+            <p class="mt-2 leading-7 text-orange-700">
+              Ship announcements to specific user segments via JWT claims.
+              Plan-gated updates, beta cohorts, per-tenant messaging — all
+              without a separate CRM sync.
+            </p>
+          </div>
+          <div class="rounded-2xl border border-orange-200 bg-white/60 p-8">
+            <h3 class="text-lg font-semibold text-orange-800">Yours to fork</h3>
+            <p class="mt-2 leading-7 text-orange-700">
+              Open source under MIT. Customize the widget, the admin UI, the
+              ticket workflow. No vendor lock-in, no seat-based pricing.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="bg-orange-600">
+      <div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+          <h2
+            class="text-3xl font-bold tracking-tight text-white sm:text-4xl"
+          >
+            Ready to listen better?
+          </h2>
+          <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-orange-100">
+            Self-host in an afternoon. Your data, your branding, your roadmap.
+          </p>
+          <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="https://github.com/humadroid-io/ideabug"
+              class="rounded-md bg-white px-6 py-3 text-lg font-semibold text-orange-600 shadow-sm hover:bg-orange-50"
+            >
+              Read the docs
+            </a>
+            <a
+              href="https://github.com/humadroid-io/ideabug#readme"
+              class="rounded-md border border-white/40 px-6 py-3 text-lg font-semibold text-white hover:bg-white/10"
+            >
+              View on GitHub
+            </a>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="container mx-auto px-4 py-8 border-t">
-      <div class="glass rounded-xl p-6 flex justify-between">
-        <p class="text-gray-600">© 2024 IdeaBug. Created with ❤️ by guys from <a href="https://humadroid.io" title="HRMS for small businesses">humadroid.io</a></p>
-        <div class="flex gap-6">
+    <footer class="border-t border-orange-200/70 bg-amber-50 py-10">
+      <div
+        class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-orange-700 md:flex-row"
+      >
+        <p>
+          Crafted with ❤️ by guys from
+          <a
+            href="https://humadroid.io/"
+            title="AI-first Compliance Management platform"
+            class="font-semibold underline hover:text-orange-500"
+            >humadroid.io</a
+          >
+          in beautiful city of Poznań 🇵🇱
+        </p>
+        <div class="flex items-center gap-6">
           <a
             href="https://github.com/humadroid-io/ideabug"
-            class="text-gray-600 hover:text-blue-600"
+            class="inline-flex items-center gap-2 hover:text-orange-500"
           >
-            <i class="fab fa-github mr-2"></i>GitHub
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill-rule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            GitHub
           </a>
         </div>
       </div>
     </footer>
-    <!-- Structured Data for SEO -->
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -406,9 +440,8 @@
           "price": "0",
           "priceCurrency": "USD"
         },
-        "description": "Privacy-first platform for product updates and user feedback management"
+        "description": "Self-hosted platform for in-app announcements, bug reports, feature voting, and a public roadmap."
       }
     </script>
   </body>
 </html>
->
