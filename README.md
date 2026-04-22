@@ -171,15 +171,16 @@ openssl genpkey -algorithm RSA -out config/jwt/private.pem -pkeyopt rsa_keygen_b
 openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
 ```
 
-Distribute `private.pem` to your host application. ideabug only needs the **public** key (it never signs, only verifies).
+Distribute `private.pem` to your host application and keep it there — it is the signing key and must never leave your backend. ideabug only needs the **public** key: it verifies tokens, it never mints them.
 
-You can also pass keys via env vars (recommended in containerized deployments):
+You can also pass the public key via env vars (recommended in containerized deployments):
 
 | Variable | Purpose |
 |---|---|
 | `JWT_PUBLIC_KEY` | PEM-encoded public key (verbatim contents). Takes precedence over `JWT_PUBLIC_KEY_FILE`. |
 | `JWT_PUBLIC_KEY_FILE` | Filename inside `config/jwt/`. Defaults to `public.pem`. |
-| `JWT_PRIVATE_KEY` / `JWT_PRIVATE_KEY_FILE` | Same, for the private key. Only needed in test/dev fixtures. |
+
+> `JWT_PRIVATE_KEY` / `JWT_PRIVATE_KEY_FILE` are **never read in production**. They exist only so the test suite and the `_test/widget_host` dev harness (`test/support/jwt_test_issuer.rb`) can mint fixtures locally. A production ideabug deployment should ship the public key only.
 
 #### 2b. Sign a JWT in your host app
 

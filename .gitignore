@@ -48,3 +48,4 @@
 # Deploy config — keep a public example, ignore the real (environment-specific) file.
 /config/deploy.yml
 !/config/deploy.example.yml
+/node_modules

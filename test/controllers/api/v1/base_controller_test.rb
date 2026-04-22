@@ -23,7 +23,7 @@ module Api
 
       def setup
         @contact = create(:contact, :identified)
-        @token = JwtCredentialService.generate_token(@contact)
+        @token = JwtTestIssuer.generate_token(@contact)
 
         Rails.application.routes.draw do
           get "test_action" => "api/v1/test#test_action"
@@ -67,7 +67,7 @@ module Api
           iat: Time.current.to_i,
           jti: SecureRandom.uuid
         }
-        token = JWT.encode(payload, JwtConfig.private_key, JwtCredentialService::ALGORITHM)
+        token = JWT.encode(payload, JwtTestIssuer.private_key, JwtTestIssuer::ALGORITHM)
 
         assert_difference "Contact.count", 1 do
           get test_action_url, headers: {Authorization: "Bearer #{token}"}
@@ -83,7 +83,7 @@ module Api
           iat: Time.current.to_i,
           jti: SecureRandom.uuid
         }
-        token = JWT.encode(payload, JwtConfig.private_key, JwtCredentialService::ALGORITHM)
+        token = JWT.encode(payload, JwtTestIssuer.private_key, JwtTestIssuer::ALGORITHM)
 
         get test_action_url, headers: {Authorization: "Bearer #{token}"}
 
@@ -104,7 +104,7 @@ module Api
           iat: Time.current.to_i,
           jti: SecureRandom.uuid
         }
-        token = JWT.encode(payload, JwtConfig.private_key, JwtCredentialService::ALGORITHM)
+        token = JWT.encode(payload, JwtTestIssuer.private_key, JwtTestIssuer::ALGORITHM)
 
         get test_action_url, headers: {Authorization: "Bearer #{token}"}
 
@@ -120,7 +120,7 @@ module Api
           iat: Time.current.to_i,
           jti: SecureRandom.uuid
         }
-        token = JWT.encode(payload, JwtConfig.private_key, JwtCredentialService::ALGORITHM)
+        token = JWT.encode(payload, JwtTestIssuer.private_key, JwtTestIssuer::ALGORITHM)
 
         get test_action_url, headers: {Authorization: "Bearer #{token}"}
 

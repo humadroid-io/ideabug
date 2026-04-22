@@ -5,7 +5,7 @@ module Api
     class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
       def setup
         @contact = create(:contact)
-        @token = JwtCredentialService.generate_token(@contact)
+        @token = JwtTestIssuer.generate_token(@contact)
         @announcement = create(:announcement, published_at: Time.current)
         Current.contact = @contact
       end

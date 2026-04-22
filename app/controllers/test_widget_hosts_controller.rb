@@ -4,7 +4,7 @@ class TestWidgetHostsController < ApplicationController
 
   def show
     contact = Contact.find_by(id: params[:contact_id]) if params[:contact_id].present?
-    token = contact && JwtCredentialService.generate_token(contact)
+    token = contact && JwtTestIssuer.generate_token(contact)
     anon_id = params[:anon_id].presence
     use_custom_trigger = params[:custom_trigger].present?
 

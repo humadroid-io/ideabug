@@ -1,17 +1,5 @@
 class JwtCredentialService
   ALGORITHM = "RS256"
-  EXPIRATION_TIME = 1.hour
-
-  def self.generate_token(contact)
-    payload = {
-      id: contact.external_id,
-      exp: EXPIRATION_TIME.from_now.to_i,
-      iat: Time.current.to_i,
-      jti: SecureRandom.uuid
-    }
-
-    JWT.encode(payload, JwtConfig.private_key, ALGORITHM)
-  end
 
   def self.verify_token(token)
     decoded_token = JWT.decode(

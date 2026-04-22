@@ -28,7 +28,7 @@ class WidgetAuthFlowTest < ActionDispatch::IntegrationTest
 
     # 3) Upgrade: same browser sends JWT alongside the anon id
     identified = create(:contact, :identified)
-    token = JwtCredentialService.generate_token(identified)
+    token = JwtTestIssuer.generate_token(identified)
 
     post api_v1_identity_url, headers: {
       :Authorization => "Bearer #{token}",

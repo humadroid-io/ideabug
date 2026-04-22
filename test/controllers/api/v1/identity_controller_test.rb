@@ -51,7 +51,7 @@ module Api
 
       test "with JWT only, returns identified contact" do
         contact = create(:contact, :identified)
-        token = JwtCredentialService.generate_token(contact)
+        token = JwtTestIssuer.generate_token(contact)
 
         post api_v1_identity_url, headers: {Authorization: "Bearer #{token}"}
 
@@ -69,7 +69,7 @@ module Api
         create(:announcement_read, announcement: announcement, contact: anon)
         create(:ticket_vote, ticket: ticket, contact: anon)
 
-        token = JwtCredentialService.generate_token(ident)
+        token = JwtTestIssuer.generate_token(ident)
 
         post api_v1_identity_url, headers: {
           :Authorization => "Bearer #{token}",
