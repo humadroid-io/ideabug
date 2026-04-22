@@ -10,6 +10,8 @@
 /.env*
 !/.env*.erb
 
+!/.ruby-version
+
 # Ignore all default key files.
 /config/master.key
 /config/credentials/*.key
