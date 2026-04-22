@@ -44,3 +44,7 @@
 !/.kamal/secrets-common
 !/.kamal/*.example
 /.kamal/hooks/*.sample
+
+# Deploy config — keep a public example, ignore the real (environment-specific) file.
+/config/deploy.yml
+!/config/deploy.example.yml

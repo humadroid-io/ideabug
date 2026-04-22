@@ -468,11 +468,11 @@ bin/rails console
 
 ### Production deploy
 
-The repo ships with a pinned Kamal 2.11.0 setup in `config/deploy.yml` plus `bin/kamal`.
+The repo ships with a pinned Kamal 2.11.0 setup in `config/deploy.example.yml` plus `bin/kamal`. The real `config/deploy.yml` is gitignored so each environment keeps its own host/image/SSH details out of source control.
 
 Single-host deploy:
 
-1. Edit `config/deploy.yml` and replace the placeholder server IP (`203.0.113.10`) and hostname (`feedback.example.com`).
+1. `cp config/deploy.example.yml config/deploy.yml` and replace the placeholder server IP (`203.0.113.10`), hostname (`feedback.example.com`), registry, and any SSH/builder settings for your environment.
 2. Set `KAMAL_REGISTRY_PASSWORD` and `IDEABUG_APP_DATABASE_PASSWORD` in your shell or secret manager. `RAILS_MASTER_KEY` is already sourced from `config/master.key` by `.kamal/secrets-common`.
 
 Then run:
@@ -482,7 +482,7 @@ bin/kamal setup    # first deploy, installs Docker + boots kamal-proxy
 bin/kamal deploy   # subsequent deploys
 ```
 
-This checked-in config boots managed Kamal accessories for Postgres and Redis on the same host as the app. The app connects to those containers using the static `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PORT`, and `REDIS_URL` values declared in `config/deploy.yml`.
+The example config boots managed Kamal accessories for Postgres and Redis on the same host as the app. The app connects to those containers using the static `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PORT`, and `REDIS_URL` values declared in `config/deploy.yml`.
 
 The checked-in `.kamal/secrets-common` maps `KAMAL_REGISTRY_PASSWORD`, `IDEABUG_APP_DATABASE_PASSWORD`, and `RAILS_MASTER_KEY` into Kamal. Persistent uploads are mounted at `/rails/storage`, and fingerprinted assets are bridged through `/rails/public/assets` to avoid 404s during rolling deploys.
 
