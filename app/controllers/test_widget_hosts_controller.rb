@@ -6,17 +6,18 @@ class TestWidgetHostsController < ApplicationController
     contact = Contact.find_by(id: params[:contact_id]) if params[:contact_id].present?
     token = contact && JwtCredentialService.generate_token(contact)
     anon_id = params[:anon_id].presence
+    use_custom_trigger = params[:custom_trigger].present?
 
     render inline: <<~HTML, content_type: "text/html"
       <!doctype html>
       <html>
       <head><meta charset="utf-8"><title>Ideabug widget test host</title></head>
       <body>
-        <div id="feedback" style="position:fixed;top:8px;right:8px"></div>
+        #{widget_mount_html(use_custom_trigger: use_custom_trigger)}
         #{test_widget_setup_script(token: token, anon_id: anon_id)}
         <script src="/script.js"
                 data-ideabug-host=""
-                data-ideabug-target="#feedback"
+                #{widget_binding_attributes(use_custom_trigger: use_custom_trigger)}
                 defer></script>
       </body>
       </html>
@@ -24,6 +25,23 @@ class TestWidgetHostsController < ApplicationController
   end
 
   private
+
+  def widget_mount_html(use_custom_trigger:)
+    return '<div id="feedback" style="position:fixed;top:8px;right:8px"></div>' unless use_custom_trigger
+
+    <<~HTML.squish
+      <button id="feedback-trigger" type="button" style="position:fixed;top:8px;right:8px">
+        Feedback
+        <span data-ideabug-unread-count hidden aria-hidden="true"></span>
+      </button>
+    HTML
+  end
+
+  def widget_binding_attributes(use_custom_trigger:)
+    return 'data-ideabug-target="#feedback"' unless use_custom_trigger
+
+    'data-ideabug-trigger="#feedback-trigger"'
+  end
 
   def test_widget_setup_script(token:, anon_id:)
     return "".html_safe unless token || anon_id

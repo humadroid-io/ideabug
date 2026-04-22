@@ -245,7 +245,7 @@ Don't want the default bell? Point the widget at any element you already have in
 ```html
 <button id="my-feedback-btn" type="button" class="my-styles">
   Feedback
-  <span data-ideabug-unread-count hidden></span>
+  <span data-ideabug-unread-count hidden aria-hidden="true"></span>
 </button>
 
 <script
@@ -259,7 +259,7 @@ Don't want the default bell? Point the widget at any element you already have in
 What you get:
 
 - The widget binds click to `#my-feedback-btn` (no extra DOM injection).
-- Any descendant element with the `data-ideabug-unread-count` attribute receives the unread count as `textContent` — and the `hidden` attribute is toggled when the count is zero or the user is opted out.
+- Any descendant element with the `data-ideabug-unread-count` attribute receives the unread count as `textContent` — and both `hidden` plus `aria-hidden` are toggled when the count is not positive or the user is opted out.
 - The trigger element gets `class="ideabug-has-unread"` toggled, and `data-ideabug-unread="N"` mirrored, so you can hand-roll your own indicator. **Easiest:** drop a `<span class="ideabug-pulse-dot"></span>` inside your trigger — it stays hidden when there's nothing unread, and pulses with `--ib-notification` color when there is:
 
   ```html

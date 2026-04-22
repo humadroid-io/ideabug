@@ -103,6 +103,10 @@
   pointer-events: none;
 }
 .ideabug-opted-out .ideabug-pulse-dot { display: none; }
+[data-ideabug-unread-count][hidden],
+[data-ideabug-unread-count][aria-hidden="true"] {
+  display: none !important;
+}
 @media (prefers-reduced-motion: reduce) {
   .ideabug-has-unread .ideabug-pulse-dot::after { animation: none; }
 }

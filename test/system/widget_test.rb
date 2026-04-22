@@ -72,6 +72,46 @@ class WidgetTest < ApplicationSystemTestCase
     assert_no_selector ".ideabug-item.is-unread", wait: 5
   end
 
+  test "custom trigger unread count hides when unread falls below zero" do
+    visit "/_test/widget_host?custom_trigger=1"
+
+    find("#feedback-trigger", wait: 5)
+
+    deadline = Time.current + 5
+    while Time.current < deadline
+      state = evaluate_script(<<~JS)
+        (function () {
+          var el = document.querySelector("#feedback-trigger [data-ideabug-unread-count]");
+          return el ? { text: el.textContent, hidden: el.hidden, ariaHidden: el.getAttribute("aria-hidden") } : null;
+        })()
+      JS
+      break if state && state["text"] == "1" && state["hidden"] == false && state["ariaHidden"] == "false"
+      sleep 0.1
+    end
+
+    initial = evaluate_script(<<~JS)
+      (function () {
+        var el = document.querySelector("#feedback-trigger [data-ideabug-unread-count]");
+        return { text: el.textContent, hidden: el.hidden, ariaHidden: el.getAttribute("aria-hidden") };
+      })()
+    JS
+    assert_equal "1", initial["text"]
+    assert_equal false, initial["hidden"]
+    assert_equal "false", initial["ariaHidden"]
+
+    execute_script("window.IdeabugWidget.unread = -1; window.IdeabugWidget.notifyTrigger();")
+
+    hidden = evaluate_script(<<~JS)
+      (function () {
+        var el = document.querySelector("#feedback-trigger [data-ideabug-unread-count]");
+        return { text: el.textContent, hidden: el.hidden, ariaHidden: el.getAttribute("aria-hidden") };
+      })()
+    JS
+    assert_equal "", hidden["text"]
+    assert_equal true, hidden["hidden"]
+    assert_equal "true", hidden["ariaHidden"]
+  end
+
   test "boots as identified when JWT is configured during ideabug ready" do
     identified = create(:contact, :identified)
     create(:announcement_read, announcement: @announcement, contact: identified)

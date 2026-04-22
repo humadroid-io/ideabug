@@ -29,5 +29,6 @@ class WidgetScriptTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, ".ideabug-root"
     assert_includes response.body, "--ib-accent"
+    assert_includes response.body, '[data-ideabug-unread-count][aria-hidden="true"]'
   end
 end

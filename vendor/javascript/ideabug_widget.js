@@ -487,8 +487,10 @@
         this.customTrigger.classList.toggle("ideabug-opted-out", !!this.optedOut);
         this.customTrigger.setAttribute("data-ideabug-unread", String(this.unread));
         this.customTrigger.querySelectorAll("[data-ideabug-unread-count]").forEach((el) => {
-          el.textContent = this.unread > 0 ? String(this.unread) : "";
-          el.toggleAttribute("hidden", this.unread === 0 || this.optedOut);
+          const shouldHide = this.unread <= 0 || this.optedOut;
+          el.textContent = shouldHide ? "" : String(this.unread);
+          el.toggleAttribute("hidden", shouldHide);
+          el.setAttribute("aria-hidden", shouldHide ? "true" : "false");
         });
       }
 
