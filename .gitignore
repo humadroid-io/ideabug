@@ -37,3 +37,10 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 *.pem
+
+# Ignore key files for decrypting credentials and more.
+/config/credentials/*.key
+/.kamal/secrets*
+!/.kamal/secrets-common
+!/.kamal/*.example
+/.kamal/hooks/*.sample

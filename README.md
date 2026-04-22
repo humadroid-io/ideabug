@@ -385,7 +385,25 @@ bin/rails console
 
 ### Production deploy
 
-The repo ships a `Dockerfile`. Standard Rails 8 deploy — provision Postgres + Redis, set the env vars above, run `bin/rails db:migrate assets:precompile`, then `bin/rails server`. `kamal` and Heroku-style deployments both work.
+The repo ships with a pinned Kamal 2.11.0 setup in `config/deploy.yml` plus `bin/kamal`.
+
+Single-host deploy:
+
+1. Edit `config/deploy.yml` and replace the placeholder server IP (`203.0.113.10`) and hostname (`feedback.example.com`).
+2. Set `KAMAL_REGISTRY_PASSWORD` and `IDEABUG_APP_DATABASE_PASSWORD` in your shell or secret manager. `RAILS_MASTER_KEY` is already sourced from `config/master.key` by `.kamal/secrets-common`.
+
+Then run:
+
+```bash
+bin/kamal setup    # first deploy, installs Docker + boots kamal-proxy
+bin/kamal deploy   # subsequent deploys
+```
+
+This checked-in config boots managed Kamal accessories for Postgres and Redis on the same host as the app. The app connects to those containers using the static `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PORT`, and `REDIS_URL` values declared in `config/deploy.yml`.
+
+The checked-in `.kamal/secrets-common` maps `KAMAL_REGISTRY_PASSWORD`, `IDEABUG_APP_DATABASE_PASSWORD`, and `RAILS_MASTER_KEY` into Kamal. Persistent uploads are mounted at `/rails/storage`, and fingerprinted assets are bridged through `/rails/public/assets` to avoid 404s during rolling deploys.
+
+If you later move to multiple app hosts, replace this single-host template with a multi-host topology and move Postgres/Redis out of local accessories. Docker service discovery does not span hosts, so external DB/Redis is the correct pattern in that setup.
 
 After bumping versions, no Sprockets manifest config is needed — the widget bundle (`vendor/javascript/ideabug_widget.js` + `app/assets/stylesheets/ideabug_widget.css`) is auto-precompiled per `config/initializers/assets.rb`.
 
