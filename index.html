@@ -63,6 +63,26 @@
             transparent 40%
           );
       }
+      .screenshot-card {
+        cursor: zoom-in;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease,
+          border-color 180ms ease;
+      }
+      .screenshot-card:hover,
+      .screenshot-card:focus-visible {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 40px rgba(154, 52, 18, 0.14);
+        border-color: rgb(251 146 60 / 0.5);
+      }
+      .screenshot-card img {
+        transition: transform 180ms ease;
+      }
+      .screenshot-card:hover img,
+      .screenshot-card:focus-visible img {
+        transform: scale(1.01);
+      }
     </style>
   </head>
   <body class="bg-amber-50 text-orange-900 antialiased">
@@ -73,6 +93,7 @@
           Ideabug
         </a>
         <nav class="hidden items-center gap-6 text-sm font-medium text-orange-700 md:flex">
+          <a href="#screenshots" class="hover:text-orange-500">Screenshots</a>
           <a href="#features" class="hover:text-orange-500">Features</a>
           <a href="#embed" class="hover:text-orange-500">Embed</a>
           <a href="#why" class="hover:text-orange-500">Why self-host</a>
@@ -149,6 +170,156 @@
         </p>
       </div>
     </section>
+
+    <!-- Screenshots -->
+    <section id="screenshots" class="bg-orange-100/50 py-24 sm:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:text-center">
+          <h2 class="text-base font-semibold leading-7 text-orange-600">
+            Product tour
+          </h2>
+          <p
+            class="mt-2 text-3xl font-bold tracking-tight text-orange-800 sm:text-4xl"
+          >
+            See the widget and admin UI in action
+          </p>
+          <p class="mt-4 text-lg leading-8 text-orange-700">
+            Embedded feedback surfaces for end users, plus a lightweight admin
+            backend for announcements, contacts, segments, tickets, and roadmap work.
+          </p>
+          <p class="mt-3 text-sm font-medium uppercase tracking-[0.16em] text-orange-500">
+            Click any screenshot to enlarge it
+          </p>
+        </div>
+        <div class="mx-auto mt-16 grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2">
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/humadroid%20-%20product%20-%20expanded%20ideabug%20widget.png"
+              alt="Expanded widget"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Expanded widget
+            </figcaption>
+          </figure>
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/humadroid%20-%20product%20-%20announcement%20details.png"
+              alt="Announcement details in the widget"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Announcement details
+            </figcaption>
+          </figure>
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/announcements%20list.png"
+              alt="Announcements list in the admin panel"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Announcements list
+            </figcaption>
+          </figure>
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/roadmap.png"
+              alt="Roadmap view"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Roadmap
+            </figcaption>
+          </figure>
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/tickets.png"
+              alt="Tickets list"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Tickets
+            </figcaption>
+          </figure>
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/contacts%20list.png"
+              alt="Contacts list"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Contacts list
+            </figcaption>
+          </figure>
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/segments.png"
+              alt="Segments list"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Segments
+            </figcaption>
+          </figure>
+          <figure class="screenshot-card overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm" role="button" tabindex="0" aria-haspopup="dialog">
+            <img
+              src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/announcement%20edit%20-%20segments.png"
+              alt="Announcement segment targeting editor"
+              class="h-auto w-full bg-orange-50"
+              loading="lazy"
+            />
+            <figcaption class="border-t border-orange-100 px-5 py-4 text-sm text-orange-700">
+              Announcement segment targeting
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <div
+      id="screenshot-lightbox"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-orange-950/80 p-4 sm:p-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="screenshot-lightbox-caption"
+      aria-hidden="true"
+    >
+      <div
+        id="screenshot-lightbox-panel"
+        class="relative flex w-full max-w-6xl max-h-[92vh] flex-col overflow-hidden rounded-[2rem] border border-orange-200/20 bg-white shadow-2xl"
+      >
+        <button
+          id="screenshot-lightbox-close"
+          type="button"
+          class="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-orange-900/80 text-white shadow-sm transition hover:bg-orange-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
+          aria-label="Close screenshot preview"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6l-12 12" />
+          </svg>
+        </button>
+        <div class="flex flex-1 items-center justify-center bg-orange-50 p-4 sm:p-6">
+          <img
+            id="screenshot-lightbox-image"
+            src=""
+            alt=""
+            class="block max-h-[74vh] max-w-full h-auto w-auto object-contain"
+          />
+        </div>
+        <div
+          id="screenshot-lightbox-caption"
+          class="border-t border-orange-100 px-6 py-4 text-sm font-medium text-orange-800"
+        ></div>
+      </div>
+    </div>
 
     <!-- Features -->
     <section id="features" class="bg-orange-50 py-24 sm:py-32">
@@ -260,9 +431,12 @@
         data-ideabug-target="#feedback"
         defer&gt;&lt;/script&gt;</code></pre>
         <p class="mt-4 text-sm text-orange-700">
-          No auth required: the widget mints an anonymous identity on first
-          load. Optionally pass a JWT to upgrade to identified users without
-          losing their read state or votes.
+          No auth required: on first load the widget calls
+          <code>POST /api/v1/identity</code>, stores the returned
+          <code>anonymous_id</code> in browser <code>localStorage</code>, and
+          re-sends it as <code>X-Ideabug-Anon-Id</code> on later requests.
+          Optionally pass a JWT to merge that anonymous history into an
+          identified contact without losing read state or votes.
         </p>
       </div>
     </section>
@@ -279,37 +453,33 @@
               <p
                 class="mt-2 text-3xl font-bold tracking-tight text-orange-800"
               >
-                Born at
-                <a
-                  href="https://humadroid.io/"
-                  class="underline decoration-orange-300 underline-offset-4 hover:decoration-orange-500"
-                  >humadroid.io</a
-                >
+                Built from an internal product need
               </p>
             </div>
             <div class="space-y-5 text-base leading-7 text-orange-700 lg:w-2/3">
               <p>
-                We needed an elegant way to surface recent announcements to our
-                users inside
-                <a
-                  href="https://humadroid.io/"
-                  class="font-semibold text-orange-800 underline decoration-orange-300 underline-offset-4 hover:decoration-orange-500"
-                  >humadroid.io</a
-                >
-                — our compliance management platform.
+                We needed an elegant way to surface recent announcements,
+                feature requests, and bug reports inside a product without
+                shipping customer identifiers to a third-party widget vendor.
               </p>
               <p>
-                Every off-the-shelf option wanted to phone home. For a product
-                built around compliance and the trust of customers handling
-                sensitive data, shipping user identifiers to a third-party
-                changelog widget was a non-starter.
+                Most off-the-shelf options assumed hosted infrastructure and
+                outbound data collection. For teams that care about privacy,
+                control, and self-hosting, that tradeoff was wrong by default.
               </p>
               <p>
                 So we built IdeaBug. Anonymous by design, self-hosted, and with
                 the full data lifecycle under our control — from the moment an
                 announcement is written to the moment a user marks it read.
-                Then we open-sourced it so other privacy-conscious teams don't
-                have to rebuild it from scratch.
+                Then we open-sourced it so other teams do not have to rebuild
+                the same stack from scratch.
+              </p>
+              <p>
+                The widget starts with an opaque browser-scoped contact key,
+                not a first-party user identifier. Only if you intentionally
+                provide a JWT does IdeaBug upgrade that history into an
+                identified contact and merge anonymous reads, votes, and
+                tickets forward.
               </p>
             </div>
           </div>
@@ -401,14 +571,8 @@
         class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-sm text-orange-700 md:flex-row"
       >
         <p>
-          Crafted with ❤️ by guys from
-          <a
-            href="https://humadroid.io/"
-            title="AI-first Compliance Management platform"
-            class="font-semibold underline hover:text-orange-500"
-            >humadroid.io</a
-          >
-          in beautiful city of Poznań 🇵🇱
+          MIT-licensed, self-hosted feedback infrastructure for teams that want
+          to own the full product feedback loop.
         </p>
         <div class="flex items-center gap-6">
           <a
@@ -442,6 +606,75 @@
         },
         "description": "Self-hosted platform for in-app announcements, bug reports, feature voting, and a public roadmap."
       }
+    </script>
+    <script>
+      (function () {
+        var cards = document.querySelectorAll(".screenshot-card");
+        var lightbox = document.getElementById("screenshot-lightbox");
+        var panel = document.getElementById("screenshot-lightbox-panel");
+        var image = document.getElementById("screenshot-lightbox-image");
+        var caption = document.getElementById("screenshot-lightbox-caption");
+        var closeButton = document.getElementById("screenshot-lightbox-close");
+        var lastTrigger = null;
+        var previousOverflow = "";
+
+        function openPreview(card) {
+          var previewImage = card.querySelector("img");
+          var previewCaption = card.querySelector("figcaption");
+          if (!previewImage) return;
+
+          lastTrigger = card;
+          image.src = previewImage.src;
+          image.alt = previewImage.alt || "";
+          caption.textContent = previewCaption ? previewCaption.textContent.trim() : previewImage.alt || "";
+          lightbox.classList.add("flex");
+          lightbox.classList.remove("hidden");
+          lightbox.setAttribute("aria-hidden", "false");
+          previousOverflow = document.body.style.overflow;
+          document.body.style.overflow = "hidden";
+          closeButton.focus();
+        }
+
+        function closePreview() {
+          if (lightbox.classList.contains("hidden")) return;
+          lightbox.classList.remove("flex");
+          lightbox.classList.add("hidden");
+          lightbox.setAttribute("aria-hidden", "true");
+          image.src = "";
+          image.alt = "";
+          caption.textContent = "";
+          document.body.style.overflow = previousOverflow;
+          if (lastTrigger) lastTrigger.focus();
+        }
+
+        cards.forEach(function (card) {
+          var previewCaption = card.querySelector("figcaption");
+          if (previewCaption) {
+            card.setAttribute("aria-label", "Preview " + previewCaption.textContent.trim());
+          }
+
+          card.addEventListener("click", function () {
+            openPreview(card);
+          });
+
+          card.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openPreview(card);
+            }
+          });
+        });
+
+        closeButton.addEventListener("click", closePreview);
+        lightbox.addEventListener("click", closePreview);
+        panel.addEventListener("click", function (event) {
+          event.stopPropagation();
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") closePreview();
+        });
+      })();
     </script>
   </body>
 </html>

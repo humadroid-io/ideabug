@@ -7,11 +7,78 @@ Self-hosted, open-source feedback platform. Drop a single `<script>` tag into an
 - **Feature requests + voting** so you can prioritize what users actually want
 - **A public roadmap** (Now / Next / Shipped) — also available as a standalone shareable page
 
-The widget is **anonymous by default** (server mints an opaque ID, stored in `localStorage`), so the host app needs zero backend changes to start. JWT-based identity is an optional upgrade — when a user logs into your app, their anonymous reads + votes are atomically merged into their identified profile.
+The widget is **anonymous by default**: on first boot it `POST`s `/api/v1/identity`, receives an opaque `anonymous_id`, stores it in `localStorage` under `ideabug:state`, and re-sends it as `X-Ideabug-Anon-Id` on later API calls. JWT-based identity is an optional upgrade — when a user logs into your app, their anonymous reads + votes are atomically merged into their identified profile.
 
 > Status: usable but pre-1.0. Schema can change without a major bump until tagged `v1.0`.
 
-![ideabug screenshot](https://humadroid-static-assets.s3.amazonaws.com/other/shot%202024-12-06%20at%2021.14.21%20RNarrZzC.png)
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/humadroid%20-%20product%20-%20expanded%20ideabug%20widget.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/humadroid%20-%20product%20-%20expanded%20ideabug%20widget.png" alt="Expanded widget" width="100%">
+      </a>
+      <br>
+      <sub>Expanded widget</sub>
+    </td>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/humadroid%20-%20product%20-%20announcement%20details.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/humadroid%20-%20product%20-%20announcement%20details.png" alt="Announcement details in the widget" width="100%">
+      </a>
+      <br>
+      <sub>Announcement details</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/announcements%20list.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/announcements%20list.png" alt="Announcements list in the admin panel" width="100%">
+      </a>
+      <br>
+      <sub>Announcements list</sub>
+    </td>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/roadmap.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/roadmap.png" alt="Roadmap view" width="100%">
+      </a>
+      <br>
+      <sub>Roadmap</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/tickets.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/tickets.png" alt="Tickets list" width="100%">
+      </a>
+      <br>
+      <sub>Tickets</sub>
+    </td>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/contacts%20list.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/contacts%20list.png" alt="Contacts list" width="100%">
+      </a>
+      <br>
+      <sub>Contacts list</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/segments.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/segments.png" alt="Segments list" width="100%">
+      </a>
+      <br>
+      <sub>Segments</sub>
+    </td>
+    <td width="50%">
+      <a href="https://humadroid-static-assets.s3.amazonaws.com/ideabug/announcement%20edit%20-%20segments.png">
+        <img src="https://humadroid-static-assets.s3.amazonaws.com/ideabug/announcement%20edit%20-%20segments.png" alt="Announcement segment targeting editor" width="100%">
+      </a>
+      <br>
+      <sub>Announcement segment targeting</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -46,10 +113,26 @@ Add this to any page in your app where you want the bell to appear (typically yo
 
 That's it. The widget will:
 
-1. Mint an anonymous identity on first load (stored in `localStorage` under `ideabug:state`).
+1. Call `POST /api/v1/identity` on first load and persist the returned `anonymous_id` in `localStorage` under `ideabug:state`.
 2. Render a bell with a badge for unread updates.
 3. Open a 360×520 panel with three tabs: **Updates**, **Suggest**, **Roadmap**.
 4. Poll the announcements endpoint every 60s (5min when the tab is hidden).
+
+#### Anonymous identity flow
+
+This is the exact flow the widget uses today:
+
+1. The browser loads `script.js`, then the widget immediately calls `POST /api/v1/identity`.
+2. If `localStorage["ideabug:state"]` already contains an `anonymous_id`, the widget sends it as `X-Ideabug-Anon-Id`. If not, the server creates a new anonymous `Contact` with a generated ID like `ib_<22 random chars>`.
+3. The server returns that identity in both the JSON body and the `X-Ideabug-Anonymous-Id` response header. The widget copies it into `localStorage`.
+4. All later widget API requests send that stored value back as `X-Ideabug-Anon-Id`, so reads, votes, opt-out state, and submitted tickets stay attached to the same anonymous contact.
+5. If your host app later starts returning a JWT, the widget sends both the stored anonymous header and `Authorization: Bearer ...`. The server finds or creates the identified contact, merges the anonymous contact into it, and returns an empty `X-Ideabug-Anonymous-Id` header so the widget clears the stale anonymous ID from `localStorage`.
+
+Notes:
+
+- Anonymous IDs are opaque contact keys, not host-app user IDs.
+- The accepted header format is `[A-Za-z0-9_]{8,64}`. Server-minted IDs use the `ib_` prefix, but a valid client-supplied ID is also accepted and will create a contact if it does not exist yet.
+- After an anonymous contact is merged into an identified one, that browser no longer keeps the old anonymous ID around. If the user later becomes anonymous again, the next `/api/v1/identity` call will mint a fresh anonymous contact.
 
 #### Configuration via data attributes
 
@@ -77,7 +160,7 @@ window.IdeabugWidget.configure({ pollInterval: 30000 });
 
 ### 2. (Optional) Identify users via JWT
 
-If your app already has authenticated users, you can promote anonymous contacts to identified ones. The widget keeps the original `localStorage` anon ID and sends it alongside a JWT — the server merges the two contacts on the next request, preserving read-state and votes.
+If your app already has authenticated users, you can promote anonymous contacts to identified ones. The widget keeps the original `localStorage` anon ID and sends it alongside a JWT — the server merges the two contacts on the next request, preserving read-state and votes, then clears the stale anonymous ID from browser storage so it cannot silently recreate the old anonymous contact later.
 
 #### 2a. Generate a key pair (once)
 
@@ -331,7 +414,7 @@ Each ideabug instance exposes two no-auth pages suitable for linking from your m
 
 - **`/roadmap`** — Now / Next / Shipped Kanban + most-requested ideas, no auth required. Anchored ticket IDs (`/roadmap#ticket-123`) for deep links.
 
-Both pages are read-only. Voting and marking-as-read require the embedded widget's anonymous identity (stored in `localStorage`).
+Both pages are read-only. Voting and marking-as-read require the embedded widget's anonymous identity (stored in `localStorage` and sent as `X-Ideabug-Anon-Id`).
 
 ---
 
@@ -425,16 +508,16 @@ Tune in `config/initializers/rack_attack.rb`.
 
 All `/api/v1/*` endpoints accept either or both of:
 
-- `X-Ideabug-Anon-Id: ib_<22-char>` — opaque identity, minted by `POST /api/v1/identity`
+- `X-Ideabug-Anon-Id: <opaque id>` — anonymous contact identity. Server-minted values look like `ib_<22-char>`, but any valid `[A-Za-z0-9_]{8,64}` value is accepted.
 - `Authorization: Bearer <RS256 JWT>` — your host-app-signed JWT (see [JWT setup](#2-optional-identify-users-via-jwt))
 
 If both are present the anonymous contact is merged into the identified one.
 
-CORS is open (`*`) for `/api/v1/*` and `/script.js`. Response headers exposed to JavaScript: `X-Ideabug-Unread`, `X-Ideabug-Opted-Out`, `X-Ideabug-Contact-Id`.
+CORS is open (`*`) for `/api/v1/*` and `/script.js`. Response headers exposed to JavaScript: `X-Ideabug-Unread`, `X-Ideabug-Opted-Out`, `X-Ideabug-Contact-Id`, `X-Ideabug-Anonymous-Id`.
 
 | Method | Path | Purpose |
 |---|---|---|
-| `POST` | `/api/v1/identity` | Mint or echo a contact. Returns `{ anonymous_id, external_id, identified, opted_out, contact_id }`. |
+| `POST` | `/api/v1/identity` | Mint, echo, or merge a contact. Returns `{ anonymous_id, external_id, identified, opted_out, unread_count, contact_id }`. |
 | `GET` | `/api/v1/announcements` | List up to 10 most recent (segment-filtered) announcements. Sets `X-Ideabug-Unread` header. |
 | `GET` | `/api/v1/announcements/:id` | Single announcement. |
 | `POST` | `/api/v1/announcements/:id/read` | Mark one as read. Idempotent. |
@@ -606,4 +689,4 @@ MIT. See [LICENSE](LICENSE) if present, otherwise consider this MIT-licensed.
 
 ## Credits
 
-Crafted with care by [humadroid.io](https://humadroid.io/) in Poznań 🇵🇱. Issues and PRs welcome at [github.com/humadroid-io/ideabug](https://github.com/humadroid-io/ideabug).
+Issues and PRs welcome at [GitHub](https://github.com/humadroid-io/ideabug).
