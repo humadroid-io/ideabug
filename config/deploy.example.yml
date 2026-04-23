@@ -35,6 +35,10 @@ env:
     APP_HOST: feedback.example.com
     APP_PROTOCOL: https
     ANNOUNCEMENTS_PUBLICLY_ACCESSIBLE: "false"
+    # Comma-separated list of origins allowed to call /api/v1/*.
+    # Supports wildcard subdomains, e.g. "*.humadroid.io,*.humadroid.test,app.acme.com".
+    # Leave unset (or set to "*") to allow any origin.
+    # CORS_ALLOWED_ORIGINS: "*.example.com"
     DB_HOST: ideabug-postgres
     DB_NAME: ideabug_app_production
     DB_PORT: "5432"

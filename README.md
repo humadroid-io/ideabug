@@ -483,6 +483,7 @@ bin/rails console
 | `JWT_PUBLIC_KEY` / `JWT_PUBLIC_KEY_FILE` | `config/jwt/public.pem` | Public key for verifying host-app JWTs (only required if you use JWT identity) |
 | `ANNOUNCEMENTS_PUBLICLY_ACCESSIBLE` | `false` | Enables the public `/changelog` page (and redirects unauthenticated `/` visitors to it). When false, those routes return 404. |
 | `HCAPTCHA_SECRET` | unset | Enables hCaptcha verification on `POST /api/v1/tickets` (widget passes `hcaptcha_token` in the body) |
+| `CORS_ALLOWED_ORIGINS` | unset (= `*`) | Comma-separated list of origins allowed to call `/api/v1/*`. Supports exact origins (`https://app.acme.com`), bare hosts (`app.acme.com`), and wildcard subdomains (`*.humadroid.io`). Wildcards match any subdomain over http/https with optional port; they do **not** match the apex. Leave unset or set to `*` to allow any origin. `/script.js` stays open regardless. |
 
 ### Production deploy
 
@@ -531,7 +532,7 @@ All `/api/v1/*` endpoints accept either or both of:
 
 If both are present the anonymous contact is merged into the identified one.
 
-CORS is open (`*`) for `/api/v1/*` and `/script.js`. Response headers exposed to JavaScript: `X-Ideabug-Unread`, `X-Ideabug-Opted-Out`, `X-Ideabug-Contact-Id`, `X-Ideabug-Anonymous-Id`.
+CORS defaults to `*` for `/api/v1/*` and `/script.js`. Restrict the API to specific origins with `CORS_ALLOWED_ORIGINS` (supports `*.subdomain` wildcards — see [environment variables](#environment-variables)). Response headers exposed to JavaScript: `X-Ideabug-Unread`, `X-Ideabug-Opted-Out`, `X-Ideabug-Contact-Id`, `X-Ideabug-Anonymous-Id`.
 
 | Method | Path | Purpose |
 |---|---|---|
