@@ -22,6 +22,18 @@ module Api
         assert_equal "3", response.headers["X-Ideabug-Unread"]
       end
 
+      test "excludes announcements with a future published_at from the unread count" do
+        create_list(:announcement, 2, published_at: 2.days.ago)
+        create(:announcement, published_at: 1.day.from_now)
+
+        get api_v1_state_url, headers: @headers
+
+        assert_response :success
+        body = JSON.parse(response.body)
+        assert_equal 2, body["unread_count"]
+        assert_equal "2", response.headers["X-Ideabug-Unread"]
+      end
+
       test "reports zero unread when the contact is opted out" do
         create_list(:announcement, 2, published_at: 2.days.ago)
         @contact.update!(announcements_opted_out: true)

@@ -42,7 +42,7 @@ class AnnouncementsController < ApplicationController
   # POST /announcements or /announcements.json
   def create
     @announcement = Announcement.new(announcement_params)
-    @announcement.published_at = Time.current
+    @announcement.published_at = Time.current if @announcement.published_at.blank?
 
     respond_to do |format|
       if @announcement.save
@@ -87,6 +87,6 @@ class AnnouncementsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def announcement_params
-    params.require(:announcement).permit(:title, :content, :preview, segment_value_ids: [])
+    params.require(:announcement).permit(:title, :content, :preview, :published_at, segment_value_ids: [])
   end
 end

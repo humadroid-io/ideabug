@@ -20,6 +20,7 @@ module Api
 
       def self.unread_count_for(contact)
         Announcement
+          .published
           .visible_to_contact(contact)
           .where("published_at > ?", READ_WINDOW.ago)
           .where.not(id: AnnouncementRead.where(contact_id: contact.id).select(:announcement_id))

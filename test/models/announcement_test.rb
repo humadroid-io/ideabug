@@ -38,6 +38,17 @@ class AnnouncementTest < ActiveSupport::TestCase
     end
   end
 
+  context ".published" do
+    should "exclude announcements with a future published_at" do
+      past = create(:announcement, published_at: 1.day.ago)
+      future = create(:announcement, published_at: 1.day.from_now)
+
+      ids = Announcement.published.pluck(:id)
+      assert_includes ids, past.id
+      refute_includes ids, future.id
+    end
+  end
+
   context "#read" do
     setup do
       @contact = create(:contact)

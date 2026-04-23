@@ -17,6 +17,7 @@
 #
 class Announcement < ApplicationRecord
   ## SCOPES
+  scope :published, -> { where("published_at <= ?", Time.current) }
   ## CONCERNS
   ## CONSTANTS
   ## ATTRIBUTES & RELATED

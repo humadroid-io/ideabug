@@ -44,6 +44,19 @@ module Api
           assert_response :unauthorized
         end
 
+        should "hide announcements with a future published_at" do
+          scheduled = create(:announcement, published_at: 1.day.from_now, title: "Scheduled")
+
+          get api_v1_announcements_url,
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :success
+          ids = JSON.parse(response.body).pluck("id")
+          assert_includes ids, @announcement.id
+          refute_includes ids, scheduled.id
+          assert_equal "1", response.headers["X-Ideabug-Unread"]
+        end
+
         should "return announcements unread by the current contact even when another contact read them" do
           other_contact = create(:contact)
           create(:announcement_read, announcement: @announcement, contact: other_contact)
@@ -190,6 +203,15 @@ module Api
       end
 
       context "GET show" do
+        should "404 for a scheduled (future) announcement" do
+          scheduled = create(:announcement, published_at: 1.day.from_now)
+
+          get api_v1_announcement_url(scheduled),
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :not_found
+        end
+
         should "return single announcement with content" do
           @announcement.content = "<p>Long form body</p>"
           @announcement.save!

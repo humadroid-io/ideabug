@@ -104,6 +104,21 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
         end
         assert_response :unprocessable_entity
       end
+
+      should "default published_at to now when not provided" do
+        freeze_time do
+          post announcements_url, params: @valid_params
+          assert_in_delta Time.current.to_i, Announcement.last.published_at.to_i, 1
+        end
+      end
+
+      should "accept a future published_at for scheduling" do
+        scheduled_for = 3.days.from_now.change(usec: 0)
+        post announcements_url, params: @valid_params.deep_merge(
+          announcement: {published_at: scheduled_for.iso8601}
+        )
+        assert_equal scheduled_for.to_i, Announcement.last.published_at.to_i
+      end
     end
 
     context "PATCH #update" do
@@ -116,6 +131,13 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
       should "reject invalid params" do
         patch announcement_url(@announcement), params: {announcement: {title: ""}}
         assert_response :unprocessable_entity
+      end
+
+      should "update published_at to a future time" do
+        scheduled_for = 5.days.from_now.change(usec: 0)
+        patch announcement_url(@announcement),
+          params: {announcement: {published_at: scheduled_for.iso8601}}
+        assert_equal scheduled_for.to_i, @announcement.reload.published_at.to_i
       end
     end
 

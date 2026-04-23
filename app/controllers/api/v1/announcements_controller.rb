@@ -55,12 +55,14 @@ module Api
 
       def announcement_scope
         Announcement
+          .published
           .visible_to_contact(Current.contact)
           .select(Announcement.read_state_select_for(Current.contact, unread_cutoff: READ_WINDOW.ago))
       end
 
       def unread_announcement_ids
         Announcement
+          .published
           .visible_to_contact(Current.contact)
           .where("published_at > ?", READ_WINDOW.ago)
           .where.not(id: AnnouncementRead.where(contact_id: Current.contact.id).select(:announcement_id))

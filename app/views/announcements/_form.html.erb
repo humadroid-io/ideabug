@@ -32,6 +32,14 @@
         <%= form.rich_text_area :content %>
       </div>
 
+      <div class="form-control w-full max-w-sm">
+        <%= form.label :published_at, "Publish at", class: "label" %>
+        <%= form.datetime_local_field :published_at,
+              value: (announcement.published_at || Time.current).strftime("%Y-%m-%dT%H:%M"),
+              class: "input input-bordered input-sm w-full" %>
+        <p class="mt-1 text-xs text-base-content/60">Set a future date to schedule — contacts won't see it until then.</p>
+      </div>
+
       <fieldset class="app-fieldset">
         <legend class="px-2 text-sm font-semibold text-base-content/70">Targeting</legend>
         <p class="text-sm text-base-content/60">For each segment where you select values, a contact must match at least one of those values to see this announcement. Segments with nothing selected do not affect visibility.</p>
