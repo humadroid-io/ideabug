@@ -55,6 +55,31 @@ class AnnouncementsControllerTest < ActionDispatch::IntegrationTest
         assert_response :success
         assert_equal "application/json", @response.media_type
       end
+
+      should "order newest published_at first" do
+        Announcement.destroy_all
+        older = create(:announcement, published_at: 3.days.ago, title: "Older post")
+        newest = create(:announcement, published_at: 1.hour.ago, title: "Newest post")
+        middle = create(:announcement, published_at: 1.day.ago, title: "Middle post")
+
+        get announcements_url(format: :json)
+        assert_response :success
+        ids = JSON.parse(@response.body).pluck("id")
+        assert_equal [newest.id, middle.id, older.id], ids
+      end
+
+      should "render admin index titles in published_at desc order" do
+        Announcement.destroy_all
+        older = create(:announcement, published_at: 3.days.ago, title: "Older admin post")
+        newest = create(:announcement, published_at: 1.hour.ago, title: "Newest admin post")
+        middle = create(:announcement, published_at: 1.day.ago, title: "Middle admin post")
+
+        get announcements_url
+        assert_response :success
+        body = @response.body
+        assert body.index(newest.title) < body.index(middle.title)
+        assert body.index(middle.title) < body.index(older.title)
+      end
     end
 
     context "GET #show" do

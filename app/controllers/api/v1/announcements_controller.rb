@@ -8,7 +8,7 @@ module Api
 
       def index
         announcements = announcement_scope
-          .order(published_at: :desc)
+          .ordered
           .limit(LIST_LIMIT)
           .to_a
 

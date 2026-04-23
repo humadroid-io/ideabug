@@ -18,6 +18,7 @@
 class Announcement < ApplicationRecord
   ## SCOPES
   scope :published, -> { where("published_at <= ?", Time.current) }
+  scope :ordered, -> { order(published_at: :desc, id: :desc) }
   ## CONCERNS
   ## CONSTANTS
   ## ATTRIBUTES & RELATED

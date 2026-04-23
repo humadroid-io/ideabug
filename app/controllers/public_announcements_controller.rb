@@ -6,7 +6,7 @@ class PublicAnnouncementsController < ApplicationController
   before_action :set_announcement, only: :show
 
   def index
-    scope = published_broadcast_scope.order(published_at: :desc)
+    scope = published_broadcast_scope.ordered
     @pagy, @announcements = pagy(scope, limit: 20)
   end
 

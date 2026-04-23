@@ -57,6 +57,35 @@ module Api
           assert_equal "1", response.headers["X-Ideabug-Unread"]
         end
 
+        should "return announcements ordered newest published_at first" do
+          older = create(:announcement, published_at: 3.days.ago, title: "Older")
+          newest = create(:announcement, published_at: 1.hour.ago, title: "Newest")
+          middle = create(:announcement, published_at: 1.day.ago, title: "Middle")
+
+          get api_v1_announcements_url,
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :success
+          ids = JSON.parse(response.body).pluck("id")
+          # @announcement from setup is published at Time.current, so it leads
+          assert_equal [@announcement.id, newest.id, middle.id, older.id], ids
+        end
+
+        should "break ties deterministically by id descending when published_at matches" do
+          shared = 2.hours.ago
+          a = create(:announcement, published_at: shared, title: "A")
+          b = create(:announcement, published_at: shared, title: "B")
+          c = create(:announcement, published_at: shared, title: "C")
+
+          get api_v1_announcements_url,
+            headers: {Authorization: "Bearer #{@token}"}
+
+          assert_response :success
+          ids = JSON.parse(response.body).pluck("id")
+          # @announcement (setup, now) leads; then c,b,a by id desc since tied
+          assert_equal [@announcement.id, c.id, b.id, a.id], ids
+        end
+
         should "return announcements unread by the current contact even when another contact read them" do
           other_contact = create(:contact)
           create(:announcement_read, announcement: @announcement, contact: other_contact)

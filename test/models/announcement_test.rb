@@ -49,6 +49,32 @@ class AnnouncementTest < ActiveSupport::TestCase
     end
   end
 
+  context ".ordered" do
+    should "sort newest published_at first" do
+      older = create(:announcement, published_at: 3.days.ago)
+      newest = create(:announcement, published_at: 1.hour.ago)
+      middle = create(:announcement, published_at: 1.day.ago)
+
+      assert_equal [newest.id, middle.id, older.id], Announcement.ordered.pluck(:id)
+    end
+
+    should "include future-dated announcements ahead of past ones" do
+      past = create(:announcement, published_at: 1.day.ago)
+      future = create(:announcement, published_at: 1.week.from_now)
+
+      assert_equal [future.id, past.id], Announcement.ordered.pluck(:id)
+    end
+
+    should "break ties deterministically by id descending" do
+      shared = Time.current
+      first = create(:announcement, published_at: shared)
+      second = create(:announcement, published_at: shared)
+      third = create(:announcement, published_at: shared)
+
+      assert_equal [third.id, second.id, first.id], Announcement.ordered.pluck(:id)
+    end
+  end
+
   context "#read" do
     setup do
       @contact = create(:contact)

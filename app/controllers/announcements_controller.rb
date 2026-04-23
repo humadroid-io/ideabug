@@ -3,7 +3,7 @@ class AnnouncementsController < ApplicationController
 
   # GET /announcements or /announcements.json
   def index
-    scope = Announcement.includes(:segments).order(published_at: :desc)
+    scope = Announcement.includes(:segments).ordered
 
     if (q = params[:q].to_s.strip).present?
       like = "%#{q}%"

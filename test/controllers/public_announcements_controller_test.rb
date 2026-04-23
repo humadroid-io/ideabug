@@ -34,6 +34,17 @@ class PublicAnnouncementsControllerTest < ActionDispatch::IntegrationTest
       refute_includes @response.body, @segmented.title
     end
 
+    should "order announcements newest published_at first" do
+      older = create(:announcement, title: "Older broadcast", published_at: 10.days.ago)
+      newest = create(:announcement, title: "Newest broadcast", published_at: 1.hour.ago)
+
+      get public_announcements_url
+      assert_response :success
+      body = @response.body
+      assert body.index(newest.title) < body.index(@broadcast.title)
+      assert body.index(@broadcast.title) < body.index(older.title)
+    end
+
     should "render a published broadcast announcement on show" do
       get public_announcement_url(@broadcast)
       assert_response :success
