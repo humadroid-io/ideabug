@@ -1,17 +1,20 @@
-<div class="w-full">
-  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Tickets", :tickets %> &raquo; <%= @ticket.to_s %></h3>
+<div class="app-page space-y-6 py-4">
+  <%= section_header \
+        title: @ticket.title,
+        eyebrow: "Feedback",
+        meta_items: [
+          "ticket ##{@ticket.id}",
+          "opened #{time_ago_in_words(@ticket.created_at)} ago",
+          "via #{@ticket.source}"
+        ] do %>
     <div class="flex gap-2">
-      <%= link_to "Delete", @ticket,
-      class: "btn btn-sm btn-ghost",
-      data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+      <%= link_to "Back", tickets_path, class: "btn btn-sm btn-ghost" %>
       <%= link_to "Edit", edit_ticket_path(@ticket), class: "btn btn-sm" %>
-      <%= link_to "Back", tickets_path, class: "btn btn-ghost btn-sm" %>
+      <%= link_to "Delete", @ticket,
+            class: "btn btn-sm btn-ghost text-error",
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
     </div>
-  </div>
-</div>
-<div class="container max-w-3xl mx-auto p-4">
-  <div class="card bg-base-100">
-    <%= render @ticket %>
-  </div>
+  <% end %>
+
+  <%= render @ticket %>
 </div>

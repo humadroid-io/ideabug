@@ -1,4 +1,4 @@
-<div class="container max-w-2xl mx-auto p-4">
+<div class="app-card">
   <%= form_with(model: announcement) do |form| %>
     <% if announcement.errors.any? %>
       <div class="alert alert-error mb-6">
@@ -15,41 +15,73 @@
         </div>
       </div>
     <% end %>
-    <div class="space-y-4">
+
+    <div class="space-y-5">
       <div class="form-control w-full">
         <%= form.label :title, class: "label" %>
-        <%= form.text_field :title, class: "input input-bordered w-full" %>
+        <%= form.text_field :title, class: "input input-bordered input-sm w-full" %>
       </div>
+
       <div class="form-control w-full">
         <%= form.label :preview, class: "label" %>
-        <%= form.textarea :preview, class: "input input-bordered w-full" %>
+        <%= form.textarea :preview, class: "textarea textarea-bordered textarea-sm w-full", rows: 2 %>
       </div>
+
       <div class="form-control w-full">
         <%= form.label :content, class: "label" %>
-        <%= form.rich_textarea :content %>
+        <%= form.rich_text_area :content %>
       </div>
-      <div class="form-control w-full">
-        <%= field_set_tag "Segments" do %>
-          <span class="text-sm">For each segment where you select values, a contact must match at least one of those values to see this announcement. Any segments where no values are selected will not affect visibility.</span>
-          <div class="grid grid-cols-2">
-            <% Segment.all.find_each do |segment| %>
-              <div class="font-bold">
-                <%= segment.identifier %>
-              </div>
-              <div class="flex flex-col gap-1">
-                <% segment.segment_values.each do |segment_value| %>
-                  <%= label_tag "segment_value_#{segment_value.id}" do %>
-                    <%= check_box_tag "announcement[segment_value_ids][]", segment_value.id, announcement.segment_value_ids.include?(segment_value.id), id: "segment_value_#{segment_value.id}" %>
-                    <%= segment_value.val %>
-                  <% end %>
+
+      <fieldset class="app-fieldset">
+        <legend class="px-2 text-sm font-semibold text-base-content/70">Targeting</legend>
+        <p class="text-sm text-base-content/60">For each segment where you select values, a contact must match at least one of those values to see this announcement. Segments with nothing selected do not affect visibility.</p>
+
+        <% Segment.includes(:segment_values).find_each do |segment| %>
+          <% values = segment.segment_values.to_a %>
+          <% any_selected = values.any? { |v| announcement.segment_value_ids.include?(v.id) } %>
+          <details class="app-panel group shadow-none"
+                   data-controller="segment-picker"
+                   <%= "open" if any_selected %>>
+            <summary class="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3 select-none">
+              <span class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-open:rotate-90" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                <span class="font-semibold"><%= segment.identifier %></span>
+              </span>
+              <span class="badge badge-ghost" data-segment-picker-target="count">0 / <%= values.size %></span>
+            </summary>
+            <div class="px-4 pb-4 pt-1 border-t border-base-200">
+              <% if values.size > 8 %>
+                <input type="search" placeholder="Filter values…"
+                       class="input input-bordered input-sm w-full mb-3"
+                       data-segment-picker-target="filter"
+                       data-action="input->segment-picker#filter">
+              <% end %>
+              <div class="flex flex-wrap gap-2">
+                <% values.each do |segment_value| %>
+                  <label data-segment-picker-target="value"
+                         class="cursor-pointer label justify-start gap-2 rounded-box border border-base-200 px-2 py-1">
+                    <%= check_box_tag "announcement[segment_value_ids][]",
+                          segment_value.id,
+                          announcement.segment_value_ids.include?(segment_value.id),
+                          id: "segment_value_#{segment_value.id}",
+                          data: {segment_picker_target: "checkbox", action: "change->segment-picker#update"} %>
+                    <span class="label-text"><%= segment_value.val %></span>
+                  </label>
                 <% end %>
               </div>
-            <% end %>
-          </div>
+              <div class="mt-3 flex gap-2 text-sm">
+                <button type="button" class="link link-primary"
+                        data-action="click->segment-picker#toggleAll" data-to-all="select">Select all</button>
+                <button type="button" class="link link-hover"
+                        data-action="click->segment-picker#toggleAll" data-to-all="clear">Clear</button>
+              </div>
+            </div>
+          </details>
         <% end %>
-      </div>
+      </fieldset>
+
       <div class="mt-8 flex justify-end gap-2">
-        <%= link_to "Cancel", announcement.persisted? ?  @announcement : announcements_path, class: "btn btn-ghost" %>
+        <%= link_to "Cancel", announcement.persisted? ? @announcement : announcements_path, class: "btn btn-ghost" %>
         <%= form.submit class: "btn btn-primary" %>
       </div>
     </div>

@@ -20,15 +20,74 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should group tickets by status in index" do
-    in_progress_ticket = create(:ticket, status: :in_progress)
+  test "should filter index by classification + status + search query" do
+    bug = create(:ticket, :bug, title: "DB exception")
+    feature = create(:ticket, :feature, title: "Add dark mode")
+    create(:ticket, status: :completed, classification: :task, title: "Cleanup logs")
 
-    get tickets_url
+    get tickets_url(classification: "bug")
+    assert_includes assigns(:tickets).map(&:id), bug.id
+    refute_includes assigns(:tickets).map(&:id), feature.id
+
+    get tickets_url(status: "completed")
+    titles = assigns(:tickets).map(&:title)
+    assert_includes titles, "Cleanup logs"
+
+    get tickets_url(q: "dark")
+    assert_equal [feature.id], assigns(:tickets).map(&:id)
+  end
+
+  test "should sort by votes when requested" do
+    a = create(:ticket, :feature)
+    b = create(:ticket, :feature)
+    create(:ticket_vote, ticket: b)
+
+    get tickets_url(sort: "votes", classification: "feature_request")
+    ids = assigns(:tickets).map(&:id)
+    assert_equal b.id, ids.first
+    assert_includes ids, a.id
+  end
+
+  test "transition: start sets status in_progress and clears shipped_at" do
+    t = create(:ticket, :feature, :shipped)
+    post transition_ticket_url(t), params: {to: "start"}
+    t.reload
+    assert t.in_progress_status?
+    assert_nil t.shipped_at
+  end
+
+  test "transition: ship sets shipped_at + completed status" do
+    t = create(:ticket, :feature)
+    freeze_time do
+      post transition_ticket_url(t), params: {to: "ship"}
+      assert_equal Time.current.to_i, t.reload.shipped_at.to_i
+    end
+    assert t.completed_status?
+  end
+
+  test "transition: unschedule clears scheduled_for" do
+    t = create(:ticket, :feature, :scheduled)
+    post transition_ticket_url(t), params: {to: "unschedule"}
+    assert_nil t.reload.scheduled_for
+  end
+
+  test "transition: rejects unknown action" do
+    t = create(:ticket, :feature)
+    post transition_ticket_url(t), params: {to: "yeet"}
+    assert_response :redirect
+    assert_match(/Unknown/, flash[:alert])
+  end
+
+  test "should render the timeline action" do
+    create(:ticket, :feature, status: :in_progress, title: "In flight")
+    create(:ticket, :feature, scheduled_for: 1.week.from_now, title: "Coming soon")
+    create(:ticket, :feature, shipped_at: 1.day.ago, status: :completed, title: "Done")
+
+    get timeline_tickets_url
     assert_response :success
-
-    grouped_tickets = assigns(:grouped_tickets)
-    assert_equal [@ticket], grouped_tickets["new"]
-    assert_equal [in_progress_ticket], grouped_tickets["in_progress"]
+    assert_match "In flight", response.body
+    assert_match "Coming soon", response.body
+    assert_match "Done", response.body
   end
 
   test "should get new" do

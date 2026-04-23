@@ -1,5 +1,5 @@
 class SegmentValuesController < ApplicationController
-    def create
+  def create
     @segment = Segment.new
     @segment_value = @segment.segment_values.build
     @segment_value.id = Time.current.to_i
@@ -18,5 +18,4 @@ class SegmentValuesController < ApplicationController
       format.turbo_stream
     end
   end
-
 end

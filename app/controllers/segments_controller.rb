@@ -1,9 +1,16 @@
 class SegmentsController < ApplicationController
-  before_action :set_segment, only: %i[ show edit update destroy ]
+  before_action :set_segment, only: %i[show edit update destroy]
 
   # GET /segments or /segments.json
   def index
-    @segments = Segment.all
+    scope = Segment.includes(:segment_values).order(:identifier)
+    if (q = params[:q].to_s.strip).present?
+      scope = scope.where("identifier ILIKE ?", "%#{q}%")
+    end
+    respond_to do |format|
+      format.html { @pagy, @segments = pagy(scope) }
+      format.json { @segments = scope.to_a }
+    end
   end
 
   # GET /segments/1 or /segments/1.json
@@ -58,14 +65,15 @@ class SegmentsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_segment
-      @segment = Segment.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def segment_params
-      params.require(:segment).permit(:identifier, :allow_new_values, segment_values_attributes: [:id, :val, 
-                           :fallback_id, :_destroy])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_segment
+    @segment = Segment.find(params.expect(:id))
+  end
+
+  # Only allow a list of trusted parameters through.
+  def segment_params
+    params.require(:segment).permit(:identifier, :allow_new_values, segment_values_attributes: [:id, :val,
+      :fallback_id, :_destroy])
+  end
 end

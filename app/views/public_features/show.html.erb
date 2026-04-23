@@ -1,0 +1,50 @@
+<% content_for :title, @feature.title %>
+<% content_for :head do %>
+  <link rel="canonical" href="<%= request.base_url %><%= public_feature_path(@feature) %>">
+  <meta property="og:title" content="<%= @feature.title %>">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="<%= request.base_url %><%= public_feature_path(@feature) %>">
+  <% if @feature.description.present? %>
+    <meta property="og:description" content="<%= @feature.description.tr("\n", " ").truncate(160) %>">
+    <meta name="description" content="<%= @feature.description.tr("\n", " ").truncate(160) %>">
+  <% end %>
+<% end %>
+
+<section class="public-page py-6 sm:py-8">
+  <div>
+    <nav class="mb-5">
+      <%= link_to roadmap_path, class: "link link-primary no-underline hover:no-underline text-sm font-medium inline-flex items-center gap-1.5" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Back to roadmap
+      <% end %>
+    </nav>
+
+    <article>
+      <header class="border-b border-base-300 pb-5">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="<%= roadmap_ticket_badge_classes(@feature) %>"><%= @feature.classification.humanize %></span>
+          <span class="badge badge-primary badge-outline badge-sm"><%= @feature.status.titleize %></span>
+          <span class="badge badge-primary badge-outline badge-sm"><%= pluralize(@feature.votes_count, "vote") %></span>
+          <% if @feature.scheduled_for? %>
+            <span class="badge badge-outline badge-sm">Target: <%= @feature.scheduled_for.to_date.to_fs(:long) %></span>
+          <% end %>
+          <% if @feature.shipped_at? %>
+            <span class="badge badge-outline badge-sm">Shipped: <%= @feature.shipped_at.to_date.to_fs(:long) %></span>
+          <% end %>
+        </div>
+
+        <h1 class="mt-3 text-2xl font-semibold leading-tight tracking-tight text-base-content sm:text-3xl"><%= @feature.title %></h1>
+      </header>
+
+      <% if @feature.description.present? %>
+        <div class="pt-5">
+          <div class="public-prose whitespace-pre-wrap"><%= @feature.description %></div>
+        </div>
+      <% else %>
+        <div class="pt-5 text-sm text-base-content/50">
+          No public description provided.
+        </div>
+      <% end %>
+    </article>
+  </div>
+</section>

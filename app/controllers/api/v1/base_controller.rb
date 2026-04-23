@@ -2,8 +2,8 @@ module Api
   module V1
     class BaseController < ApplicationController
       include ActionController::MimeResponds
+      include WidgetAuthenticatable
 
-      before_action :authenticate_jwt_token
       skip_before_action :require_authentication
       skip_before_action :verify_authenticity_token
 
@@ -11,26 +11,6 @@ module Api
       rescue_from ActiveRecord::RecordInvalid, with: :unprocessable_entity
 
       private
-
-      def authenticate_jwt_token
-        token = extract_token_from_params
-        @current_user_data = JwtCredentialService.verify_token(token)
-        raise ActiveRecord::RecordInvalid unless @current_user_data["id"].present?
-        @current_contact = Contact.find_or_create_by(external_id: @current_user_data["id"])
-        if @current_user_data["info"].present? && @current_user_data["info"].any?
-          @current_contact.update(info_payload: @current_user_data["info"])
-        end
-        if @current_user_data["segments"].present? && @current_user_data["segments"].any?
-          @current_contact.update_segments_from_payload(@current_user_data["segments"])
-        end
-        Current.contact = @current_contact
-      rescue => e
-        render json: {error: "Authentication failed: #{e.message}"}, status: :unauthorized
-      end
-
-      def extract_token_from_params
-        request.headers["Authorization"].to_s.split("Bearer ").last
-      end
 
       def not_found
         render json: {

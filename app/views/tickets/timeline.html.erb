@@ -1,0 +1,32 @@
+<div class="app-page space-y-6 py-4">
+  <%= section_header \
+        title: "Roadmap timeline",
+        eyebrow: "Feedback",
+        meta_items: [
+          "#{pluralize(@now.size, "item")} in now",
+          "#{pluralize(@next.size, "item")} in next",
+          "#{pluralize(@shipped.size, "item")} shipped"
+        ] do %>
+    <%= link_to "All tickets", tickets_path, class: "btn btn-sm btn-ghost" %>
+  <% end %>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <%= render "lane", title: "Now", tickets: @now, empty: "Nothing in flight." %>
+    <%= render "lane", title: "Next", tickets: @next, empty: "No scheduled work yet." %>
+    <%= render "lane", title: "Shipped", tickets: @shipped, empty: "Nothing shipped recently." %>
+  </div>
+
+  <% if @backlog.any? %>
+    <section>
+      <h2 class="font-semibold mb-2">Top requested ideas (not yet scheduled)</h2>
+      <ul class="space-y-2">
+        <% @backlog.each do |t| %>
+          <li class="app-panel flex items-center justify-between p-3 shadow-none">
+            <%= link_to t.title, edit_ticket_path(t), class: "link link-hover font-medium" %>
+            <span class="badge badge-ghost"><%= t.votes_count %> votes</span>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

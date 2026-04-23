@@ -1,0 +1,85 @@
+# Edit the placeholder values below before the first deploy.
+# This checked-in config targets the common case: one app host with local
+# Postgres + Redis accessories managed by Kamal.
+
+service: ideabug
+image: humadroid-io/ideabug
+
+minimum_version: "2.11.0"
+
+servers:
+  web:
+    - 203.0.113.10
+
+proxy:
+  host: feedback.example.com
+  app_port: 3000
+  ssl: true
+  forward_headers: true
+  healthcheck:
+    path: /up
+    interval: 3
+    timeout: 10
+
+registry:
+  server: ghcr.io
+  username: humadroid-io
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: amd64
+
+env:
+  clear:
+    APP_HOST: feedback.example.com
+    APP_PROTOCOL: https
+    ANNOUNCEMENTS_PUBLICLY_ACCESSIBLE: "false"
+    DB_HOST: ideabug-postgres
+    DB_NAME: ideabug_app_production
+    DB_PORT: "5432"
+    DB_USER: ideabug_app
+    RAILS_LOG_LEVEL: info
+    RAILS_SERVE_STATIC_FILES: "true"
+    REDIS_URL: redis://ideabug-redis:6379/1
+  secret:
+    - IDEABUG_APP_DATABASE_PASSWORD
+    - RAILS_MASTER_KEY
+    # Optional:
+    # - HCAPTCHA_SECRET
+    # - JWT_PUBLIC_KEY
+
+ssh:
+  user: root
+
+volumes:
+  - "ideabug_storage:/rails/storage"
+
+asset_path: /rails/public/assets
+
+boot:
+  limit: 1
+  wait: 5
+
+aliases:
+  console: app exec -i --reuse "bin/rails console"
+  shell: app exec -i --reuse "bash"
+
+accessories:
+  postgres:
+    image: postgres:18
+    host: 203.0.113.10
+    env:
+      clear:
+        POSTGRES_DB: ideabug_app_production
+        POSTGRES_USER: ideabug_app
+      secret:
+        - POSTGRES_PASSWORD:IDEABUG_APP_DATABASE_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+  redis:
+    image: redis:8
+    host: 203.0.113.10
+    cmd: redis-server --appendonly yes
+    directories:
+      - data:/data

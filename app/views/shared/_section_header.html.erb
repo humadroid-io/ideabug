@@ -1,0 +1,24 @@
+<% title_class = local_assigns[:title_class] %>
+<% meta_items = Array(local_assigns[:meta_items]).compact_blank %>
+<% actions = local_assigns[:actions] %>
+
+<header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+  <div class="min-w-0 space-y-3">
+    <p class="public-eyebrow"><%= eyebrow %></p>
+    <h1 class="<%= ["public-title", title_class].compact.join(" ") %>"><%= title %></h1>
+
+    <% if meta_items.any? %>
+      <div class="flex flex-wrap gap-x-4 gap-y-2">
+        <% meta_items.each do |item| %>
+          <span class="public-meta-chip"><%= item %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if actions.present? %>
+    <div class="flex shrink-0 flex-wrap items-center gap-2">
+      <%= actions %>
+    </div>
+  <% end %>
+</header>

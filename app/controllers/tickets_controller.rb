@@ -1,31 +1,34 @@
 class TicketsController < ApplicationController
-  before_action :set_ticket, only: %i[show edit update destroy]
+  TRANSITIONS = %w[start ship unschedule reopen].freeze
 
-  # GET /tickets or /tickets.json
+  before_action :set_ticket, only: %i[show edit update destroy transition]
+
   def index
-    @tickets = Ticket
+    scope = filtered_scope
     respond_to do |format|
-      format.html do
-        @grouped_tickets = @tickets.ordered.group_by(&:status)
-      end
-      format.json { @tickets = Ticket.ordered }
+      format.html { @pagy, @tickets = pagy(scope) }
+      format.json { @tickets = scope.to_a }
     end
   end
 
-  # GET /tickets/1 or /tickets/1.json
+  def timeline
+    buckets = RoadmapPresenter.call(ideas_limit: 25, shipped_limit: 25)
+    @now = buckets[:now]
+    @next = buckets[:next]
+    @shipped = buckets[:shipped]
+    @backlog = buckets[:ideas]
+  end
+
   def show
   end
 
-  # GET /tickets/new
   def new
     @ticket = Ticket.new
   end
 
-  # GET /tickets/1/edit
   def edit
   end
 
-  # POST /tickets or /tickets.json
   def create
     @ticket = Ticket.new(ticket_params)
 
@@ -40,7 +43,6 @@ class TicketsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /tickets/1 or /tickets/1.json
   def update
     respond_to do |format|
       if @ticket.update(ticket_params)
@@ -53,7 +55,6 @@ class TicketsController < ApplicationController
     end
   end
 
-  # DELETE /tickets/1 or /tickets/1.json
   def destroy
     @ticket.destroy!
 
@@ -63,15 +64,50 @@ class TicketsController < ApplicationController
     end
   end
 
+  def transition
+    to = params[:to].to_s
+    return redirect_back(fallback_location: timeline_tickets_path, alert: "Unknown transition") unless TRANSITIONS.include?(to)
+
+    case to
+    when "start"
+      @ticket.update!(status: :in_progress, shipped_at: nil)
+    when "ship"
+      @ticket.update!(status: :completed, shipped_at: Time.current)
+    when "unschedule"
+      @ticket.update!(scheduled_for: nil)
+    when "reopen"
+      @ticket.update!(status: :in_progress, shipped_at: nil)
+    end
+
+    redirect_back(fallback_location: timeline_tickets_path, notice: "Ticket updated.")
+  end
+
   private
 
-  # Use callbacks to share common setup or constraints between actions.
+  def filtered_scope
+    scope = Ticket.includes(:contact)
+    if (cls = params[:classification].presence) && Ticket.classifications.key?(cls)
+      scope = scope.where(classification: cls)
+    end
+    if (st = params[:status].presence) && Ticket.statuses.key?(st)
+      scope = scope.where(status: st)
+    end
+    if (q = params[:q].to_s.strip).present?
+      like = "%#{q}%"
+      scope = scope.where("title ILIKE ? OR description ILIKE ?", like, like)
+    end
+    case params[:sort]
+    when "votes" then scope.order(votes_count: :desc, created_at: :desc)
+    else scope.order(created_at: :desc)
+    end
+  end
+
   def set_ticket
     @ticket = Ticket.find(params[:id])
   end
 
-  # Only allow a list of trusted parameters through.
   def ticket_params
-    params.require(:ticket).permit(:title, :description, :status, :classification)
+    params.require(:ticket).permit(:title, :description, :status, :classification,
+      :public_on_roadmap, :scheduled_for, :shipped_at)
   end
 end

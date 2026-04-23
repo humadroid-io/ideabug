@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby File.read(".ruby-version").chomp.gsub("ruby-", "")
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.0.0"
+gem "rails", "8.1.3"
 gem "rack-cors"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
@@ -50,8 +50,10 @@ gem "image_processing", "~> 1.2"
 
 gem "blueprinter"
 gem "jwt"
-gem "oj"
 gem "dotenv-rails"
+gem "rack-attack"
+gem "pagy", "~> 9.0"
+gem "lexxy"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -60,21 +62,22 @@ group :development, :test do
 end
 
 group :development do
-  gem "annotate", github: "mlitwiniuk/annotate_models", branch: "develop"
+  # gem "annotate", github: "mlitwiniuk/annotate_models", branch: "develop"
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem "kamal", "= 2.11.0"
 
   # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
   # gem "rack-mini-profiler"
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-  gem "rubocop"
-  gem "rubocop-factory_bot"
-  gem "rubocop-performance"
-  gem "standard"
-  gem "standard-performance"
-  gem "standard-rails"
+  gem "rubocop", require: false
+  gem "rubocop-factory_bot", require: false
+  gem "rubocop-performance", require: false
+  gem "standard", require: false
+  gem "standard-performance", require: false
+  gem "standard-rails", require: false
 end
 
 group :test do

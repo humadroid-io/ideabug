@@ -3,7 +3,27 @@ class AnnouncementsController < ApplicationController
 
   # GET /announcements or /announcements.json
   def index
-    @announcements = Announcement.order(published_at: :desc)
+    scope = Announcement.includes(:segments).order(published_at: :desc)
+
+    if (q = params[:q].to_s.strip).present?
+      like = "%#{q}%"
+      scope = scope.where("title ILIKE ? OR preview ILIKE ?", like, like)
+    end
+
+    case params[:scheduled]
+    when "future" then scope = scope.where("published_at > ?", Time.current)
+    when "past"   then scope = scope.where("published_at <= ?", Time.current)
+    end
+
+    case params[:targeting]
+    when "broadcast" then scope = scope.where.missing(:segments)
+    when "targeted"  then scope = scope.joins(:segments).distinct
+    end
+
+    respond_to do |format|
+      format.html { @pagy, @announcements = pagy(scope) }
+      format.json { @announcements = scope.to_a }
+    end
   end
 
   # GET /announcements/1 or /announcements/1.json

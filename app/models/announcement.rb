@@ -30,17 +30,64 @@ class Announcement < ApplicationRecord
   ## CALLBACKS
   ## OTHER
 
+  def self.visible_to_contact(contact)
+    contact_id = contact.is_a?(Contact) ? contact.id : contact
+
+    where(id: visibility_relation_for(contact_id))
+  end
+
+  def self.read_state_select_for(contact, unread_cutoff:)
+    contact_id = contact.is_a?(Contact) ? contact.id : contact
+    quoted_cutoff = connection.quote(unread_cutoff)
+
+    <<~SQL.squish
+      announcements.*,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM announcement_reads
+          WHERE announcement_reads.announcement_id = announcements.id
+            AND announcement_reads.contact_id = #{contact_id.to_i}
+        ) THEN 1
+        WHEN announcements.published_at > #{quoted_cutoff} THEN 0
+        ELSE 1
+      END AS read
+    SQL
+  end
+
   def to_s
     title
   end
 
   def read(contact = Current.contact)
-    return attributes["read"] if attributes.key?("read")
+    if attributes.key?("read")
+      return ActiveModel::Type::Boolean.new.cast(attributes["read"])
+    end
     return @read unless @read.nil?
     @read = (contact && @read = announcement_reads.exists?(contact: contact)) || false
   end
 
   private
+
+  def self.visibility_relation_for(contact_id)
+    left_joins(:segment_values)
+      .group("announcements.id")
+      .having(
+        <<~SQL.squish
+          COUNT(DISTINCT segment_values.segment_id) = 0
+          OR COUNT(
+            DISTINCT CASE
+              WHEN segment_values.id IN (
+                SELECT segment_value_id
+                FROM contacts_segment_values
+                WHERE contact_id = #{contact_id.to_i}
+              ) THEN segment_values.segment_id
+            END
+          ) = COUNT(DISTINCT segment_values.segment_id)
+        SQL
+      )
+      .select(:id)
+  end
+  private_class_method :visibility_relation_for
 
   ## callback methods
 end

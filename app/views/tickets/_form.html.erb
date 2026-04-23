@@ -1,7 +1,7 @@
-<div class="container max-w-2xl mx-auto p-4">
+<div class="app-card">
   <%= form_with(model: ticket, class: "contents") do |form| %>
     <% if ticket.errors.any? %>
-      <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+      <div id="error_explanation" class="mt-3 rounded-box bg-red-50 px-3 py-2 font-medium text-red-500">
         <h2><%= pluralize(ticket.errors.count, "error") %> prohibited this ticket from being saved:</h2>
         <ul>
           <% ticket.errors.each do |error| %>
@@ -13,24 +13,48 @@
     <div class="space-y-4">
       <div class="form-control w-full">
         <%= form.label :title, class: "label" %>
-        <%= form.text_field :title, class: "input input-bordered w-full" %>
+        <%= form.text_field :title, class: "input input-bordered input-sm w-full" %>
       </div>
       <div class="form-control w-full">
         <%= form.label :description, class: "label" %>
-        <%= form.text_area :description, rows: 4, class: "input input-bordered w-full" %>
+        <%= form.text_area :description, rows: 4, class: "textarea textarea-bordered textarea-sm w-full" %>
       </div>
-      <% if form.object.persisted? %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% if form.object.persisted? %>
+          <div class="form-control w-full">
+            <%= form.label :status, class: "label" %>
+            <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered select-sm" %>
+          </div>
+        <% end %>
         <div class="form-control w-full">
-          <%= form.label :status, class: "label" %>
-          <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered" %>
+          <%= form.label :classification, class: "label" %>
+          <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered select-sm" %>
         </div>
-      <% end %>
-      <div class="form-control w-full">
-        <%= form.label :classification, class: "label" %>
-        <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered" %>
       </div>
+
+      <fieldset class="app-fieldset">
+        <legend class="px-2 text-sm font-semibold text-base-content/70">Roadmap</legend>
+        <div class="form-control">
+          <label class="cursor-pointer label justify-start gap-3">
+            <%= form.check_box :public_on_roadmap, class: "checkbox checkbox-sm" %>
+            <span class="label-text">Show on public roadmap</span>
+          </label>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control w-full">
+            <%= form.label :scheduled_for, "Scheduled for", class: "label" %>
+            <%= form.datetime_local_field :scheduled_for, value: ticket.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered input-sm w-full" %>
+          </div>
+          <div class="form-control w-full">
+            <%= form.label :shipped_at, "Shipped at", class: "label" %>
+            <%= form.datetime_local_field :shipped_at, value: ticket.shipped_at&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered input-sm w-full" %>
+          </div>
+        </div>
+      </fieldset>
+
       <div class="mt-8 flex justify-end gap-2">
-        <%= link_to "Cancel", ticket.persisted? ?  ticket : tickets_path, class: "btn btn-ghost" %>
+        <%= link_to "Cancel", ticket.persisted? ? ticket : tickets_path, class: "btn btn-ghost" %>
         <%= form.submit class: "btn btn-primary" %>
       </div>
     </div>

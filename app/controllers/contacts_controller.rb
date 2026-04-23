@@ -3,7 +3,26 @@ class ContactsController < ApplicationController
 
   # GET /contacts or /contacts.json
   def index
-    @contacts = Contact.all
+    scope = Contact.order(last_seen_at: :desc, created_at: :desc)
+
+    case params[:type]
+    when "identified" then scope = scope.identified
+    when "anonymous"  then scope = scope.anonymous
+    end
+
+    if params[:active] == "24h"
+      scope = scope.where("last_seen_at > ?", 24.hours.ago)
+    end
+
+    if (q = params[:q].to_s.strip).present?
+      like = "%#{q}%"
+      scope = scope.where("external_id ILIKE ? OR anonymous_id ILIKE ?", like, like)
+    end
+
+    respond_to do |format|
+      format.html { @pagy, @contacts = pagy(scope) }
+      format.json { @contacts = scope.to_a }
+    end
   end
 
   # GET /contacts/1 or /contacts/1.json

@@ -1,0 +1,79 @@
+<% content_for :title, "Changelog" %>
+<% content_for :head do %>
+  <link rel="canonical" href="<%= request.base_url %>/changelog">
+  <meta property="og:title" content="Changelog">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= request.base_url %>/changelog">
+<% end %>
+
+<% latest_announcement = @announcements.first %>
+
+<section class="public-page py-6 sm:py-8">
+  <header class="border-b border-base-300 pb-3">
+    <div>
+      <p class="public-eyebrow">Public changelog</p>
+      <h1 class="public-title mt-2">Changelog</h1>
+    </div>
+
+    <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+      <span class="public-meta-chip"><%= pluralize(@pagy.count, "entry") %></span>
+      <% if latest_announcement %>
+        <span class="public-meta-chip">
+          Latest
+          <time datetime="<%= latest_announcement.published_at.iso8601 %>">
+            <%= l(latest_announcement.published_at.to_date, format: :long) %>
+          </time>
+        </span>
+      <% end %>
+    </div>
+  </header>
+
+  <% if @announcements.empty? %>
+    <div class="py-6 text-sm text-base-content/50">
+      Nothing published yet.
+    </div>
+  <% else %>
+    <ol class="public-panel public-list mt-3 overflow-hidden">
+      <% @announcements.each do |a| %>
+        <li id="announcement-<%= a.id %>" class="public-list-row">
+          <div class="min-w-0">
+            <time datetime="<%= a.published_at.iso8601 %>" class="text-xs font-medium uppercase tracking-[0.16em] text-base-content/45">
+              <%= l(a.published_at.to_date, format: :long) %>
+            </time>
+
+            <h2 class="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-base-content sm:text-xl">
+              <%= link_to a.title, public_announcement_path(a), class: "transition hover:opacity-80" %>
+            </h2>
+
+            <% if a.preview.present? %>
+              <p class="mt-2.5 max-w-3xl text-sm leading-6 text-base-content/70"><%= a.preview %></p>
+            <% end %>
+          </div>
+
+          <div class="flex items-center">
+            <%= link_to public_announcement_path(a), class: "link link-primary no-underline hover:no-underline text-sm font-medium" do %>
+              Read
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ol>
+
+    <% if @pagy && @pagy.pages > 1 %>
+      <nav class="mt-3 flex items-center justify-between gap-4 border-t border-base-300 pt-3 text-sm text-base-content/60">
+        <% if @pagy.prev %>
+          <%= link_to "← Newer", url_for(page: @pagy.prev), class: "font-medium text-base-content transition hover:opacity-80" %>
+        <% else %>
+          <span class="opacity-40">← Newer</span>
+        <% end %>
+        <span>Page <%= @pagy.page %> of <%= @pagy.pages %></span>
+        <% if @pagy.next %>
+          <%= link_to "Older →", url_for(page: @pagy.next), class: "font-medium text-base-content transition hover:opacity-80" %>
+        <% else %>
+          <span class="opacity-40">Older →</span>
+        <% end %>
+      </nav>
+    <% end %>
+  <% end %>
+</section>

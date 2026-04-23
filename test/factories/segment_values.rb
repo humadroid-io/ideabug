@@ -19,6 +19,6 @@
 FactoryBot.define do
   factory :segment_value do
     association(:segment)
-    sequence(:val) { |n| "Value #{n}"}
+    sequence(:val) { |n| "Value #{n}" }
   end
 end

@@ -1,11 +1,10 @@
-<div class="w-full">
-  <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-    <h3 class="text-base font-semibold leading-6 text-gray-900"><%= link_to "Announcements", :announcements %> &raquo; Editing <%= @announcement.to_s %></h3>
-    <div class="flex gap-2">
-      <%= link_to "Back", @announcement, class: "btn btn-ghost btn-sm" %>
-    </div>
-  </div>
-</div>
-<div class="container max-w-3xl mx-auto p-4">
+<div class="app-page space-y-6 py-4">
+  <%= section_header \
+        title: "Edit announcement",
+        eyebrow: "Announcements",
+        meta_items: ["announcement ##{@announcement.id}", @announcement.title] do %>
+    <%= link_to "Back", @announcement, class: "btn btn-ghost btn-sm" %>
+  <% end %>
+
   <%= render "form", announcement: @announcement %>
 </div>
