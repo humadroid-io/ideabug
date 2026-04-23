@@ -182,6 +182,23 @@ You can also pass the public key via env vars (recommended in containerized depl
 
 > `JWT_PRIVATE_KEY` / `JWT_PRIVATE_KEY_FILE` are **never read in production**. They exist only so the test suite and the `_test/widget_host` dev harness (`test/support/jwt_test_issuer.rb`) can mint fixtures locally. A production ideabug deployment should ship the public key only.
 
+#### Security model
+
+Identity in ideabug is established by the JWT's `id` claim, so token forgery would mean impersonation. Every incoming token is verified by `JwtCredentialService` (`app/services/jwt_credential_service.rb`) with these guarantees:
+
+- **Signature is actually checked.** `JWT.decode` is called with verification on; an unverified decode path does not exist.
+- **Algorithm is pinned to `RS256` server-side.** This blocks the two classic JWT attacks: `alg: none` (unsigned tokens) and algorithm confusion (an HS256 token signed with the public key as an HMAC secret). Both are rejected as `JWT::IncorrectAlgorithm`.
+- **`exp` and `iat` are enforced.** Expired tokens and tokens with a malformed/future issued-at are rejected before any contact lookup.
+- **Only the public key is loaded.** There is no code path that uses a private key to verify, so a leaked verifier process cannot be turned into a signer.
+
+The practical consequence: without the RSA private key (which lives on your host app, never on ideabug), an attacker cannot mint a token that authenticates as any `external_id`, nor tamper with the payload of a captured token without invalidating its signature. These properties are pinned by the test suite — see `test/controllers/api/v1/base_controller_test.rb` for the four forgery vectors (attacker-signed RS256, alg-confusion HS256, `alg: none`, payload tampering).
+
+Operator checklist:
+
+- Keep `private.pem` on the host app only. The ideabug deployment should have `public.pem` (or `JWT_PUBLIC_KEY`) and nothing else.
+- Always issue tokens with `exp` set; the verifier enforces it but does not invent one.
+- Rotate the key pair by deploying the new `public.pem` to ideabug first, then cutting the host app over to the new `private.pem`. There is no key-id (`kid`) header support yet, so rotation is a single-key swap.
+
 #### 2b. Sign a JWT in your host app
 
 The token must be **RS256** with these claims:

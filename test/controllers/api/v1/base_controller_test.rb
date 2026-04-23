@@ -135,6 +135,92 @@ module Api
         assert_includes JSON.parse(response.body)["error"], "Invalid"
       end
 
+      test "rejects RS256 token signed with an attacker's private key" do
+        attacker_key = OpenSSL::PKey::RSA.new(2048)
+        forged = JWT.encode(
+          {
+            id: @contact.external_id,
+            exp: 1.hour.from_now.to_i,
+            iat: Time.current.to_i,
+            jti: SecureRandom.uuid
+          },
+          attacker_key,
+          JwtTestIssuer::ALGORITHM
+        )
+
+        assert_no_difference "Contact.count" do
+          get test_action_url, headers: {Authorization: "Bearer #{forged}"}
+        end
+
+        assert_response :unauthorized
+        assert_includes JSON.parse(response.body)["error"], "verification failed"
+      end
+
+      test "rejects HS256 token signed using the public key as HMAC secret (alg confusion)" do
+        forged_external_id = "victim-#{SecureRandom.hex(4)}"
+        forged = JWT.encode(
+          {
+            id: forged_external_id,
+            exp: 1.hour.from_now.to_i,
+            iat: Time.current.to_i,
+            jti: SecureRandom.uuid
+          },
+          JwtConfig.public_key.to_pem,
+          "HS256"
+        )
+
+        assert_no_difference "Contact.count" do
+          get test_action_url, headers: {Authorization: "Bearer #{forged}"}
+        end
+
+        assert_response :unauthorized
+        assert_nil Contact.find_by(external_id: forged_external_id)
+      end
+
+      test "rejects unsigned token with alg=none" do
+        forged_external_id = "victim-#{SecureRandom.hex(4)}"
+        forged = JWT.encode(
+          {
+            id: forged_external_id,
+            exp: 1.hour.from_now.to_i,
+            iat: Time.current.to_i,
+            jti: SecureRandom.uuid
+          },
+          nil,
+          "none"
+        )
+
+        assert_no_difference "Contact.count" do
+          get test_action_url, headers: {Authorization: "Bearer #{forged}"}
+        end
+
+        assert_response :unauthorized
+        assert_nil Contact.find_by(external_id: forged_external_id)
+      end
+
+      test "rejects token whose payload was tampered after signing" do
+        victim = create(:contact, :identified, external_id: "victim-#{SecureRandom.hex(4)}")
+        victim.update_columns(last_seen_at: 1.day.ago.change(usec: 0))
+        victim_seen_at = victim.reload.last_seen_at
+
+        header_b64, _payload_b64, sig_b64 = @token.split(".")
+        tampered_payload = Base64.urlsafe_encode64(
+          {
+            id: victim.external_id,
+            exp: 1.hour.from_now.to_i,
+            iat: Time.current.to_i,
+            jti: SecureRandom.uuid
+          }.to_json,
+          padding: false
+        )
+        forged = "#{header_b64}.#{tampered_payload}.#{sig_b64}"
+
+        get test_action_url, headers: {Authorization: "Bearer #{forged}"}
+
+        assert_response :unauthorized
+        assert_equal victim_seen_at, victim.reload.last_seen_at
+      end
+
       test "401 when no headers at all" do
         get test_action_url
 
