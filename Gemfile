@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby File.read(".ruby-version").chomp.gsub("ruby-", "")
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "8.1.3"
+gem "rails", "8.1.3.1"
 gem "rack-cors"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
@@ -54,6 +54,8 @@ gem "dotenv-rails"
 gem "rack-attack"
 gem "pagy", "~> 9.0"
 gem "lexxy"
+# Required by mini_magick after Benchmark left Ruby's default gems in Ruby 4.
+gem "benchmark"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

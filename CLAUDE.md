@@ -3,12 +3,12 @@
 Self-hosted, embeddable widget for in-app announcements + bug/feature feedback. Host app embeds `script.js`, authenticates contacts via JWT (RS256), polls API for announcements. WIP.
 
 ## Stack
-- Rails 8 (Ruby 3.4.8) + Postgres + Redis
+- Rails 8.1 (Ruby 4.0.6) + Postgres + Redis
 - Hotwire (Turbo + Stimulus, importmap-rails), Tailwind + DaisyUI, ActionText/Lexxy
 - Auth: cookie sessions for admin (Rails 8 generated `Authentication` concern), RS256 JWT for embed API
 - Serializers: Blueprinter (`app/blueprints/`)
 - Tests: Minitest + shoulda + capybara/selenium + factory_bot. **No RSpec** despite stray `.rspec` file.
-- Lint: Standard via rubocop (`.rubocop.yml`), TargetRubyVersion 3.3, line length 100
+- Lint: Standard via rubocop (`.rubocop.yml`), TargetRubyVersion 4.0, line length 100
 - Dev env: dip + Docker (`dip.yml`, `.dockerdev/`); plain `bin/dev` (Procfile.dev → puma:3001 + tailwind watch) also works
 
 ## Domain (see `db/schema.rb`)

@@ -440,7 +440,7 @@ Both pages are read-only. Voting and marking-as-read require the embedded widget
 
 ### Requirements
 
-- Ruby 3.4 (see `.ruby-version`)
+- Ruby 4.0 (see `.ruby-version`)
 - PostgreSQL 14+
 - Redis 6+ (Action Cable + cache)
 - Node.js 20+ and Yarn (only for asset compilation in dev)

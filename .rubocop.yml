@@ -1,5 +1,7 @@
 require:
   - standard
+
+plugins:
   - standard-custom
   - standard-performance
   - standard-rails
@@ -17,7 +19,7 @@ inherit_gem:
 
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 3.3
+  TargetRubyVersion: 4.0
   Exclude:
     - bin/*
     - config/**/*
