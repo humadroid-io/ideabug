@@ -1,5 +1,7 @@
-<div class="app-page space-y-6 py-4">
-  <%= section_header title: "New ticket", eyebrow: "Feedback", meta_items: ["inbox"] do %>
+<% content_for :title, "Add feedback" %>
+
+<div class="app-page space-y-6">
+  <%= section_header title: "Add feedback", eyebrow: "Feedback inbox", meta_items: ["manual entry"] do %>
     <%= link_to "Back", :tickets, class: "btn btn-ghost btn-sm" %>
   <% end %>
 

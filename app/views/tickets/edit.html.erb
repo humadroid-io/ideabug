@@ -1,7 +1,9 @@
-<div class="app-page space-y-6 py-4">
+<% content_for :title, "Edit feedback" %>
+
+<div class="app-page space-y-6">
   <%= section_header \
-        title: "Edit ticket",
-        eyebrow: "Feedback",
+        title: "Edit feedback",
+        eyebrow: "Feedback inbox",
         meta_items: ["ticket ##{@ticket.id}", @ticket.title] do %>
     <%= link_to "Back", @ticket, class: "btn btn-ghost btn-sm" %>
   <% end %>

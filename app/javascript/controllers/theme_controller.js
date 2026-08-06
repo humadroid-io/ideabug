@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
-const STORAGE_KEY = "ideabug-public-theme"
+const STORAGE_KEY = "ideabug-theme"
+const LEGACY_STORAGE_KEY = "ideabug-public-theme"
 
 export default class extends Controller {
   static targets = ["toggle", "lightIcon", "darkIcon"]
@@ -68,7 +69,13 @@ export default class extends Controller {
 
   get storedTheme() {
     try {
-      return window.localStorage.getItem(STORAGE_KEY)
+      const theme = window.localStorage.getItem(STORAGE_KEY) ||
+        window.localStorage.getItem(LEGACY_STORAGE_KEY)
+
+      if (theme === "light") return this.lightValue
+      if (["dark", "night"].includes(theme)) return this.darkValue
+
+      return [this.lightValue, this.darkValue].includes(theme) ? theme : null
     } catch (_error) {
       return null
     }

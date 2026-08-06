@@ -1,98 +1,76 @@
-<div class="app-page space-y-4 py-4">
+<% content_for :title, "Contacts" %>
+
+<div class="app-page space-y-5">
   <%= section_header \
         title: "Contacts",
-        eyebrow: "Audience",
+        eyebrow: "Audience context",
         meta_items: [
           pluralize(@pagy&.count || @contacts.size, "contact"),
-          "widget identities"
+          "identities seen through the widget"
         ] %>
 
-  <%= form_with url: contacts_path, method: :get, class: "flex flex-wrap items-end gap-2", local: true do %>
-    <div class="form-control">
-      <label class="label label-text" for="q">Search</label>
-      <input id="q" type="text" name="q" value="<%= params[:q] %>" placeholder="External or anonymous ID" class="input input-bordered input-sm w-72">
+  <%= form_with url: contacts_path, method: :get, class: "filter-bar flex flex-wrap items-end gap-3", local: true do %>
+    <div class="form-control min-w-[14rem] flex-1">
+      <label class="label" for="q"><span class="label-text">Find a contact</span></label>
+      <input id="q" type="search" name="q" value="<%= params[:q] %>" placeholder="External or anonymous ID" class="input input-bordered input-sm w-full">
     </div>
-    <div class="form-control">
-      <label class="label label-text" for="type">Type</label>
+    <div class="form-control w-full sm:w-44">
+      <label class="label" for="type"><span class="label-text">Identity</span></label>
       <select id="type" name="type" class="select select-bordered select-sm py-0">
-        <option value="">All</option>
+        <option value="">All identities</option>
         <option value="identified" <%= "selected" if params[:type] == "identified" %>>Identified</option>
-        <option value="anonymous"  <%= "selected" if params[:type] == "anonymous"  %>>Anonymous</option>
+        <option value="anonymous" <%= "selected" if params[:type] == "anonymous" %>>Anonymous</option>
       </select>
     </div>
-    <div class="form-control">
-      <label class="label label-text" for="active">Activity</label>
+    <div class="form-control w-full sm:w-48">
+      <label class="label" for="active"><span class="label-text">Activity</span></label>
       <select id="active" name="active" class="select select-bordered select-sm py-0">
-        <option value="">All time</option>
-        <option value="24h" <%= "selected" if params[:active] == "24h" %>>Active in last 24h</option>
+        <option value="">Any activity</option>
+        <option value="24h" <%= "selected" if params[:active] == "24h" %>>Seen in last 24h</option>
       </select>
     </div>
-    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-    <% if params.values_at(:q, :type, :active).any?(&:present?) %>
-      <%= link_to "Reset", contacts_path, class: "btn btn-sm btn-ghost" %>
-    <% end %>
+    <button type="submit" class="btn btn-sm btn-neutral">Apply</button>
+    <% if params.values_at(:q, :type, :active).any?(&:present?) %><%= link_to "Clear", contacts_path, class: "btn btn-sm btn-ghost" %><% end %>
   <% end %>
 
   <% if @contacts.empty? %>
     <div class="app-empty-state">
-      No contacts match your filters.
+      <span class="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-xl bg-base-200 text-base-content/40"><%= app_icon(:contacts, class_name: "h-5 w-5") %></span>
+      <p class="font-medium text-base-content/70">No contacts match these filters.</p>
+      <p class="mt-1">Contacts appear after someone opens the embedded widget.</p>
     </div>
   <% else %>
-    <div class="app-panel overflow-visible">
-      <table class="table">
-          <thead class="bg-base-200">
-            <tr>
-              <th>Identity</th>
-              <th>Type</th>
-              <th>Info</th>
-              <th>Last seen</th>
-              <th>First seen</th>
-              <th class="w-12"></th>
-            </tr>
-          </thead>
+    <div class="app-panel overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead><tr><th>Contact</th><th class="hidden md:table-cell">Identity</th><th class="hidden xl:table-cell">Context</th><th class="hidden md:table-cell">Last seen</th><th class="hidden lg:table-cell">First seen</th><th class="hidden sm:table-cell"><span class="sr-only">Actions</span></th></tr></thead>
           <tbody>
             <% @contacts.each do |contact| %>
+              <% payload = contact.info_payload.to_h %>
+              <% identity = contact.identified? ? contact.external_id : contact.anonymous_id %>
+              <% display_name = (payload["name"].presence || payload["email"].presence || (contact.identified? ? contact.external_id : "Anonymous contact")).to_s %>
               <tr>
-                <td class="font-mono text-xs">
-                  <%= link_to (contact.identified? ? contact.external_id : contact.anonymous_id), contact, class: "link link-hover" %>
-                </td>
-                <td>
-                  <% if contact.identified? %>
-                    <span class="badge badge-primary badge-outline badge-sm">Identified</span>
-                  <% else %>
-                    <span class="badge badge-ghost badge-sm">Anonymous</span>
-                  <% end %>
-                </td>
-                <td class="text-xs text-base-content/70 truncate max-w-md">
-                  <%= readable_hash(contact.info_payload) if contact.info_payload.present? %>
-                </td>
-                <td class="text-xs text-base-content/60">
-                  <% if contact.last_seen_at %>
-                    <%= time_ago_in_words(contact.last_seen_at) %> ago
-                  <% else %>
-                    <span class="italic">never</span>
-                  <% end %>
-                </td>
-                <td class="text-xs text-base-content/60"><%= time_ago_in_words(contact.created_at) %> ago</td>
-                <td class="relative overflow-visible">
-                  <div class="dropdown dropdown-left">
-                    <button class="btn btn-ghost btn-xs">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                    </button>
-                    <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
-                      <li><%= link_to "View", contact %></li>
-                      <li><%= link_to "Delete", contact, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
-                    </ul>
+                <td class="min-w-0 md:min-w-[16rem]">
+                  <div class="flex items-center gap-3">
+                    <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-[0.68rem] font-semibold uppercase text-primary"><%= display_name.first(2) %></span>
+                    <div class="min-w-0">
+                      <%= link_to display_name, contact, class: "block max-w-xs truncate text-sm font-medium hover:text-primary" %>
+                      <p class="mt-0.5 max-w-xs truncate font-mono text-[0.68rem] text-base-content/40"><%= identity %></p>
+                      <div class="mt-1.5 md:hidden"><span class="badge badge-sm <%= contact.identified? ? "badge-primary badge-outline" : "badge-ghost" %>"><%= contact.identified? ? "Identified" : "Anonymous" %></span></div>
+                    </div>
                   </div>
                 </td>
+                <td class="hidden md:table-cell"><span class="badge badge-sm <%= contact.identified? ? "badge-primary badge-outline" : "badge-ghost" %>"><%= contact.identified? ? "Identified" : "Anonymous" %></span></td>
+                <td class="hidden max-w-md xl:table-cell"><p class="truncate text-xs text-base-content/55"><%= readable_hash(payload.except("name", "email")) if payload.except("name", "email").present? %></p></td>
+                <td class="hidden whitespace-nowrap text-xs text-base-content/50 md:table-cell"><%= contact.last_seen_at ? "#{time_ago_in_words(contact.last_seen_at)} ago" : "Never" %></td>
+                <td class="hidden whitespace-nowrap text-xs text-base-content/50 lg:table-cell"><%= time_ago_in_words(contact.created_at) %> ago</td>
+                <td class="hidden text-right sm:table-cell"><%= link_to "Open", contact, class: "link link-hover text-xs font-medium text-primary" %></td>
               </tr>
             <% end %>
           </tbody>
-      </table>
+        </table>
+      </div>
     </div>
-
-    <% if @pagy %>
-      <div class="flex justify-center"><%== pagy_nav(@pagy) %></div>
-    <% end %>
+    <% if @pagy %><div class="flex justify-center"><%== pagy_nav(@pagy) %></div><% end %>
   <% end %>
 </div>

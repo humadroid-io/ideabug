@@ -1,7 +1,9 @@
-<div class="app-page space-y-6 py-4">
+<% content_for :title, "Edit segment" %>
+
+<div class="app-page space-y-6">
   <%= section_header \
         title: "Edit segment",
-        eyebrow: "Audience",
+        eyebrow: "Audience targeting",
         meta_items: [@segment.identifier] do %>
     <%= link_to "Back", @segment, class: "btn btn-ghost btn-sm" %>
   <% end %>

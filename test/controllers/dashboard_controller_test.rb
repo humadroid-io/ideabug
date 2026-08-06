@@ -9,6 +9,15 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get dashboard_url
     assert_response :success
+    assert_select "html[data-theme='ideabug']"
+    assert_select "body.app-shell[data-controller~='theme']"
+    assert_select "button[data-action='theme#toggle'][aria-label='Switch to dark mode']"
+    assert_select "aside.app-sidebar > div.flex.h-full.flex-col" do
+      assert_select "nav.flex-1"
+      assert_select ".app-sidebar-account"
+    end
+    assert_select "a.app-nav-link-active", text: /Overview/
+    assert_select "h1", text: "Product pulse"
   end
 
   test "renders stats with non-trivial data" do

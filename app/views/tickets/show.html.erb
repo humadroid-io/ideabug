@@ -1,7 +1,9 @@
-<div class="app-page space-y-6 py-4">
+<% content_for :title, @ticket.title %>
+
+<div class="app-page space-y-6">
   <%= section_header \
         title: @ticket.title,
-        eyebrow: "Feedback",
+        eyebrow: "Feedback inbox",
         meta_items: [
           "ticket ##{@ticket.id}",
           "opened #{time_ago_in_words(@ticket.created_at)} ago",
@@ -9,7 +11,7 @@
         ] do %>
     <div class="flex gap-2">
       <%= link_to "Back", tickets_path, class: "btn btn-sm btn-ghost" %>
-      <%= link_to "Edit", edit_ticket_path(@ticket), class: "btn btn-sm" %>
+      <%= link_to "Edit", edit_ticket_path(@ticket), class: "btn btn-sm btn-primary" %>
       <%= link_to "Delete", @ticket,
             class: "btn btn-sm btn-ghost text-error",
             data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>

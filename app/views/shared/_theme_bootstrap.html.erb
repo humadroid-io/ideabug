@@ -1,0 +1,23 @@
+<script nonce="<%= content_security_policy_nonce %>">
+  (() => {
+    const lightTheme = "ideabug"
+    const darkTheme = "ideabug_dark"
+
+    try {
+      const storedTheme = window.localStorage.getItem("ideabug-theme") ||
+        window.localStorage.getItem("ideabug-public-theme")
+      const normalizedTheme = storedTheme === "light" ? lightTheme :
+        (["dark", "night"].includes(storedTheme) ? darkTheme : storedTheme)
+      const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ?
+        darkTheme : lightTheme
+      const theme = [lightTheme, darkTheme].includes(normalizedTheme) ?
+        normalizedTheme : preferredTheme
+
+      document.documentElement.setAttribute("data-theme", theme)
+      document.documentElement.style.colorScheme = theme === darkTheme ? "dark" : "light"
+    } catch (_error) {
+      document.documentElement.setAttribute("data-theme", lightTheme)
+      document.documentElement.style.colorScheme = "light"
+    }
+  })()
+</script>

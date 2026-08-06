@@ -1,0 +1,95 @@
+<aside class="app-sidebar w-72">
+  <div class="flex h-full flex-col">
+    <div class="flex h-16 items-center justify-between px-5">
+      <%= link_to dashboard_path, class: "brand-link" do %>
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </span>
+        <span>Ideabug</span>
+      <% end %>
+
+      <label for="app-navigation" class="btn btn-ghost btn-sm btn-square lg:hidden" aria-label="Close navigation">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18"></path>
+        </svg>
+      </label>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 pb-5" aria-label="Workspace">
+      <p class="app-nav-label">Workspace</p>
+      <ul class="space-y-1">
+        <li>
+          <%= link_to dashboard_path, class: app_navigation_link_classes(active: app_navigation_active?(:overview)) do %>
+            <%= app_icon(:overview) %><span>Overview</span>
+          <% end %>
+        </li>
+        <li>
+          <%= link_to tickets_path, class: app_navigation_link_classes(active: app_navigation_active?(:feedback)) do %>
+            <%= app_icon(:feedback) %><span>Feedback inbox</span>
+          <% end %>
+        </li>
+        <li>
+          <%= link_to timeline_tickets_path, class: app_navigation_link_classes(active: app_navigation_active?(:roadmap)) do %>
+            <%= app_icon(:roadmap) %><span>Roadmap</span>
+          <% end %>
+        </li>
+        <li>
+          <%= link_to announcements_path, class: app_navigation_link_classes(active: app_navigation_active?(:announcements)) do %>
+            <%= app_icon(:announcements) %><span>Announcements</span>
+          <% end %>
+        </li>
+      </ul>
+
+      <p class="app-nav-label mt-7">Audience</p>
+      <ul class="space-y-1">
+        <li>
+          <%= link_to contacts_path, class: app_navigation_link_classes(active: app_navigation_active?(:contacts)) do %>
+            <%= app_icon(:contacts) %><span>Contacts</span>
+          <% end %>
+        </li>
+        <li>
+          <%= link_to segments_path, class: app_navigation_link_classes(active: app_navigation_active?(:segments)) do %>
+            <%= app_icon(:segments) %><span>Segments</span>
+          <% end %>
+        </li>
+      </ul>
+
+      <p class="app-nav-label mt-7">Published</p>
+      <ul class="space-y-1">
+        <li>
+          <%= link_to roadmap_path, class: "app-nav-link", target: "_blank", rel: "noopener" do %>
+            <%= app_icon(:external) %><span>Public roadmap</span>
+          <% end %>
+        </li>
+        <% if announcements_publicly_accessible? %>
+          <li>
+            <%= link_to public_announcements_path, class: "app-nav-link", target: "_blank", rel: "noopener" do %>
+              <%= app_icon(:external) %><span>Public changelog</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+
+    <div class="app-sidebar-account border-t border-base-300 p-3">
+      <div class="flex items-center gap-3 rounded-lg px-2 py-2">
+        <span class="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-base-300 bg-base-200">
+          <%= avatar_image_tag Current.session.user, class: "h-full w-full object-cover" %>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-xs font-semibold text-base-content"><%= Current.session.user.email_address %></p>
+          <p class="text-[0.68rem] text-base-content/45">Workspace admin</p>
+        </div>
+        <%= link_to session_path,
+              class: "btn btn-ghost btn-sm btn-square text-base-content/50",
+              data: { turbo_method: :delete },
+              title: "Sign out",
+              aria: {label: "Sign out"} do %>
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M10 17l5-5-5-5M15 12H3"></path><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</aside>

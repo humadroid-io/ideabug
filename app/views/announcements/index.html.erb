@@ -1,113 +1,91 @@
-<div class="app-page space-y-4 py-4">
+<% content_for :title, "Announcements" %>
+
+<div class="app-page space-y-5">
   <%= section_header \
         title: "Announcements",
-        eyebrow: "Content",
+        eyebrow: "Close the loop",
         meta_items: [
-          pluralize(@pagy&.count || @announcements.size, "entry"),
-          "embedded changelog"
+          pluralize(@pagy&.count || @announcements.size, "update"),
+          "targeted in-product changelog"
         ] do %>
-    <% if authenticated? %>
-      <%= link_to new_announcement_path, class: "btn btn-primary btn-sm" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
-        New announcement
+    <% if announcements_publicly_accessible? %>
+      <%= link_to public_announcements_path, class: "btn btn-ghost btn-sm border border-base-300", target: "_blank", rel: "noopener" do %>
+        Public changelog <%= app_icon(:external, class_name: "h-3.5 w-3.5") %>
       <% end %>
+    <% end %>
+    <%= link_to new_announcement_path, class: "btn btn-primary btn-sm" do %>
+      <%= app_icon(:plus, class_name: "h-3.5 w-3.5") %> New announcement
     <% end %>
   <% end %>
 
-  <% if authenticated? %>
-    <%= form_with url: announcements_path, method: :get, class: "flex flex-wrap items-end gap-2", local: true do %>
-      <div class="form-control">
-        <label class="label label-text" for="q">Search</label>
-        <input id="q" type="text" name="q" value="<%= params[:q] %>" placeholder="Title or preview" class="input input-bordered input-sm w-64">
-      </div>
-      <div class="form-control">
-        <label class="label label-text" for="scheduled">When</label>
-        <select id="scheduled" name="scheduled" class="select select-bordered select-sm py-0">
-          <option value="">All</option>
-          <option value="past" <%= "selected" if params[:scheduled] == "past" %>>Already published</option>
-          <option value="future" <%= "selected" if params[:scheduled] == "future" %>>Scheduled</option>
-        </select>
-      </div>
-      <div class="form-control">
-        <label class="label label-text" for="targeting">Targeting</label>
-        <select id="targeting" name="targeting" class="select select-bordered select-sm py-0">
-          <option value="">All</option>
-          <option value="broadcast" <%= "selected" if params[:targeting] == "broadcast" %>>Broadcast</option>
-          <option value="targeted"  <%= "selected" if params[:targeting] == "targeted"  %>>Targeted</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-      <% if params.values_at(:q, :scheduled, :targeting).any?(&:present?) %>
-        <%= link_to "Reset", announcements_path, class: "btn btn-sm btn-ghost" %>
-      <% end %>
-    <% end %>
+  <%= form_with url: announcements_path, method: :get, class: "filter-bar flex flex-wrap items-end gap-3", local: true do %>
+    <div class="form-control min-w-[14rem] flex-1">
+      <label class="label" for="q"><span class="label-text">Search updates</span></label>
+      <input id="q" type="search" name="q" value="<%= params[:q] %>" placeholder="Title or preview" class="input input-bordered input-sm w-full">
+    </div>
+    <div class="form-control w-full sm:w-48">
+      <label class="label" for="scheduled"><span class="label-text">Publishing</span></label>
+      <select id="scheduled" name="scheduled" class="select select-bordered select-sm py-0">
+        <option value="">All dates</option>
+        <option value="past" <%= "selected" if params[:scheduled] == "past" %>>Published</option>
+        <option value="future" <%= "selected" if params[:scheduled] == "future" %>>Scheduled</option>
+      </select>
+    </div>
+    <div class="form-control w-full sm:w-44">
+      <label class="label" for="targeting"><span class="label-text">Audience</span></label>
+      <select id="targeting" name="targeting" class="select select-bordered select-sm py-0">
+        <option value="">All audiences</option>
+        <option value="broadcast" <%= "selected" if params[:targeting] == "broadcast" %>>Everyone</option>
+        <option value="targeted" <%= "selected" if params[:targeting] == "targeted" %>>Targeted</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-sm btn-neutral">Apply</button>
+    <% if params.values_at(:q, :scheduled, :targeting).any?(&:present?) %><%= link_to "Clear", announcements_path, class: "btn btn-sm btn-ghost" %><% end %>
   <% end %>
 
   <% if @announcements.empty? %>
     <div class="app-empty-state">
-      No announcements match your filters.
+      <span class="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-xl bg-base-200 text-base-content/40"><%= app_icon(:announcements, class_name: "h-5 w-5") %></span>
+      <p class="font-medium text-base-content/70">No announcements match these filters.</p>
+      <p class="mt-1">Create an update when you are ready to close the customer feedback loop.</p>
     </div>
   <% else %>
-    <div class="app-panel overflow-visible">
-      <table class="table">
-          <thead class="bg-base-200">
-            <tr>
-              <th>Title</th>
-              <th>Preview</th>
-              <th>Targeting</th>
-              <th>Published</th>
-              <th class="w-12"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @announcements.each do |announcement| %>
-              <% future = announcement.published_at && announcement.published_at > Time.current %>
-              <tr>
-                <td class="font-medium"><%= link_to announcement.title, announcement, class: "link link-hover" %></td>
-                <td class="text-base-content/70 truncate max-w-md"><%= announcement.preview %></td>
-                <td>
-                  <% if announcement.segments.any? %>
-                    <% announcement.segments.first(3).each do |s| %>
-                      <span class="badge badge-ghost badge-sm"><%= s.identifier %></span>
-                    <% end %>
-                    <% if announcement.segments.size > 3 %>
-                      <span class="text-xs text-base-content/50">+<%= announcement.segments.size - 3 %></span>
-                    <% end %>
-                  <% else %>
-                    <span class="badge badge-success badge-outline badge-sm">Broadcast</span>
-                  <% end %>
-                </td>
-                <td class="text-xs text-base-content/60" title="<%= announcement.published_at %>">
-                  <% if future %>
-                    in <%= time_ago_in_words(announcement.published_at) %>
-                  <% else %>
-                    <%= time_ago_in_words(announcement.published_at) %> ago
-                  <% end %>
-                </td>
-                <td class="relative overflow-visible">
-                  <% if authenticated? %>
-                    <div class="dropdown dropdown-left">
-                      <button class="btn btn-ghost btn-xs">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                      </button>
-                      <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
-                        <li><%= link_to "View", announcement %></li>
-                        <li><%= link_to "Edit", edit_announcement_path(announcement) %></li>
-                        <li><%= link_to "Delete", announcement, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
-                      </ul>
-                    </div>
-                  <% else %>
-                    <%= link_to "View", announcement, class: "link link-primary text-xs" %>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-      </table>
-    </div>
+    <section class="app-panel overflow-hidden">
+      <ul class="divide-y divide-base-300">
+        <% @announcements.each do |announcement| %>
+          <% scheduled = announcement.published_at && announcement.published_at > Time.current %>
+          <li class="group grid gap-4 px-5 py-5 transition-colors hover:bg-base-200/40 lg:grid-cols-[minmax(0,1fr)_12rem_9rem_auto] lg:items-center">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <%= link_to announcement.title, announcement, class: "truncate text-sm font-semibold text-base-content group-hover:text-primary" %>
+                <span class="badge badge-sm <%= scheduled ? "badge-warning badge-outline" : "badge-success badge-outline" %>"><%= scheduled ? "Scheduled" : "Published" %></span>
+              </div>
+              <% if announcement.preview.present? %><p class="mt-1.5 line-clamp-2 max-w-3xl text-xs leading-5 text-base-content/50"><%= announcement.preview %></p><% end %>
+            </div>
 
-    <% if @pagy %>
-      <div class="flex justify-center"><%== pagy_nav(@pagy) %></div>
-    <% end %>
+            <div>
+              <p class="text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-base-content/35">Audience</p>
+              <% if announcement.segments.any? %>
+                <p class="mt-1 truncate text-xs font-medium text-base-content/65"><%= announcement.segments.first(2).map(&:identifier).join(", ") %><%= " +#{announcement.segments.size - 2}" if announcement.segments.size > 2 %></p>
+              <% else %>
+                <p class="mt-1 text-xs font-medium text-base-content/65">Everyone</p>
+              <% end %>
+            </div>
+
+            <div>
+              <p class="text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-base-content/35"><%= scheduled ? "Publishes" : "Published" %></p>
+              <p class="mt-1 whitespace-nowrap text-xs font-medium text-base-content/65"><%= scheduled ? "in #{time_ago_in_words(announcement.published_at)}" : "#{time_ago_in_words(announcement.published_at)} ago" %></p>
+            </div>
+
+            <div class="flex items-center justify-end gap-1">
+              <%= link_to "Open", announcement, class: "btn btn-ghost btn-xs" %>
+              <%= link_to "Edit", edit_announcement_path(announcement), class: "btn btn-ghost btn-xs border border-base-300" %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+
+    <% if @pagy %><div class="flex justify-center"><%== pagy_nav(@pagy) %></div><% end %>
   <% end %>
 </div>

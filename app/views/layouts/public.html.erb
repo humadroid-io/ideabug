@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="winter">
+<html data-theme="ideabug">
   <head>
     <title><%= content_for?(:title) ? "#{content_for(:title)} · Ideabug" : "Ideabug" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,23 +8,21 @@
     <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "lexxy", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= render "shared/theme_bootstrap" %>
     <%= javascript_importmap_tags %>
     <%= yield :head %>
   </head>
   <body
     class="public-shell flex min-h-screen flex-col"
     data-controller="theme"
-    data-theme-light-value="light"
-    data-theme-dark-value="night"
+    data-theme-light-value="ideabug"
+    data-theme-dark-value="ideabug_dark"
   >
-    <header
-      class="
-        sticky top-0 z-20 border-b border-base-300 bg-base-100/85 backdrop-blur
-      "
-    >
+    <header class="site-header">
       <div class="public-page flex min-h-12 items-center justify-between gap-4">
-        <%= link_to root_path, class: "text-sm font-semibold uppercase tracking-[0.24em] text-base-content" do %>
-          Ideabug
+        <%= link_to root_path, class: "brand-link" do %>
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>Ideabug</span>
         <% end %>
 
         <div class="flex items-center gap-2">
@@ -41,33 +39,7 @@
             <%= link_to "Sign in", new_session_path, class: "public-nav-link" %>
           </nav>
 
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs btn-circle text-primary"
-            data-action="theme#toggle"
-            data-theme-target="toggle"
-            aria-pressed="false"
-            aria-label="Toggle color mode"
-          >
-            <svg
-              data-theme-target="lightIcon"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            ><path
-                d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0 4a1 1 0 0 1-1-1v-1a1 1 0 1 1 2 0v1a1 1 0 0 1-1 1Zm0-18a1 1 0 0 1-1-1V2a1 1 0 1 1 2 0v1a1 1 0 0 1-1 1Zm10 9a1 1 0 1 1 0 2h-1a1 1 0 1 1 0-2h1ZM4 13a1 1 0 1 1 0 2H3a1 1 0 1 1 0-2h1Zm14.95-6.364a1 1 0 0 1 1.414 1.414l-.707.707a1 1 0 1 1-1.414-1.414l.707-.707ZM6.757 18.828a1 1 0 0 1 1.414 1.414l-.707.708A1 1 0 0 1 6.05 19.536l.707-.708ZM19.657 19.536a1 1 0 0 1-1.414 1.414l-.707-.708a1 1 0 1 1 1.414-1.414l.707.708ZM7.464 6.05A1 1 0 0 1 6.05 7.464l-.707-.707a1 1 0 1 1 1.414-1.414l.707.707Z"
-              /></svg>
-            <svg
-              data-theme-target="darkIcon"
-              xmlns="http://www.w3.org/2000/svg"
-              class="hidden h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            ><path
-                d="M10 2a1 1 0 0 1 .894 1.447A8 8 0 0 0 20.553 13.106 1 1 0 0 1 22 14c0 4.971-4.029 9-9 9s-9-4.029-9-9c0-4.399 3.156-8.06 7.326-8.843A1 1 0 0 1 10 2Z"
-              /></svg>
-          </button>
+          <%= render "shared/theme_toggle" %>
         </div>
       </div>
     </header>
@@ -76,7 +48,7 @@
       <%= yield %>
     </main>
 
-    <footer class="border-t border-base-300">
+    <footer class="site-footer">
       <div
         class="
           public-page flex flex-wrap items-center justify-between gap-4 py-5

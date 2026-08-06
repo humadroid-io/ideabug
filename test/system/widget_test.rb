@@ -17,8 +17,14 @@ class WidgetTest < ApplicationSystemTestCase
     bell.click
 
     assert_selector ".ideabug-panel.is-open", wait: 5
+    assert_selector ".ideabug-panel-title", text: "Feedback"
+    assert_selector "button[aria-label='Close feedback panel']"
     # Updates list is lazy-loaded after bell click; wait for it to render.
     assert_selector ".ideabug-item-title", text: "Big News", wait: 5
+
+    panel_bottom = evaluate_script("document.querySelector('.ideabug-panel').getBoundingClientRect().bottom")
+    footer_bottom = evaluate_script("document.querySelector('.ideabug-footer').getBoundingClientRect().bottom")
+    assert_in_delta panel_bottom, footer_bottom, 1, "widget actions should stay pinned to the panel bottom"
 
     # Open modal — click the row
     find(".ideabug-item", text: "Big News").click
@@ -36,6 +42,10 @@ class WidgetTest < ApplicationSystemTestCase
     find(".ideabug-tab", text: "Roadmap").click
     assert_selector ".ideabug-roadmap-card", text: "Dark mode", wait: 3
 
+    roadmap_footer_bottom = evaluate_script("document.querySelector('.ideabug-footer').getBoundingClientRect().bottom")
+    assert_in_delta panel_bottom, roadmap_footer_bottom, 1,
+      "roadmap link should stay pinned to the panel bottom"
+
     initial_count = @feature.reload.votes_count
     find(".ideabug-roadmap-card", text: "Dark mode").find(".ideabug-vote").click
 
@@ -45,6 +55,63 @@ class WidgetTest < ApplicationSystemTestCase
       sleep 0.1
     end
     assert @feature.votes_count > initial_count, "vote should increment ticket counter on server"
+  end
+
+  test "shows a focused feature and bug feedback form" do
+    visit "/_test/widget_host"
+
+    find(".ideabug-bell", wait: 5).click
+    find(".ideabug-tab", text: "Share feedback").click
+
+    assert_selector ".ideabug-form-intro", text: "What can we improve?"
+    assert_button "Request a feature"
+    assert_button "Report a bug"
+    assert_field "Summary", placeholder: "A short, specific title"
+    assert_field "Details optional"
+    assert_button "Send feedback"
+
+    form_geometry = evaluate_script(<<~JS)
+      (function () {
+        var body = document.querySelector(".ideabug-body").getBoundingClientRect();
+        var button = document.querySelector(".ideabug-form > .ideabug-btn").getBoundingClientRect();
+        return { bodyBottom: body.bottom, buttonBottom: button.bottom };
+      })()
+    JS
+    assert_in_delta 20, form_geometry["bodyBottom"] - form_geometry["buttonBottom"], 1,
+      "feedback action should stay at the bottom of the content area"
+
+    click_button "Report a bug"
+    assert_selector "[data-kind='bug'].is-active"
+  end
+
+  test "keeps update actions fixed while the announcement history scrolls" do
+    16.times do |index|
+      create(:announcement, title: "Archive update #{index}",
+        preview: "A longer historical announcement preview", published_at: (index + 2).days.ago)
+    end
+
+    visit "/_test/widget_host"
+
+    find(".ideabug-bell", wait: 5).click
+    assert_selector ".ideabug-item-title", text: "Big News", wait: 5
+
+    geometry = evaluate_script(<<~JS)
+      (function () {
+        var panel = document.querySelector(".ideabug-panel").getBoundingClientRect();
+        var content = document.querySelector(".ideabug-scroll-content");
+        var footer = document.querySelector(".ideabug-footer").getBoundingClientRect();
+        return {
+          panelBottom: panel.bottom,
+          footerBottom: footer.bottom,
+          contentHeight: content.clientHeight,
+          contentScrollHeight: content.scrollHeight
+        };
+      })()
+    JS
+
+    assert_operator geometry["contentScrollHeight"], :>, geometry["contentHeight"]
+    assert_in_delta geometry["panelBottom"], geometry["footerBottom"], 1,
+      "scrolling update history should not move the footer"
   end
 
   test "marks all visible announcements as read from the updates footer" do

@@ -2,76 +2,236 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/45 ring-offset-2 ring-offset-base-100;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-base-content;
+  }
+}
+
 @layer components {
-  .app-page,
+  .app-shell,
   .public-shell {
-    @apply bg-base-100 text-base-content;
+    @apply min-h-screen bg-base-100 text-base-content antialiased;
+  }
+
+  .app-shell .drawer-content {
+    @apply bg-base-200/55;
+  }
+
+  .site-header {
+    @apply sticky top-0 z-30 border-b border-base-300 bg-base-100/95 backdrop-blur-md;
+  }
+
+  .site-footer,
+  .app-footer {
+    @apply border-t border-base-300 text-base-content/50;
+  }
+
+  .app-sidebar {
+    @apply border-r border-base-300 bg-base-100 text-base-content;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .brand-link {
+    @apply inline-flex items-center gap-2.5 text-sm font-semibold tracking-[-0.015em] text-base-content;
+  }
+
+  .brand-mark {
+    @apply grid h-8 w-8 grid-cols-2 grid-rows-2 place-items-center rounded-lg border border-primary/20 bg-primary text-primary-content shadow-sm;
+    padding: 0.42rem;
+  }
+
+  .brand-mark span {
+    @apply h-1 w-1 rounded-full bg-current;
+  }
+
+  .brand-mark span:first-child {
+    @apply col-span-2 h-1 w-3 rounded-full;
+  }
+
+  .theme-toggle {
+    @apply btn btn-ghost btn-sm btn-square border border-transparent text-base-content/55 hover:border-base-300 hover:bg-base-200 hover:text-base-content;
+  }
+
+  .app-nav-label {
+    @apply mb-2 mt-2 px-3 text-[0.62rem] font-semibold uppercase tracking-[0.19em] text-base-content/40;
+  }
+
+  .app-nav-link {
+    @apply flex min-h-10 items-center gap-3 rounded-lg px-3 text-[0.82rem] font-medium text-base-content/60 transition-colors hover:bg-base-200 hover:text-base-content;
+  }
+
+  .app-nav-link svg {
+    @apply shrink-0 text-base-content/45;
+  }
+
+  .app-nav-link-active {
+    @apply bg-primary/10 font-semibold text-primary hover:bg-primary/10 hover:text-primary;
+  }
+
+  .app-nav-link-active svg {
+    @apply text-primary;
   }
 
   .app-page {
-    @apply mx-auto w-full max-w-7xl px-4 sm:px-5;
+    @apply mx-auto w-full max-w-[90rem] px-4 sm:px-6 xl:px-8;
   }
 
   .public-page {
-    @apply mx-auto w-full max-w-4xl px-4 sm:px-5;
+    @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
   }
 
   .app-panel,
   .public-panel {
-    @apply rounded-box border border-base-300 bg-base-100 shadow-sm;
+    @apply rounded-xl border border-base-300 bg-base-100;
+    box-shadow: 0 1px 2px hsl(var(--bc) / 0.025);
   }
 
   .app-card,
   .public-card {
-    @apply rounded-box border border-base-300 bg-base-100 p-5 shadow-sm;
+    @apply rounded-xl border border-base-300 bg-base-100 p-5 sm:p-6;
+    box-shadow: 0 1px 2px hsl(var(--bc) / 0.025);
   }
 
   .app-subpanel {
-    @apply rounded-box bg-base-200/40 p-4;
+    @apply rounded-lg border border-base-300/80 bg-base-200/45 p-4;
   }
 
   .app-empty-state {
-    @apply rounded-box border border-base-300 bg-base-100 px-6 py-8 text-center text-base-content/60 shadow-sm;
+    @apply rounded-xl border border-dashed border-base-300 bg-base-100 px-6 py-12 text-center text-sm text-base-content/55;
   }
 
   .app-fieldset {
-    @apply rounded-box border border-base-300 p-4 space-y-3;
+    @apply space-y-3 rounded-xl border border-base-300 bg-base-100 p-4 sm:p-5;
+  }
+
+  .app-kicker,
+  .public-eyebrow {
+    @apply text-[0.64rem] font-semibold uppercase tracking-[0.2em] text-primary;
+  }
+
+  .app-title,
+  .public-title {
+    @apply text-2xl font-semibold tracking-[-0.03em] text-base-content sm:text-[1.75rem];
+  }
+
+  .app-description,
+  .public-subtitle {
+    @apply max-w-3xl text-sm leading-6 text-base-content/60;
+  }
+
+  .app-meta,
+  .public-meta-chip {
+    @apply inline-flex items-center gap-2 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-base-content/45;
+  }
+
+  .app-meta::before,
+  .public-meta-chip::before {
+    content: "";
+    @apply inline-block h-1 w-1 rounded-full bg-primary/70;
+  }
+
+  .metric-card {
+    @apply relative min-w-0 border-b border-base-300 bg-base-100 px-5 py-5 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0;
+  }
+
+  .metric-label {
+    @apply text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-base-content/45;
+  }
+
+  .metric-value {
+    @apply mt-2 text-3xl font-semibold tracking-[-0.04em] text-base-content tabular-nums;
+  }
+
+  .metric-context {
+    @apply mt-1 text-xs leading-5 text-base-content/50;
+  }
+
+  .panel-heading {
+    @apply flex flex-wrap items-start justify-between gap-3 border-b border-base-300 px-5 py-4;
+  }
+
+  .panel-title {
+    @apply text-sm font-semibold tracking-tight text-base-content;
+  }
+
+  .panel-description {
+    @apply mt-1 text-xs leading-5 text-base-content/50;
+  }
+
+  .filter-bar {
+    @apply rounded-xl border border-base-300 bg-base-100 p-3 sm:p-4;
+  }
+
+  .filter-bar .label {
+    @apply min-h-0 px-0 pb-1.5 pt-0;
+  }
+
+  .filter-bar .label-text {
+    @apply text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-base-content/45;
+  }
+
+  .data-table {
+    @apply table;
+  }
+
+  .data-table thead {
+    @apply border-b border-base-300 bg-base-200/60;
+  }
+
+  .data-table thead th {
+    @apply h-11 text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-base-content/45;
+  }
+
+  .data-table tbody tr {
+    @apply border-base-300/80 transition-colors hover:bg-base-200/45;
+  }
+
+  .data-table tbody td {
+    @apply py-3.5 align-middle;
+  }
+
+  @media (max-width: 767px) {
+    .data-table {
+      width: 100%;
+      table-layout: fixed;
+    }
+  }
+
+  .status-dot {
+    @apply inline-flex items-center gap-2 whitespace-nowrap text-xs font-medium text-base-content/65;
+  }
+
+  .status-dot::before {
+    content: "";
+    @apply h-1.5 w-1.5 rounded-full bg-base-content/30;
+  }
+
+  .status-dot-progress::before {
+    @apply bg-info;
+  }
+
+  .status-dot-completed::before {
+    @apply bg-success;
   }
 
   .public-shell {
-    background:
-      radial-gradient(circle at top left, hsl(var(--p) / 0.12), transparent 30%),
-      radial-gradient(circle at top right, hsl(var(--s) / 0.08), transparent 22%),
-      linear-gradient(180deg, hsl(var(--b2)) 0%, hsl(var(--b1)) 10rem, hsl(var(--b1)) 100%);
-  }
-
-  .public-eyebrow {
-    @apply text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-primary;
-  }
-
-  .public-title {
-    @apply text-2xl font-semibold tracking-tight text-base-content sm:text-3xl;
-  }
-
-  .public-subtitle {
-    @apply max-w-3xl text-sm leading-6 text-base-content/70;
-  }
-
-  .public-meta-chip {
-    @apply inline-flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-base-content/50;
-  }
-
-  .public-meta-chip::before {
-    content: "";
-    @apply inline-block h-1.5 w-1.5 rounded-full bg-primary/70;
+    @apply bg-base-100;
   }
 
   .public-nav-link {
-    @apply inline-flex h-9 items-center border-b-2 border-transparent text-xs uppercase tracking-[0.18em] text-base-content/60 transition hover:text-base-content;
+    @apply inline-flex h-9 items-center border-b-2 border-transparent text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-base-content/55 transition hover:text-base-content;
   }
 
   .public-nav-link-active {
-    @apply border-primary font-semibold text-primary;
+    @apply border-primary text-primary;
   }
 
   .public-list {
@@ -79,7 +239,7 @@
   }
 
   .public-list-row {
-    @apply grid gap-2 px-4 py-3 transition hover:bg-base-200/30 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start;
+    @apply grid gap-3 px-4 py-4 transition-colors hover:bg-base-200/55 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:px-5;
   }
 
   .public-prose {
@@ -104,16 +264,16 @@
   }
 
   .public-prose :where(blockquote) {
-    @apply rounded-box bg-base-200;
+    @apply rounded-lg bg-base-200;
     border-color: hsl(var(--p) / 0.3);
     border-left-width: 4px;
   }
 
   .public-prose :where(pre) {
-    @apply rounded-box bg-neutral text-neutral-content;
+    @apply rounded-lg bg-neutral text-neutral-content;
   }
 
   .public-prose :where(img) {
-    @apply rounded-box;
+    @apply rounded-lg;
   }
 }

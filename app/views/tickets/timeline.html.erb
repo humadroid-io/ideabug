@@ -1,32 +1,52 @@
-<div class="app-page space-y-6 py-4">
+<% content_for :title, "Roadmap" %>
+
+<div class="app-page space-y-6">
   <%= section_header \
-        title: "Roadmap timeline",
-        eyebrow: "Feedback",
+        title: "Roadmap",
+        eyebrow: "Decide",
         meta_items: [
-          "#{pluralize(@now.size, "item")} in now",
-          "#{pluralize(@next.size, "item")} in next",
+          "#{pluralize(@now.size, "item")} in progress",
+          "#{pluralize(@next.size, "item")} planned",
           "#{pluralize(@shipped.size, "item")} shipped"
         ] do %>
-    <%= link_to "All tickets", tickets_path, class: "btn btn-sm btn-ghost" %>
+    <%= link_to roadmap_path, class: "btn btn-ghost btn-sm border border-base-300", target: "_blank", rel: "noopener" do %>
+      Public view <%= app_icon(:external, class_name: "h-3.5 w-3.5") %>
+    <% end %>
+    <%= link_to tickets_path, class: "btn btn-primary btn-sm" do %>
+      Feedback inbox <%= app_icon(:arrow, class_name: "h-3.5 w-3.5") %>
+    <% end %>
   <% end %>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <%= render "lane", title: "Now", tickets: @now, empty: "Nothing in flight." %>
-    <%= render "lane", title: "Next", tickets: @next, empty: "No scheduled work yet." %>
-    <%= render "lane", title: "Shipped", tickets: @shipped, empty: "Nothing shipped recently." %>
+  <div class="grid gap-4 xl:grid-cols-3">
+    <%= render "lane", title: "In progress", note: "Work the team has committed to", tickets: @now, empty: "Nothing is in progress." %>
+    <%= render "lane", title: "Planned", note: "Scheduled work coming next", tickets: @next, empty: "Nothing is scheduled yet." %>
+    <%= render "lane", title: "Shipped", note: "Recently completed work", tickets: @shipped, empty: "Nothing has shipped recently." %>
   </div>
 
-  <% if @backlog.any? %>
-    <section>
-      <h2 class="font-semibold mb-2">Top requested ideas (not yet scheduled)</h2>
-      <ul class="space-y-2">
-        <% @backlog.each do |t| %>
-          <li class="app-panel flex items-center justify-between p-3 shadow-none">
-            <%= link_to t.title, edit_ticket_path(t), class: "link link-hover font-medium" %>
-            <span class="badge badge-ghost"><%= t.votes_count %> votes</span>
+  <section class="app-panel overflow-hidden">
+    <header class="panel-heading">
+      <div>
+        <h2 class="panel-title">Demand backlog</h2>
+        <p class="panel-description">Public ideas ranked by votes and not yet scheduled.</p>
+      </div>
+      <span class="text-xs text-base-content/45"><%= pluralize(@backlog.size, "idea") %></span>
+    </header>
+    <% if @backlog.empty? %>
+      <div class="px-5 py-10 text-center text-sm text-base-content/50">No unscheduled feature requests.</div>
+    <% else %>
+      <ol class="divide-y divide-base-300">
+        <% @backlog.each_with_index do |ticket, index| %>
+          <li class="grid grid-cols-[2rem_minmax(0,1fr)_auto_auto] items-center gap-3 px-5 py-3.5">
+            <span class="text-xs font-semibold tabular-nums text-base-content/30"><%= format("%02d", index + 1) %></span>
+            <div class="min-w-0">
+              <%= link_to ticket.title, ticket_path(ticket), class: "block truncate text-sm font-medium hover:text-primary" %>
+              <p class="mt-0.5 text-xs text-base-content/45">Added <%= time_ago_in_words(ticket.created_at) %> ago</p>
+            </div>
+            <span class="text-sm font-semibold tabular-nums"><%= ticket.votes_count %> <span class="font-normal text-base-content/40">votes</span></span>
+            <%= link_to "Plan", edit_ticket_path(ticket), class: "btn btn-ghost btn-xs border border-base-300" %>
           </li>
         <% end %>
-      </ul>
-    </section>
-  <% end %>
+      </ol>
+    <% end %>
+  </section>
 </div>

@@ -1,62 +1,74 @@
-<div class="app-card">
-  <%= form_with(model: ticket, class: "contents") do |form| %>
-    <% if ticket.errors.any? %>
-      <div id="error_explanation" class="mt-3 rounded-box bg-red-50 px-3 py-2 font-medium text-red-500">
-        <h2><%= pluralize(ticket.errors.count, "error") %> prohibited this ticket from being saved:</h2>
-        <ul>
-          <% ticket.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-    <div class="space-y-4">
-      <div class="form-control w-full">
-        <%= form.label :title, class: "label" %>
-        <%= form.text_field :title, class: "input input-bordered input-sm w-full" %>
-      </div>
-      <div class="form-control w-full">
-        <%= form.label :description, class: "label" %>
-        <%= form.text_area :description, rows: 4, class: "textarea textarea-bordered textarea-sm w-full" %>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <% if form.object.persisted? %>
-          <div class="form-control w-full">
-            <%= form.label :status, class: "label" %>
-            <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered select-sm" %>
-          </div>
-        <% end %>
-        <div class="form-control w-full">
-          <%= form.label :classification, class: "label" %>
-          <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered select-sm" %>
-        </div>
-      </div>
-
-      <fieldset class="app-fieldset">
-        <legend class="px-2 text-sm font-semibold text-base-content/70">Roadmap</legend>
-        <div class="form-control">
-          <label class="cursor-pointer label justify-start gap-3">
-            <%= form.check_box :public_on_roadmap, class: "checkbox checkbox-sm" %>
-            <span class="label-text">Show on public roadmap</span>
-          </label>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="form-control w-full">
-            <%= form.label :scheduled_for, "Scheduled for", class: "label" %>
-            <%= form.datetime_local_field :scheduled_for, value: ticket.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered input-sm w-full" %>
-          </div>
-          <div class="form-control w-full">
-            <%= form.label :shipped_at, "Shipped at", class: "label" %>
-            <%= form.datetime_local_field :shipped_at, value: ticket.shipped_at&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered input-sm w-full" %>
-          </div>
-        </div>
-      </fieldset>
-
-      <div class="mt-8 flex justify-end gap-2">
-        <%= link_to "Cancel", ticket.persisted? ? ticket : tickets_path, class: "btn btn-ghost" %>
-        <%= form.submit class: "btn btn-primary" %>
-      </div>
+<%= form_with(model: ticket) do |form| %>
+  <% if ticket.errors.any? %>
+    <div id="error_explanation" class="mb-5 rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm">
+      <p class="font-semibold"><%= pluralize(ticket.errors.count, "problem") %> prevented this feedback from being saved.</p>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-base-content/70">
+        <% ticket.errors.each do |error| %><li><%= error.full_message %></li><% end %>
+      </ul>
     </div>
   <% end %>
-</div>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(19rem,0.65fr)]">
+    <section class="app-card space-y-5">
+      <div>
+        <h2 class="panel-title">Feedback details</h2>
+        <p class="panel-description">Keep the original customer intent clear and searchable.</p>
+      </div>
+
+      <div class="form-control w-full">
+        <%= form.label :title, class: "label pb-1.5 pt-0" do %><span class="label-text text-xs font-semibold">Title</span><% end %>
+        <%= form.text_field :title, autofocus: ticket.new_record?, placeholder: "Short summary of the request or problem", class: "input input-bordered w-full" %>
+      </div>
+      <div class="form-control w-full">
+        <%= form.label :description, class: "label pb-1.5 pt-0" do %><span class="label-text text-xs font-semibold">Description</span><% end %>
+        <%= form.text_area :description, rows: 10, placeholder: "What happened, what was expected, and why it matters…", class: "textarea textarea-bordered w-full leading-6" %>
+      </div>
+    </section>
+
+    <aside class="space-y-4">
+      <section class="app-card space-y-4">
+        <div>
+          <h2 class="panel-title">Triage</h2>
+          <p class="panel-description">Classify the signal and keep its state current.</p>
+        </div>
+        <div class="form-control w-full">
+          <%= form.label :classification, "Type", class: "label pb-1.5 pt-0" %>
+          <%= form.select :classification, enum_keys_to_option_values(Ticket.classifications), {}, class: "select select-bordered w-full" %>
+        </div>
+        <% if form.object.persisted? %>
+          <div class="form-control w-full">
+            <%= form.label :status, class: "label pb-1.5 pt-0" %>
+            <%= form.select :status, enum_keys_to_option_values(Ticket.statuses), {}, class: "select select-bordered w-full" %>
+          </div>
+        <% end %>
+      </section>
+
+      <section class="app-card space-y-4">
+        <div>
+          <h2 class="panel-title">Roadmap</h2>
+          <p class="panel-description">Only publish work you are comfortable showing customers.</p>
+        </div>
+        <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-base-300 bg-base-200/40 p-3">
+          <%= form.check_box :public_on_roadmap, class: "checkbox checkbox-sm mt-0.5" %>
+          <span>
+            <span class="block text-sm font-medium">Show on public roadmap</span>
+            <span class="mt-0.5 block text-xs leading-5 text-base-content/50">Makes the title, description, status, and vote count public.</span>
+          </span>
+        </label>
+        <div class="form-control w-full">
+          <%= form.label :scheduled_for, "Target date", class: "label pb-1.5 pt-0" %>
+          <%= form.datetime_local_field :scheduled_for, value: ticket.scheduled_for&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered w-full" %>
+        </div>
+        <div class="form-control w-full">
+          <%= form.label :shipped_at, "Shipped at", class: "label pb-1.5 pt-0" %>
+          <%= form.datetime_local_field :shipped_at, value: ticket.shipped_at&.strftime("%Y-%m-%dT%H:%M"), class: "input input-bordered w-full" %>
+        </div>
+      </section>
+
+      <div class="flex justify-end gap-2">
+        <%= link_to "Cancel", ticket.persisted? ? ticket : tickets_path, class: "btn btn-ghost" %>
+        <%= form.submit(ticket.persisted? ? "Save changes" : "Add feedback", class: "btn btn-primary") %>
+      </div>
+    </aside>
+  </div>
+<% end %>

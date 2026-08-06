@@ -1,91 +1,106 @@
-<div class="bg-amber-50 w-full">
-  <!-- Hero -->
-  <div class="relative isolate px-6 pt-14 lg:px-8">
-    <div class="mx-auto max-w-6xl py-24 sm:py-32 lg:py-32">
-      <div class="text-center">
-        <h1 class="text-4xl font-bold tracking-tight text-orange-800 sm:text-6xl">
-          Turn user feedback into product excellence
-        </h1>
-        <p class="mt-6 text-lg leading-8 text-orange-700">
-          Open-source, self-hosted feedback platform: in-app announcements, bug reports, feature requests with voting, and a public roadmap — all driven by a single embeddable widget.
+<% content_for :title, "Self-hosted product feedback" %>
+
+<section class="public-page py-20 sm:py-28">
+  <div class="max-w-3xl">
+    <p class="public-eyebrow">Open source · self-hosted</p>
+    <h1 class="mt-5 text-4xl font-semibold tracking-[-0.045em] text-base-content sm:text-6xl sm:leading-[1.05]">
+      Feedback that stays close to your product.
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg leading-8 text-base-content/65">
+      Ideabug brings announcements, bug reports, feature voting, and a public roadmap into one small embeddable widget.
+    </p>
+
+    <div class="mt-9 flex flex-wrap items-center gap-3">
+      <%= link_to "Explore the roadmap", "/roadmap", class: "btn btn-primary" %>
+      <a href="https://github.com/humadroid-io/ideabug" class="btn btn-ghost border border-base-300">
+        View on GitHub
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M5 12h14m-5-5 5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+
+    <dl class="mt-16 grid gap-px overflow-hidden rounded-lg border border-base-300 bg-base-300 sm:grid-cols-3">
+      <div class="bg-base-100 p-5">
+        <dt class="text-xs font-semibold uppercase tracking-[0.16em] text-base-content/45">One widget</dt>
+        <dd class="mt-2 text-sm leading-6 text-base-content/70">A single embed for updates and feedback.</dd>
+      </div>
+      <div class="bg-base-100 p-5">
+        <dt class="text-xs font-semibold uppercase tracking-[0.16em] text-base-content/45">Your data</dt>
+        <dd class="mt-2 text-sm leading-6 text-base-content/70">Run it on infrastructure you control.</dd>
+      </div>
+      <div class="bg-base-100 p-5">
+        <dt class="text-xs font-semibold uppercase tracking-[0.16em] text-base-content/45">Real context</dt>
+        <dd class="mt-2 text-sm leading-6 text-base-content/70">Keep product conversations in the product.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<section class="border-y border-base-300 bg-base-200/45">
+  <div class="public-page py-16 sm:py-20">
+    <div class="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+      <div>
+        <p class="public-eyebrow">A focused toolkit</p>
+        <h2 class="mt-3 text-2xl font-semibold tracking-tight text-base-content sm:text-3xl">
+          Listen, decide, and close the loop.
+        </h2>
+        <p class="mt-4 text-sm leading-6 text-base-content/60">
+          No engagement dashboard theatre. Just the surfaces a small product team needs to communicate and prioritize.
         </p>
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <%= link_to "View live roadmap", "/roadmap",
-                class: "rounded-md bg-orange-500 px-6 py-3 text-lg font-semibold text-white shadow-sm hover:bg-orange-400" %>
-          <a href="https://github.com/humadroid-io/ideabug" class="text-lg font-semibold leading-6 text-orange-700 flex items-center hover:text-orange-500">
-            <svg class="h-6 w-6 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
-            </svg>
-            View source on GitHub
-          </a>
+      </div>
+
+      <dl class="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+        <div class="border-l border-base-300 pl-5">
+          <dt class="font-medium text-base-content">Announcements</dt>
+          <dd class="mt-2 text-sm leading-6 text-base-content/60">Ship targeted product updates directly inside the host app.</dd>
         </div>
-      </div>
+        <div class="border-l border-base-300 pl-5">
+          <dt class="font-medium text-base-content">Bug reports</dt>
+          <dd class="mt-2 text-sm leading-6 text-base-content/60">Capture useful page and browser context with every report.</dd>
+        </div>
+        <div class="border-l border-base-300 pl-5">
+          <dt class="font-medium text-base-content">Feature voting</dt>
+          <dd class="mt-2 text-sm leading-6 text-base-content/60">Let customers propose ideas and show where demand is real.</dd>
+        </div>
+        <div class="border-l border-base-300 pl-5">
+          <dt class="font-medium text-base-content">Public roadmap</dt>
+          <dd class="mt-2 text-sm leading-6 text-base-content/60">Share what is now, next, and shipped without another tool.</dd>
+        </div>
+      </dl>
     </div>
   </div>
+</section>
 
-  <!-- Features -->
-  <div class="bg-orange-50 py-24 sm:py-32">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl lg:text-center">
-        <h2 class="text-base font-semibold leading-7 text-orange-600">Deploy in minutes</h2>
-        <p class="mt-2 text-3xl font-bold tracking-tight text-orange-800 sm:text-4xl">Everything you need to collect actionable feedback</p>
-      </div>
-      <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-        <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-12 lg:max-w-none lg:grid-cols-4">
-          <div class="flex flex-col">
-            <dt class="text-lg font-semibold leading-7 text-orange-800">Announcements</dt>
-            <dd class="mt-2 text-base leading-7 text-orange-700">Push product updates straight into the host app's bell. Group by week so a few-per-week cadence never feels noisy. Mark all read or mute future updates with one click.</dd>
-          </div>
-          <div class="flex flex-col">
-            <dt class="text-lg font-semibold leading-7 text-orange-800">Bug reports</dt>
-            <dd class="mt-2 text-base leading-7 text-orange-700">One-click bug submission with auto-attached page URL, viewport, and user agent. Routed straight to your admin queue, never published.</dd>
-          </div>
-          <div class="flex flex-col">
-            <dt class="text-lg font-semibold leading-7 text-orange-800">Feature voting</dt>
-            <dd class="mt-2 text-base leading-7 text-orange-700">Users suggest features and vote on existing ideas. Prioritize what to build next based on real demand, not loudest voices.</dd>
-          </div>
-          <div class="flex flex-col">
-            <dt class="text-lg font-semibold leading-7 text-orange-800">Public roadmap</dt>
-            <dd class="mt-2 text-base leading-7 text-orange-700">Now / Next / Shipped lanes — a shareable <%= link_to "/roadmap", "/roadmap", class: "underline" %> page plus a tab inside the widget. Keep customers aligned with where you're heading.</dd>
-          </div>
-        </dl>
-      </div>
+<section class="public-page py-16 sm:py-20">
+  <div class="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
+    <div>
+      <p class="public-eyebrow">Small footprint</p>
+      <h2 class="mt-3 text-2xl font-semibold tracking-tight text-base-content sm:text-3xl">
+        Add it with two lines of HTML.
+      </h2>
+      <p class="mt-4 text-sm leading-6 text-base-content/60">
+        Anonymous visitors work out of the box. Pass a signed JWT when you want identified contacts, segments, and durable read state.
+      </p>
     </div>
-  </div>
 
-  <!-- Embed snippet -->
-  <div class="bg-amber-50 py-24 sm:py-32">
-    <div class="mx-auto max-w-3xl px-6 lg:px-8">
-      <div class="text-center">
-        <h2 class="text-base font-semibold leading-7 text-orange-600">Two lines of HTML</h2>
-        <p class="mt-2 text-3xl font-bold tracking-tight text-orange-800 sm:text-4xl">Add the widget to any page</p>
-      </div>
-      <pre class="mt-10 bg-orange-900 text-orange-100 text-sm rounded-xl p-6 overflow-x-auto"><code>&lt;div id="feedback"&gt;&lt;/div&gt;
+    <pre class="overflow-x-auto rounded-lg border border-base-300 bg-neutral p-5 text-sm leading-6 text-neutral-content shadow-sm"><code>&lt;div id="feedback"&gt;&lt;/div&gt;
 &lt;script src="<%= request.base_url %>/script.js"
         data-ideabug-host="<%= request.base_url %>"
         data-ideabug-target="#feedback"
         defer&gt;&lt;/script&gt;</code></pre>
-      <p class="mt-4 text-orange-700 text-sm">No auth required: the widget mints an anonymous identity on first load. Optionally pass a JWT to upgrade to identified users without losing their read state or votes.</p>
-    </div>
   </div>
+</section>
 
-  <!-- CTA -->
-  <div class="bg-orange-600">
-    <div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
-      <div class="mx-auto max-w-2xl text-center">
-        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Ready to listen better?
-        </h2>
-        <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-orange-100">
-          Self-host in an afternoon. Your data, your branding, your roadmap.
-        </p>
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <a href="https://github.com/humadroid-io/ideabug" class="rounded-md bg-white px-6 py-3 text-lg font-semibold text-orange-600 shadow-sm hover:bg-orange-50">
-            Read the docs
-          </a>
-          <%= link_to "Live demo", "/roadmap", class: "rounded-md border border-white/40 px-6 py-3 text-lg font-semibold text-white hover:bg-white/10" %>
-        </div>
-      </div>
+<section class="border-t border-base-300">
+  <div class="public-page flex flex-col items-start justify-between gap-6 py-12 sm:flex-row sm:items-center">
+    <div>
+      <h2 class="text-xl font-semibold tracking-tight text-base-content">Ready to bring feedback in-house?</h2>
+      <p class="mt-2 text-sm text-base-content/60">Read the setup guide or look through the live roadmap.</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="https://github.com/humadroid-io/ideabug" class="btn btn-primary btn-sm">Read the docs</a>
+      <%= link_to "Live roadmap", "/roadmap", class: "btn btn-ghost btn-sm" %>
     </div>
   </div>
-</div>
+</section>

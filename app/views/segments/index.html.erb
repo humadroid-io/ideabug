@@ -1,85 +1,62 @@
-<div class="app-page space-y-4 py-4">
+<% content_for :title, "Segments" %>
+
+<div class="app-page space-y-5">
   <%= section_header \
         title: "Segments",
-        eyebrow: "Audience",
+        eyebrow: "Audience targeting",
         meta_items: [
           pluralize(@pagy&.count || @segments.size, "segment"),
-          "targeting taxonomy"
+          "taxonomy supplied by host products"
         ] do %>
-    <%= link_to new_segment_path, class: "btn btn-primary btn-sm" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
-      New segment
-    <% end %>
+    <%= link_to new_segment_path, class: "btn btn-primary btn-sm" do %><%= app_icon(:plus, class_name: "h-3.5 w-3.5") %> New segment<% end %>
   <% end %>
 
-  <%= form_with url: segments_path, method: :get, class: "flex flex-wrap items-end gap-2", local: true do %>
-    <div class="form-control">
-      <label class="label label-text" for="q">Search</label>
-      <input id="q" type="text" name="q" value="<%= params[:q] %>" placeholder="Identifier" class="input input-bordered input-sm w-64">
+  <%= form_with url: segments_path, method: :get, class: "filter-bar flex flex-wrap items-end gap-3", local: true do %>
+    <div class="form-control min-w-[14rem] flex-1">
+      <label class="label" for="q"><span class="label-text">Find a segment</span></label>
+      <input id="q" type="search" name="q" value="<%= params[:q] %>" placeholder="Identifier, for example plan or region" class="input input-bordered input-sm w-full">
     </div>
-    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-    <% if params[:q].present? %>
-      <%= link_to "Reset", segments_path, class: "btn btn-sm btn-ghost" %>
-    <% end %>
+    <button type="submit" class="btn btn-sm btn-neutral">Search</button>
+    <% if params[:q].present? %><%= link_to "Clear", segments_path, class: "btn btn-sm btn-ghost" %><% end %>
   <% end %>
 
   <% if @segments.empty? %>
     <div class="app-empty-state">
-      No segments yet — create one to start targeting announcements.
+      <span class="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-xl bg-base-200 text-base-content/40"><%= app_icon(:segments, class_name: "h-5 w-5") %></span>
+      <p class="font-medium text-base-content/70">No segments found.</p>
+      <p class="mt-1">Create a segment to target announcements by plan, role, region, or another host-provided attribute.</p>
     </div>
   <% else %>
-    <div class="app-panel overflow-visible">
-      <table class="table">
-          <thead class="bg-base-200">
-            <tr>
-              <th>Identifier</th>
-              <th>Allows new values</th>
-              <th>Values</th>
-              <th class="w-12"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @segments.each do |segment| %>
-              <tr>
-                <td class="font-medium"><%= link_to segment.identifier, segment, class: "link link-hover" %></td>
-                <td>
-                  <% if segment.allow_new_values %>
-                    <span class="badge badge-success badge-outline badge-sm">Open</span>
-                  <% else %>
-                    <span class="badge badge-ghost badge-sm">Closed</span>
-                  <% end %>
-                </td>
-                <td>
-                  <% segment.segment_values.first(5).each do |sv| %>
-                    <span class="badge badge-ghost badge-sm"><%= sv.val %></span>
-                  <% end %>
-                  <% if segment.segment_values.size > 5 %>
-                    <span class="text-xs text-base-content/50">+<%= segment.segment_values.size - 5 %></span>
-                  <% end %>
-                  <% if segment.segment_values.empty? %>
-                    <span class="text-xs text-base-content/50 italic">none yet</span>
-                  <% end %>
-                </td>
-                <td class="relative overflow-visible">
-                  <div class="dropdown dropdown-left">
-                    <button class="btn btn-ghost btn-xs">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg>
-                    </button>
-                    <ul tabindex="0" class="dropdown-content z-10 menu menu-sm bg-base-200 rounded-box shadow w-32">
-                      <li><%= link_to "View", segment %></li>
-                      <li><%= link_to "Edit", edit_segment_path(segment) %></li>
-                      <li><%= link_to "Delete", segment, class: "text-error", data: {turbo_method: :delete, turbo_confirm: "Are you sure?"} %></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-      </table>
-    </div>
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <% @segments.each do |segment| %>
+        <article class="app-card flex min-h-52 flex-col">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="app-kicker">Segment</p>
+              <h2 class="mt-2 truncate font-mono text-base font-semibold"><%= link_to segment.identifier, segment, class: "hover:text-primary" %></h2>
+            </div>
+            <span class="badge badge-sm <%= segment.allow_new_values? ? "badge-success badge-outline" : "badge-ghost" %>"><%= segment.allow_new_values? ? "Open" : "Controlled" %></span>
+          </div>
 
-    <% if @pagy %>
-      <div class="flex justify-center"><%== pagy_nav(@pagy) %></div>
-    <% end %>
+          <div class="mt-5 flex-1">
+            <p class="text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-base-content/35"><%= pluralize(segment.segment_values.size, "value") %></p>
+            <% if segment.segment_values.any? %>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <% segment.segment_values.first(6).each do |segment_value| %><span class="badge badge-ghost badge-sm"><%= segment_value.val %></span><% end %>
+                <% if segment.segment_values.size > 6 %><span class="badge badge-ghost badge-sm">+<%= segment.segment_values.size - 6 %></span><% end %>
+              </div>
+            <% else %>
+              <p class="mt-2 text-sm text-base-content/45">No values have been observed yet.</p>
+            <% end %>
+          </div>
+
+          <footer class="mt-5 flex items-center justify-between border-t border-base-300 pt-4">
+            <p class="text-xs text-base-content/40"><%= segment.allow_new_values? ? "Accepts new values" : "Known values only" %></p>
+            <div class="flex gap-1"><%= link_to "Open", segment, class: "btn btn-ghost btn-xs" %><%= link_to "Edit", edit_segment_path(segment), class: "btn btn-ghost btn-xs border border-base-300" %></div>
+          </footer>
+        </article>
+      <% end %>
+    </div>
+    <% if @pagy %><div class="flex justify-center"><%== pagy_nav(@pagy) %></div><% end %>
   <% end %>
 </div>

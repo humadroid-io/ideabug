@@ -1,5 +1,7 @@
-<div class="app-page space-y-6 py-4">
-  <%= section_header title: "New segment", eyebrow: "Audience", meta_items: ["taxonomy editor"] do %>
+<% content_for :title, "New segment" %>
+
+<div class="app-page space-y-6">
+  <%= section_header title: "New segment", eyebrow: "Audience targeting", meta_items: ["taxonomy editor"] do %>
     <%= link_to "Back", :segments, class: "btn btn-ghost btn-sm" %>
   <% end %>
 

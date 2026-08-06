@@ -7,6 +7,10 @@ class WelcomeControllerTest < ActionDispatch::IntegrationTest
     Rails.application.config.x.announcements_publicly_accessible = false
     get root_url
     assert_response :success
+    assert_select "h1", text: /Feedback that stays close to your product/
+    assert_select "html[data-theme='ideabug']"
+    assert_select "body.public-shell[data-controller~='theme']"
+    assert_select "button[data-action='theme#toggle'][aria-label='Switch to dark mode']"
   end
 
   test "redirects anonymous visitors to /changelog when public access is enabled" do

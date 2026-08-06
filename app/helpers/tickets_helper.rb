@@ -11,7 +11,7 @@ module TicketsHelper
       "badge-ghost"
     end
 
-    content_tag :span, class: "badge badge-outline badge-sm #{badge_tone}" do
+    content_tag :span, class: "badge badge-outline badge-sm whitespace-nowrap #{badge_tone}" do
       ticket.classification.titleize
     end
   end

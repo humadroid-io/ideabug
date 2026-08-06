@@ -1,44 +1,35 @@
 <% contacts_count = Contact.joins(:segment_values).where(segment_values: {segment_id: @segment.id}).distinct.count %>
 <% announcements_count = Announcement.joins(:segment_values).where(segment_values: {segment_id: @segment.id}).distinct.count %>
+<% content_for :title, @segment.identifier %>
 
-<div class="app-page space-y-6 py-4">
+<div class="app-page space-y-6">
   <%= section_header \
         title: @segment.identifier,
-        eyebrow: "Audience",
+        eyebrow: "Audience targeting",
         title_class: "font-mono",
         meta_items: [
-          (@segment.allow_new_values ? "open to new values" : "closed to new values"),
+          (@segment.allow_new_values? ? "accepts new values" : "controlled values"),
           pluralize(@segment.segment_values.size, "value"),
           pluralize(contacts_count, "contact"),
           pluralize(announcements_count, "announcement")
         ] do %>
-    <div class="flex gap-2">
-      <%= link_to "Back", segments_path, class: "btn btn-sm btn-ghost" %>
-      <%= link_to "Edit", edit_segment_path(@segment), class: "btn btn-sm" %>
-      <%= link_to "Delete", @segment,
-            class: "btn btn-sm btn-ghost text-error",
-            data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
-    </div>
+    <%= link_to "Back", segments_path, class: "btn btn-sm btn-ghost" %>
+    <%= link_to "Edit", edit_segment_path(@segment), class: "btn btn-sm btn-primary" %>
+    <%= link_to "Delete", @segment, class: "btn btn-sm btn-ghost text-error", data: {turbo_method: :delete, turbo_confirm: "Delete this segment? Existing targeting rules may be affected."} %>
   <% end %>
 
-  <article class="app-card">
-    <div class="card-body space-y-6">
-      <section>
-        <h2 class="text-xs uppercase tracking-wide text-base-content/60 font-semibold mb-3">Values</h2>
-        <% if @segment.segment_values.empty? %>
-          <p class="text-sm text-base-content/50 italic">No values defined yet.</p>
-        <% else %>
-          <div class="flex flex-wrap gap-2">
-            <% @segment.segment_values.order(:val).each do |sv| %>
-              <span class="badge badge-ghost"><%= sv.val %></span>
-            <% end %>
-          </div>
-        <% end %>
-      </section>
+  <section class="app-panel grid overflow-hidden sm:grid-cols-3" aria-label="Segment usage">
+    <div class="metric-card"><p class="metric-label">Values</p><p class="metric-value"><%= @segment.segment_values.size %></p><p class="metric-context"><%= @segment.allow_new_values? ? "Can grow from contact payloads" : "Maintained by administrators" %></p></div>
+    <div class="metric-card"><p class="metric-label">Contacts</p><p class="metric-value"><%= contacts_count %></p><p class="metric-context">Currently matched</p></div>
+    <div class="metric-card"><p class="metric-label">Announcements</p><p class="metric-value"><%= announcements_count %></p><p class="metric-context">Using this targeting rule</p></div>
+  </section>
 
-      <footer class="text-xs text-base-content/50 pt-2 border-t border-base-300">
-        Created <%= time_ago_in_words(@segment.created_at) %> ago.
-      </footer>
-    </div>
-  </article>
+  <section class="app-panel overflow-hidden">
+    <header class="panel-heading"><div><h2 class="panel-title">Known values</h2><p class="panel-description">Values Ideabug can match against this segment key.</p></div><%= link_to "Manage values", edit_segment_path(@segment), class: "btn btn-ghost btn-xs border border-base-300" %></header>
+    <% if @segment.segment_values.empty? %>
+      <p class="px-5 py-12 text-center text-sm text-base-content/45">No values have been defined or observed yet.</p>
+    <% else %>
+      <div class="flex flex-wrap gap-2 p-5"><% @segment.segment_values.order(:val).each do |segment_value| %><span class="rounded-lg border border-base-300 bg-base-200/45 px-3 py-2 font-mono text-xs"><%= segment_value.val %></span><% end %></div>
+    <% end %>
+  </section>
 </div>

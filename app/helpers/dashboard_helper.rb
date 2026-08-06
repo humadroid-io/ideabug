@@ -11,7 +11,7 @@ module DashboardHelper
       "#{x},#{y}"
     }.join(" ")
 
-    content_tag(:svg, viewBox: "0 0 #{width} #{height}", width: width, height: height, class: "block") do
+    content_tag(:svg, viewBox: "0 0 #{width} #{height}", class: "block h-auto w-full", role: "img", aria: {label: "Announcement reads trend"}) do
       tag.polyline(points: points, fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linejoin": "round")
     end
   end

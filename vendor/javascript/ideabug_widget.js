@@ -338,6 +338,7 @@
         this.bell.type = "button";
         this.bell.className = "ideabug-bell";
         this.bell.setAttribute("aria-label", "Open updates");
+        this.bell.setAttribute("aria-expanded", "false");
         this.bell.innerHTML = bellSvg() + '<span class="ideabug-bell-badge is-hidden"></span>';
         this.bell.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -350,9 +351,19 @@
       this.panel.className = "ideabug-panel";
       this.panel.dataset.testid = "ideabug-panel";
       this.panel.innerHTML =
+        '<div class="ideabug-panel-header">' +
+        '<div class="ideabug-panel-identity">' +
+        '<span class="ideabug-panel-mark" aria-hidden="true"><i></i><i></i><i></i></span>' +
+        '<div><div class="ideabug-panel-title">Feedback</div>' +
+        '<div class="ideabug-panel-subtitle">Updates, ideas, and what\'s next</div></div>' +
+        "</div>" +
+        '<button type="button" class="ideabug-panel-close" data-action="panel-close" aria-label="Close feedback panel">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>' +
+        "</button>" +
+        "</div>" +
         '<div class="ideabug-tabs" role="tablist">' +
         '<button class="ideabug-tab" role="tab" data-tab="updates">Updates</button>' +
-        '<button class="ideabug-tab" role="tab" data-tab="suggest">Suggest</button>' +
+        '<button class="ideabug-tab" role="tab" data-tab="suggest">Share feedback</button>' +
         '<button class="ideabug-tab" role="tab" data-tab="roadmap">Roadmap</button>' +
         "</div>" +
         '<div class="ideabug-body" data-testid="ideabug-body"></div>';
@@ -361,6 +372,8 @@
       this.panel.querySelectorAll(".ideabug-tab").forEach((tab) => {
         tab.addEventListener("click", () => this.activateTab(tab.dataset.tab));
       });
+      this.panel.querySelector('[data-action="panel-close"]')
+        .addEventListener("click", () => this.closePanel());
 
       this.modalOverlay = document.createElement("div");
       this.modalOverlay.className = "ideabug-modal-overlay";
@@ -413,10 +426,15 @@
     }
 
     onKeydown(e) {
-      if (!this.modalOverlay.classList.contains("is-open")) return;
-      if (e.key === "Escape") { e.preventDefault(); this.closeModal(); return; }
-      if (e.key === "ArrowLeft") { e.preventDefault(); this.navigateModal(-1); return; }
-      if (e.key === "ArrowRight") { e.preventDefault(); this.navigateModal(1); return; }
+      if (this.modalOverlay.classList.contains("is-open")) {
+        if (e.key === "Escape") { e.preventDefault(); this.closeModal(); return; }
+        if (e.key === "ArrowLeft") { e.preventDefault(); this.navigateModal(-1); return; }
+        if (e.key === "ArrowRight") { e.preventDefault(); this.navigateModal(1); return; }
+      }
+      if (e.key === "Escape" && this.panel.classList.contains("is-open")) {
+        e.preventDefault();
+        this.closePanel();
+      }
     }
 
     togglePanel() {
@@ -427,18 +445,22 @@
     openPanel() {
       this.positionPanel();
       this.panel.classList.add("is-open");
+      if (this.bell) this.bell.setAttribute("aria-expanded", "true");
       this.activateTab(this.tab || "updates");
     }
 
     closePanel() {
       this.panel.classList.remove("is-open");
+      if (this.bell) this.bell.setAttribute("aria-expanded", "false");
     }
 
     positionPanel() {
       const rect = this.target.getBoundingClientRect();
-      const gap = 8;
-      const top = Math.min(window.innerHeight - 528, rect.bottom + gap);
-      const left = Math.max(12, Math.min(window.innerWidth - 372, rect.left));
+      const gap = 10;
+      const panelHeight = Math.min(600, window.innerHeight - 24);
+      const panelWidth = Math.min(400, window.innerWidth - 24);
+      const top = Math.max(12, Math.min(window.innerHeight - panelHeight - 12, rect.bottom + gap));
+      const left = Math.max(12, Math.min(window.innerWidth - panelWidth - 12, rect.right - panelWidth));
       this.panel.style.top = top + "px";
       this.panel.style.left = left + "px";
     }
@@ -448,7 +470,9 @@
       this.state.last_tab = name;
       saveState(this.state);
       this.panel.querySelectorAll(".ideabug-tab").forEach((t) => {
-        t.classList.toggle("is-active", t.dataset.tab === name);
+        const active = t.dataset.tab === name;
+        t.classList.toggle("is-active", active);
+        t.setAttribute("aria-selected", active ? "true" : "false");
       });
       if (name === "updates") this.loadUpdates();
       else if (name === "suggest") this.renderSuggest();
@@ -512,13 +536,17 @@
 
       if (!items.length) {
         body.innerHTML =
+          '<div class="ideabug-scroll-content">' +
           banner +
-          '<div class="ideabug-empty">No updates yet. We\'ll show new announcements here.</div>';
+          '<div class="ideabug-empty">No updates yet. We\'ll show new announcements here.</div>' +
+          "</div>";
+        const optIn = body.querySelector('[data-action="opt-in"]');
+        if (optIn) optIn.addEventListener("click", () => this.toggleOptOut(false));
         return;
       }
 
       const buckets = bucketByWeek(items);
-      let html = banner;
+      let html = '<div class="ideabug-scroll-content">' + banner;
       ["This week", "Last week", "Earlier"].forEach((label) => {
         const list = buckets[label];
         if (!list.length) return;
@@ -541,6 +569,7 @@
         });
       });
       html +=
+        "</div>" +
         '<div class="ideabug-footer">' +
         '<button type="button" class="ideabug-link" data-action="mark-all">Mark all as read</button>' +
         '<button type="button" class="ideabug-link" data-action="opt-out">Mute updates</button>' +
@@ -636,7 +665,8 @@
       if (!body) return;
       const existing = body.querySelector(".ideabug-banner");
       if (existing) existing.remove();
-      body.insertAdjacentHTML("afterbegin", '<div class="ideabug-banner">' + escapeHtml(message) + "</div>");
+      const content = body.querySelector(".ideabug-scroll-content") || body;
+      content.insertAdjacentHTML("afterbegin", '<div class="ideabug-banner">' + escapeHtml(message) + "</div>");
     }
 
     async markAllRead() {
@@ -677,10 +707,10 @@
       const body = this.body();
       body.innerHTML =
         '<div class="ideabug-suggest-tabs">' +
-        '<button type="button" class="ideabug-suggest-tab ' + (subTab === "new" ? "is-active" : "") + '" data-suggest-sub="new">New</button>' +
+        '<button type="button" class="ideabug-suggest-tab ' + (subTab === "new" ? "is-active" : "") + '" data-suggest-sub="new">New feedback</button>' +
         '<button type="button" class="ideabug-suggest-tab ' + (subTab === "mine" ? "is-active" : "") + '" data-suggest-sub="mine">My submissions</button>' +
         "</div>" +
-        '<div data-testid="ideabug-suggest-body"></div>';
+        '<div class="ideabug-suggest-body" data-testid="ideabug-suggest-body"></div>';
 
       body.querySelectorAll("[data-suggest-sub]").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -701,13 +731,14 @@
       const body = this.suggestBody();
       body.innerHTML =
         '<form class="ideabug-form" data-action="suggest-form">' +
+        '<div class="ideabug-form-intro"><strong>What can we improve?</strong><span>Share an idea or report something that is not working.</span></div>' +
         '<div class="ideabug-segmented" role="tablist">' +
-        '<button type="button" data-kind="feature_request" class="is-active">Feature request</button>' +
-        '<button type="button" data-kind="bug">Bug</button>' +
+        '<button type="button" data-kind="feature_request" class="is-active">Request a feature</button>' +
+        '<button type="button" data-kind="bug">Report a bug</button>' +
         "</div>" +
-        '<input class="ideabug-input" name="title" placeholder="Title" required maxlength="120" />' +
-        '<textarea class="ideabug-textarea" name="description" placeholder="Describe what you have in mind…" maxlength="2000"></textarea>' +
-        '<button type="submit" class="ideabug-btn">Send</button>' +
+        '<label class="ideabug-field"><span>Summary</span><input class="ideabug-input" name="title" placeholder="A short, specific title" required maxlength="120" /></label>' +
+        '<label class="ideabug-field"><span>Details <small>optional</small></span><textarea class="ideabug-textarea" name="description" placeholder="What happened, or what would make this better?" maxlength="2000"></textarea></label>' +
+        '<button type="submit" class="ideabug-btn">Send feedback</button>' +
         "</form>";
 
       let kind = "feature_request";
@@ -753,9 +784,9 @@
         body.innerHTML =
           '<div class="ideabug-success">' +
           (kind === "feature_request"
-            ? '<p>Thanks! Your idea is on the public roadmap.</p>' +
+            ? '<strong>Thanks for the idea.</strong><p>It is now visible with your other submissions.</p>' +
               '<button type="button" class="ideabug-link" data-action="goto-mine">View your submissions</button>'
-            : '<p>Thanks for reporting. We will look into it.</p>' +
+            : '<strong>Report received.</strong><p>The page and browser context were attached automatically.</p>' +
               '<button type="button" class="ideabug-link" data-action="goto-mine">View your submissions</button>') +
           "</div>";
         const goto = body.querySelector('[data-action="goto-mine"]');
@@ -881,14 +912,17 @@
       ]);
       const ideas = this.featuresData.filter((f) => !placedIds.has(f.id));
 
-      let html = "";
-      html += renderSection("Now", this.roadmapData.now, { allowVote: false });
-      html += renderSection("Next", this.roadmapData.next, { dateField: "scheduled_for", allowVote: false });
-      html += renderSection("Shipped", this.roadmapData.shipped, { dateField: "shipped_at", allowVote: false });
-      html += renderSection("Ideas", ideas, { allowVote: true });
-      if (!html) html = '<div class="ideabug-empty">Roadmap is empty so far.</div>';
+      let content = "";
+      content += renderSection("Now", this.roadmapData.now, { allowVote: false });
+      content += renderSection("Next", this.roadmapData.next, { dateField: "scheduled_for", allowVote: false });
+      content += renderSection("Shipped", this.roadmapData.shipped, { dateField: "shipped_at", allowVote: false });
+      content += renderSection("Ideas", ideas, { allowVote: true });
+      if (!content) content = '<div class="ideabug-empty">Roadmap is empty so far.</div>';
 
-      html +=
+      const html =
+        '<div class="ideabug-scroll-content">' +
+        content +
+        "</div>" +
         '<div class="ideabug-footer">' +
         '<a class="ideabug-link" target="_blank" rel="noopener" href="' +
         this.config.apiHost +

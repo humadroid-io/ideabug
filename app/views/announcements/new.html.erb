@@ -1,5 +1,7 @@
-<div class="app-page space-y-6 py-4">
-  <%= section_header title: "New announcement", eyebrow: "Announcements", meta_items: ["editor"] do %>
+<% content_for :title, "New announcement" %>
+
+<div class="app-page space-y-6">
+  <%= section_header title: "New announcement", eyebrow: "Close the loop", meta_items: ["embedded update"] do %>
     <%= link_to "Back", :announcements, class: "btn btn-ghost btn-sm" %>
   <% end %>
 
