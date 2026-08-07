@@ -179,6 +179,27 @@ class WidgetTest < ApplicationSystemTestCase
     assert_equal "true", hidden["ariaHidden"]
   end
 
+  test "rebinds a custom trigger after Turbo replaces it" do
+    visit "/_test/widget_host?custom_trigger=1"
+
+    assert_selector ".ideabug-root", visible: :all, wait: 5
+    find("#feedback-trigger").click
+    assert_selector ".ideabug-panel.is-open", wait: 5
+    find(".ideabug-panel-close").click
+    assert_no_selector ".ideabug-panel.is-open", wait: 3
+
+    execute_script(<<~JS)
+      document.dispatchEvent(new CustomEvent("turbo:before-cache"));
+      var currentTrigger = document.querySelector("#feedback-trigger");
+      currentTrigger.replaceWith(currentTrigger.cloneNode(true));
+      document.dispatchEvent(new CustomEvent("turbo:render"));
+    JS
+
+    assert_selector ".ideabug-root", count: 1, visible: :all
+    find("#feedback-trigger").click
+    assert_selector ".ideabug-panel.is-open", wait: 3
+  end
+
   test "boots as identified when JWT is configured during ideabug ready" do
     identified = create(:contact, :identified)
     create(:announcement_read, announcement: @announcement, contact: identified)

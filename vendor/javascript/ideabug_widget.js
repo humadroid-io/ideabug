@@ -160,6 +160,29 @@
       this._voteLock = {};
       this._loadedTabs = {};
       this._announcementContent = {};  // id → fetched content
+
+      this._handleTriggerClick = (e) => {
+        e.stopPropagation();
+        this.togglePanel();
+      };
+      this._handleDocumentClick = (e) => {
+        if (!this.root || !this.panel || !this.modalOverlay) return;
+        if (this.modalOverlay.classList.contains("is-open")) return;
+        if (!this.root.contains(e.target)) this.closePanel();
+      };
+      this._handleDocumentKeydown = (e) => this.onKeydown(e);
+      this._handleTurboRender = () => {
+        if (this._started) this.remount();
+        else this._scheduleStart();
+      };
+      this._handleTurboBeforeCache = () => this.unmount();
+
+      document.addEventListener("click", this._handleDocumentClick);
+      document.addEventListener("keydown", this._handleDocumentKeydown);
+      document.addEventListener("turbo:render", this._handleTurboRender);
+      document.addEventListener("turbo:load", this._handleTurboRender);
+      document.addEventListener("turbo:frame-load", this._handleTurboRender);
+      document.addEventListener("turbo:before-cache", this._handleTurboBeforeCache);
     }
 
     configure(config) {
@@ -171,7 +194,8 @@
         this.client.setJwtFn(this.config.jwt);
       }
 
-      this._scheduleStart();
+      if (this._started) this.remount();
+      else this._scheduleStart();
     }
 
     _scheduleStart() {
@@ -192,13 +216,8 @@
       const targetRef = this.config.targetElement;
       if (!triggerRef && !targetRef) return;
 
-      const resolve = (ref) => {
-        if (!ref) return null;
-        return typeof ref === "string" ? document.querySelector(ref) : ref;
-      };
-
-      const trigger = resolve(triggerRef);
-      const target = resolve(targetRef);
+      const trigger = this._resolveElement(triggerRef);
+      const target = this._resolveElement(targetRef);
 
       if (triggerRef && !trigger) {
         console.warn("[ideabug] trigger not found", triggerRef);
@@ -209,11 +228,6 @@
         return;
       }
 
-      // When a custom trigger is provided we skip rendering our bell entirely
-      // and use the trigger as both the click source and the panel anchor.
-      this.customTrigger = trigger || null;
-      this.target = target || trigger;
-
       this.client = new IdeabugClient(this.config.apiHost);
       if (typeof this.config.jwt === "function") {
         this.client.setJwtFn(this.config.jwt);
@@ -223,9 +237,9 @@
     }
 
     // --- Public programmatic API -----------------------------------------
-    open()   { if (this._started) this.openPanel(); }
+    open()   { if (this._started && this.remount()) this.openPanel(); }
     close()  { if (this._started) this.closePanel(); }
-    toggle() { if (this._started) this.togglePanel(); }
+    toggle() { if (this._started && this.remount()) this.togglePanel(); }
     getUnreadCount() { return this.unread; }
     isOptedOut()     { return !!this.optedOut; }
 
@@ -234,8 +248,61 @@
       // can be issued. Without this, a fast user could click the bell before
       // /identity resolves and trigger a 401 on the lazy list fetch.
       await this.refreshIdentity();
-      this.renderShell();
+      this._readyToMount = true;
+      this.remount();
       this.startPolling();
+    }
+
+    _resolveElement(ref) {
+      if (!ref) return null;
+      return typeof ref === "string" ? document.querySelector(ref) : ref;
+    }
+
+    remount() {
+      if (!this._started || !this._readyToMount) return false;
+
+      const triggerRef = this.config.trigger;
+      const targetRef = this.config.targetElement;
+      const trigger = this._resolveElement(triggerRef);
+      const target = this._resolveElement(targetRef);
+
+      if ((triggerRef && !trigger) || (!triggerRef && !target)) {
+        this.unmount();
+        return false;
+      }
+
+      const mountTarget = target || trigger;
+      if (this.root && this.root.isConnected &&
+          this.customTrigger === (trigger || null) && this.target === mountTarget) {
+        return true;
+      }
+
+      this.unmount();
+      // When a custom trigger is provided we skip rendering our bell entirely
+      // and use the trigger as both the click source and the panel anchor.
+      this.customTrigger = trigger || null;
+      this.target = mountTarget;
+      this.renderShell();
+      return true;
+    }
+
+    unmount() {
+      if (this.customTrigger) {
+        this.customTrigger.removeEventListener("click", this._handleTriggerClick);
+      }
+      if (this.bell) {
+        this.bell.removeEventListener("click", this._handleTriggerClick);
+        this.bell.remove();
+      }
+      if (this.root) this.root.remove();
+
+      this.customTrigger = null;
+      this.target = null;
+      this.root = null;
+      this.panel = null;
+      this.bell = null;
+      this.modalOverlay = null;
+      this._modalIndex = null;
     }
 
     async refreshIdentity() {
@@ -292,7 +359,8 @@
 
       // If updates list is already loaded and unread count went up, force a
       // re-fetch so the list gains the new rows.
-      if (this._loadedTabs.updates && this.panel.classList.contains("is-open") && this.tab === "updates") {
+      if (this._loadedTabs.updates && this.panel &&
+          this.panel.classList.contains("is-open") && this.tab === "updates") {
         const known = (this.announcements || []).filter((a) => !a.read).length;
         if (this.unread > known) {
           this._loadedTabs.updates = false;
@@ -329,10 +397,7 @@
         // Caller provided their own trigger; bind click + keep a reference,
         // but render no bell of our own.
         this.bell = null;
-        this.customTrigger.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this.togglePanel();
-        });
+        this.customTrigger.addEventListener("click", this._handleTriggerClick);
       } else {
         this.bell = document.createElement("button");
         this.bell.type = "button";
@@ -340,10 +405,7 @@
         this.bell.setAttribute("aria-label", "Open updates");
         this.bell.setAttribute("aria-expanded", "false");
         this.bell.innerHTML = bellSvg() + '<span class="ideabug-bell-badge is-hidden"></span>';
-        this.bell.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this.togglePanel();
-        });
+        this.bell.addEventListener("click", this._handleTriggerClick);
         this.target.appendChild(this.bell);
       }
 
@@ -417,15 +479,11 @@
       // root.contains(e.target) return false → panel mistakenly closes.
       this.root.addEventListener("click", (e) => e.stopPropagation());
 
-      document.addEventListener("click", (e) => {
-        if (this.modalOverlay.classList.contains("is-open")) return;
-        if (!this.root.contains(e.target)) this.closePanel();
-      });
-      document.addEventListener("keydown", (e) => this.onKeydown(e));
       this.renderBell();
     }
 
     onKeydown(e) {
+      if (!this.panel || !this.modalOverlay) return;
       if (this.modalOverlay.classList.contains("is-open")) {
         if (e.key === "Escape") { e.preventDefault(); this.closeModal(); return; }
         if (e.key === "ArrowLeft") { e.preventDefault(); this.navigateModal(-1); return; }
@@ -438,11 +496,13 @@
     }
 
     togglePanel() {
+      if (!this.panel && !this.remount()) return;
       if (this.panel.classList.contains("is-open")) this.closePanel();
       else this.openPanel();
     }
 
     openPanel() {
+      if (!this.panel || !this.target) return;
       this.positionPanel();
       this.panel.classList.add("is-open");
       if (this.bell) this.bell.setAttribute("aria-expanded", "true");
@@ -450,11 +510,13 @@
     }
 
     closePanel() {
+      if (!this.panel) return;
       this.panel.classList.remove("is-open");
       if (this.bell) this.bell.setAttribute("aria-expanded", "false");
     }
 
     positionPanel() {
+      if (!this.panel || !this.target) return;
       const rect = this.target.getBoundingClientRect();
       const gap = 10;
       const panelHeight = Math.min(600, window.innerHeight - 24);
